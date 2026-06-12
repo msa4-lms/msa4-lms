@@ -8,6 +8,7 @@ class Msa4LmsApplicationTests {
 
     @Test
     void contextLoads() {
+        contextLoads();
     }
 
 }
