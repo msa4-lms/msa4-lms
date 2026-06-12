@@ -1,4 +1,4 @@
-package com.example.msa4lms;
+package com.msa4lms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
