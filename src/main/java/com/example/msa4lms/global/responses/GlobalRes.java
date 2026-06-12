@@ -1,4 +1,4 @@
-package com.msa4lms.global.responses;
+package com.example.msa4lms.global.responses;
 
 import lombok.Builder;
 import lombok.Getter;

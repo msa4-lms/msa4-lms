@@ -1,6 +1,6 @@
-package com.msa4lms.global.errors;
+package com.example.msa4lms.global.errors;
 
-import com.msa4lms.global.responses.GlobalRes;
+import com.example.msa4lms.global.responses.GlobalRes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

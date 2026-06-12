@@ -1,4 +1,4 @@
-package com.msa4lms.global.config;
+package com.example.msa4lms.global.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.List;
