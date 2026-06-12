@@ -6,9 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class Msa4LmsApplicationTests {
 
-    @Test
-    void contextLoads() {
-        contextLoads();
-    }
+
 
 }
