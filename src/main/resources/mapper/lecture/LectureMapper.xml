@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.lecture.mapper.LectureMapper">
+
+    <select id="findAllLectures" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
+        SELECT
+            l.id,
+            c.code AS courseCode,
+            c.name AS courseName,
+            c.credits,
+            u.name AS professorName,
+            l.room,
+            l.schedule,
+            l.capacity,
+            l.year,
+            l.semester
+        FROM lectures l
+        JOIN courses c ON l.course_id = c.id
+        JOIN users u ON l.professor_id = u.id
+        ORDER BY l.year DESC, l.semester DESC, c.name ASC
+    </select>
+
+</mapper>
