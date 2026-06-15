@@ -3,8 +3,7 @@ package com.msa4lms.domain.enrollment.mapper;
 import com.msa4lms.domain.enrollment.dto.MyEnrollmentListRes;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.jdbc.SQL;
-import org.apache.ibatis.type.Alias;
+
 
 import java.util.List;
 
