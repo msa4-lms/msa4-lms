@@ -32,6 +32,11 @@ public class AuthService {
             throw new NotRegisterdException("아이디와 비밀번호를 확인해주세요.");
         }
 
+        // 역할 제한
+        if(!user.getRole().name().equals(loginReq.role())){
+            throw new NotRegisterdException("로그인 유형이 일치하지 않습니다.");
+        }
+
         // 비밀번호 체크
 
         return this.generateAuthentication(response, user);
