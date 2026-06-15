@@ -1,6 +1,7 @@
 package com.msa4lms.global.errors;
 
 
+import com.msa4lms.global.errors.custom.NotRegisterdException;
 import com.msa4lms.global.responses.GlobalRes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +12,26 @@ import org.springframework.web.client.RestClient;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     private final RestClient.Builder builder;
 
     public GlobalExceptionHandler(RestClient.Builder builder) {
         this.builder = builder;
     }
+
+    @ExceptionHandler(NotRegisterdException.class)
+    public ResponseEntity<GlobalRes<String>> notRegisterHandle(NotRegisterdException e){
+
+        return ResponseEntity.status(401).body(
+                GlobalRes.<String>builder()
+                        .code("E01")
+                        .message("로그인 에러")
+                        .data(e.getMessage())
+                        .build()
+        );
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GlobalRes<String>> otherHandle(Exception e) {
         log.error("시스템 에러: ", e);
