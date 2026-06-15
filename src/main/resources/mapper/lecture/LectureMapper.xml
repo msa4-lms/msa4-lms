@@ -6,20 +6,65 @@
 
     <select id="findAllLectures" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
         SELECT
-            l.id,
-            c.code AS courseCode,
-            c.name AS courseName,
-            c.credits,
-            u.name AS professorName,
-            l.room,
-            l.schedule,
-            l.capacity,
-            l.year,
-            l.semester
-        FROM lectures l
-        JOIN courses c ON l.course_id = c.id
-        JOIN users u ON l.professor_id = u.id
-        ORDER BY l.year DESC, l.semester DESC, c.name ASC
+            lectures.id,
+            courses.code AS courseCode,
+            courses.name AS courseName,
+            courses.credits,
+            users.name AS professorName,
+            lectures.room,
+            lectures.schedule,
+            lectures.capacity,
+            lectures.year,
+            lectures.semester
+        FROM lectures
+        JOIN courses ON lectures.course_id = courses.id
+        JOIN users ON lectures.professor_id = users.id
+        ORDER BY lectures.year DESC, lectures.semester DESC, courses.name ASC
+    </select>
+
+    <sql id="searchConditions">
+        FROM lectures
+        JOIN courses ON lectures.course_id = courses.id
+        JOIN users ON lectures.professor_id = users.id
+        <where>
+            <if test="courseName != null and courseName != ''">
+                AND courses.name LIKE CONCAT('%', #{courseName}, '%')
+            </if>
+            <if test="professorName != null and professorName != ''">
+                AND users.name LIKE CONCAT('%', #{professorName}, '%')
+            </if>
+            <if test="year != null">
+                AND lectures.year = #{year}
+            </if>
+            <if test="semester != null">
+                AND lectures.semester = #{semester}
+            </if>
+            <if test="courseCode != null and courseCode != ''">
+                AND courses.code = #{courseCode}
+            </if>
+        </where>
+    </sql>
+
+    <select id="findLecturesBySearch" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
+        SELECT
+            lectures.id,
+            courses.code AS courseCode,
+            courses.name AS courseName,
+            courses.credits,
+            users.name AS professorName,
+            lectures.room,
+            lectures.schedule,
+            lectures.capacity,
+            lectures.year,
+            lectures.semester
+        <include refid="searchConditions" />
+        ORDER BY lectures.year DESC, lectures.semester DESC, courses.name ASC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countLecturesBySearch" resultType="long">
+        SELECT COUNT(*)
+        <include refid="searchConditions" />
     </select>
 
 </mapper>
