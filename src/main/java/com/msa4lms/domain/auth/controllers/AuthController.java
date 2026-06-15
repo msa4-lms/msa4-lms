@@ -24,13 +24,13 @@ public class AuthController {
             @Valid @RequestBody LoginReq loginReq
             , HttpServletResponse response
     ){
-        authService.login(response, loginReq);
+        AuthRes authRes = authService.login(response, loginReq);
 
         return ResponseEntity.status(200).body(
                 GlobalRes.<AuthRes>builder()
                         .code("00")
                         .message("로그인 성공")
-                        .data(authService.login(response, loginReq))
+                        .data(authRes)
                         .build()
         );
     }

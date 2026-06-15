@@ -22,7 +22,8 @@ public class LectureService {
     }
 
     public LecturePagedRes searchLectures(LectureSearchReq searchReq) {
-        List<LectureRes> lectures = lectureMapper.findLecturesBySearch(searchReq);
+        int offset = (searchReq.page() - 1) * searchReq.size();
+        List<LectureRes> lectures = lectureMapper.findLecturesBySearch(searchReq, offset, searchReq.size());
         long totalCount = lectureMapper.countLecturesBySearch(searchReq);
         return new LecturePagedRes(lectures, totalCount, searchReq.page(), searchReq.size());
     }

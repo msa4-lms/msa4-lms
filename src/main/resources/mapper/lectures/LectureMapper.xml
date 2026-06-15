@@ -4,13 +4,38 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.msa4lms.domain.lecture.mapper.LectureMapper">
 
+    <!-- Record 사용 시에는 resultMap 보다 resultType과 map-underscore-to-camel-case 조합이 더 안정적입니다. -->
+    
+    <sql id="searchConditions">
+        FROM lectures
+        JOIN courses ON lectures.course_id = courses.id
+        JOIN users ON lectures.professor_id = users.id
+        <where>
+            <if test="searchReq.courseName != null and searchReq.courseName != ''">
+                AND courses.name LIKE CONCAT('%', #{searchReq.courseName}, '%')
+            </if>
+            <if test="searchReq.professorName != null and searchReq.professorName != ''">
+                AND users.name LIKE CONCAT('%', #{searchReq.professorName}, '%')
+            </if>
+            <if test="searchReq.year != null">
+                AND lectures.year = #{searchReq.year}
+            </if>
+            <if test="searchReq.semester != null">
+                AND lectures.semester = #{searchReq.semester}
+            </if>
+            <if test="searchReq.courseCode != null and searchReq.courseCode != ''">
+                AND courses.code = #{searchReq.courseCode}
+            </if>
+        </where>
+    </sql>
+
     <select id="findAllLectures" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
         SELECT
             lectures.id,
-            courses.code AS courseCode,
-            courses.name AS courseName,
+            courses.code AS course_code,
+            courses.name AS course_name,
             courses.credits,
-            users.name AS professorName,
+            users.name AS professor_name,
             lectures.room,
             lectures.schedule,
             lectures.capacity,
@@ -22,36 +47,13 @@
         ORDER BY lectures.year DESC, lectures.semester DESC, courses.name ASC
     </select>
 
-    <sql id="searchConditions">
-        FROM lectures
-        JOIN courses ON lectures.course_id = courses.id
-        JOIN users ON lectures.professor_id = users.id
-        <where>
-            <if test="courseName != null and courseName != ''">
-                AND courses.name LIKE CONCAT('%', #{courseName}, '%')
-            </if>
-            <if test="professorName != null and professorName != ''">
-                AND users.name LIKE CONCAT('%', #{professorName}, '%')
-            </if>
-            <if test="year != null">
-                AND lectures.year = #{year}
-            </if>
-            <if test="semester != null">
-                AND lectures.semester = #{semester}
-            </if>
-            <if test="courseCode != null and courseCode != ''">
-                AND courses.code = #{courseCode}
-            </if>
-        </where>
-    </sql>
-
     <select id="findLecturesBySearch" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
         SELECT
             lectures.id,
-            courses.code AS courseCode,
-            courses.name AS courseName,
+            courses.code AS course_code,
+            courses.name AS course_name,
             courses.credits,
-            users.name AS professorName,
+            users.name AS professor_name,
             lectures.room,
             lectures.schedule,
             lectures.capacity,

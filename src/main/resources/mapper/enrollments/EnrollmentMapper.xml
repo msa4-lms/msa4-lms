@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.enrollment.mapper.EnrollmentMapper">
+
+    <!-- Record 사용 시에는 resultType과 map-underscore-to-camel-case 조합이 더 안정적입니다. -->
+
+    <!-- 특정 학생의 수강 내역을 조회하는 쿼리 -->
+    <select id="findMyEnrollments" resultType="com.msa4lms.domain.enrollment.responses.EnrollmentListRes$EnrollmentDetail">
+        SELECT
+            enrollments.id,
+            courses.code AS course_code,
+            courses.name AS course_name,
+            users.name AS professor_name,
+            lectures.room,
+            lectures.schedule,
+            courses.credits,
+            enrollments.status
+        FROM enrollments
+        JOIN lectures ON enrollments.lecture_id = lectures.id
+        JOIN courses ON lectures.course_id = courses.id
+        JOIN users ON lectures.professor_id = users.id
+        WHERE enrollments.student_id = #{studentId}
+          AND lectures.year = #{year}
+          AND lectures.semester = #{semester}
+    </select>
+
+    <!-- 이번 학기 신청한 총 학점을 계산하는 쿼리 -->
+    <select id="calculateTotalCredits" resultType="int">
+        SELECT IFNULL(SUM(courses.credits), 0)
+        FROM enrollments
+        JOIN lectures ON enrollments.lecture_id = lectures.id
+        JOIN courses ON lectures.course_id = courses.id
+        WHERE enrollments.student_id = #{studentId}
+          AND lectures.year = #{year}
+          AND lectures.semester = #{semester}
+          AND enrollments.status != 'DROPPED'
+    </select>
+
+</mapper>
