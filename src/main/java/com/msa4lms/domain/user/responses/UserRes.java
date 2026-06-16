@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 public record UserRes(
         Integer id
-        , String userNo
+        , String loginId
         , String name
         , String email
         , Role role

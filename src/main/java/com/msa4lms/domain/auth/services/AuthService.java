@@ -6,13 +6,18 @@ import com.msa4lms.domain.auth.responses.AuthRes;
 import com.msa4lms.domain.user.entities.User;
 import com.msa4lms.domain.user.mapper.UserMapper;
 import com.msa4lms.domain.user.responses.UserRes;
+import com.msa4lms.global.errors.custom.InvalidTokenException;
 import com.msa4lms.global.errors.custom.NotRegisterdException;
 import com.msa4lms.global.security.cookie.CookieManager;
 import com.msa4lms.global.security.jwt.JwtConfig;
 import com.msa4lms.global.security.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +27,11 @@ public class AuthService {
     private final AuthMapper authMapper;
     private final CookieManager cookieManager;
     private final JwtConfig jwtConfig;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthRes login(HttpServletResponse response, LoginReq loginReq){
         // User 정보 획득
-        User user = userMapper.findByUserNo(loginReq.userNo());
+        User user = userMapper.findByLoginId(loginReq.loginId());
 
         // User 가입 여부 확인
         if(user == null) {
@@ -38,10 +44,39 @@ public class AuthService {
         }
 
         // 비밀번호 체크
+        if(!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
+            throw new NotRegisterdException("아이디와 비밀번호를 확인해주세요.");
+        }
 
         return this.generateAuthentication(response, user);
     }
 
+    // reissue
+    public AuthRes reissue(HttpServletRequest request, HttpServletResponse response) {
+        // refreshToken 획득
+        Optional<String> refreshTokenOptional = jwtProvider.extractRefreshToken(request);
+        if(refreshTokenOptional.isEmpty()) {
+            throw new InvalidTokenException("토큰이 없습니다.");
+        }
+
+        String extractRefreshToken = refreshTokenOptional.get();
+
+        int id = Integer.parseInt(jwtProvider.extractClaims(extractRefreshToken).getSubject());
+
+        User user = userMapper.findByPk(id);
+
+        if(user == null) {
+            throw new InvalidTokenException("유효하지 않은 회원의 토큰입니다.");
+        }
+
+        if(!user.getRefreshToken().equals(extractRefreshToken)) {
+            throw new InvalidTokenException("토큰이 일치하지 않습니다.");
+        }
+
+        return this.generateAuthentication(response, user);
+    }
+
+    // 엑세스토큰 및 리프레시토큰 생성 후, 리프레시 토큰 DB&Cookie 저장, AuthRes로 반환
     private AuthRes generateAuthentication(HttpServletResponse response, User user){
         String newAccessToken = jwtProvider.generateAccessToken(user);
         String newRefreshToken = jwtProvider.generateRefreshToken(user);
@@ -61,7 +96,7 @@ public class AuthService {
                 .user(
                         UserRes.builder()
                                 .id(user.getId())
-                                .userNo(user.getUserNo())
+                                .loginId(user.getLoginId())
                                 .name(user.getName())
                                 .email(user.getEmail())
                                 .role(user.getRole())
