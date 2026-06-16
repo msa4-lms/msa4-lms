@@ -7,7 +7,7 @@ import com.msa4lms.domain.user.entities.User;
 import com.msa4lms.domain.user.mapper.UserMapper;
 import com.msa4lms.domain.user.responses.UserRes;
 import com.msa4lms.global.errors.custom.InvalidTokenException;
-import com.msa4lms.global.errors.custom.NotRegisterdException;
+import com.msa4lms.global.errors.custom.NotRegisteredException;
 import com.msa4lms.global.security.cookie.CookieManager;
 import com.msa4lms.global.security.jwt.JwtConfig;
 import com.msa4lms.global.security.jwt.JwtProvider;
@@ -35,17 +35,17 @@ public class AuthService {
 
         // User 가입 여부 확인
         if(user == null) {
-            throw new NotRegisterdException("아이디와 비밀번호를 확인해주세요.");
+            throw new NotRegisteredException("아이디와 비밀번호를 확인해주세요.");
         }
 
         // 역할 제한
         if(!user.getRole().name().equals(loginReq.role())){
-            throw new NotRegisterdException("로그인 유형이 일치하지 않습니다.");
+            throw new NotRegisteredException("로그인 유형이 일치하지 않습니다.");
         }
 
         // 비밀번호 체크
         if(!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
-            throw new NotRegisterdException("아이디와 비밀번호를 확인해주세요.");
+            throw new NotRegisteredException("아이디와 비밀번호를 확인해주세요.");
         }
 
         return this.generateAuthentication(response, user);
@@ -74,6 +74,25 @@ public class AuthService {
         }
 
         return this.generateAuthentication(response, user);
+    }
+
+    // logout
+    public void logout(HttpServletResponse response, int id) {
+        User user = userMapper.findByPk(id);
+
+        if(user == null) {
+            throw new InvalidTokenException("유효하지 않은 회원의 토큰입니다.");
+        }
+
+        authMapper.updateRefreshToken(id, null);
+
+        cookieManager.setCookie(
+                response
+                , jwtConfig.refreshTokenCookieName()
+                , null
+                ,0
+                ,jwtConfig.reissUri()
+        );
     }
 
     // 엑세스토큰 및 리프레시토큰 생성 후, 리프레시 토큰 DB&Cookie 저장, AuthRes로 반환
