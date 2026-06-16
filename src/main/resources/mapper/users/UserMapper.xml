@@ -6,7 +6,7 @@
 <mapper namespace="com.msa4lms.domain.user.mapper.UserMapper">
     <resultMap id="UserResultMap" type="com.msa4lms.domain.user.entities.User">
         <id column="id" property="id"/>
-        <result column="login_id" property="loginId"/>
+        <result column="user_no" property="userNo"/>
         <result column="name" property="name"/>
         <result column="email" property="email"/>
         <result column="password" property="password"/>
@@ -23,7 +23,7 @@
     <select id="findByUserNo" resultMap="UserResultMap">
         SELECT
             id,
-            login_id,
+            user_no,
             name,
             email,
             password,
@@ -34,7 +34,7 @@
             updated_at,
             deleted_at
         FROM users
-        WHERE login_id = #{userNo}
+        WHERE user_no = #{userNo}
           AND deleted_at IS NULL
     </select>
 

@@ -4,6 +4,7 @@ import com.msa4lms.domain.auth.requests.LoginReq;
 import com.msa4lms.domain.auth.responses.AuthRes;
 import com.msa4lms.domain.auth.services.AuthService;
 import com.msa4lms.global.responses.GlobalRes;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,20 @@ public class AuthController {
                         .code("00")
                         .message("로그인 성공")
                         .data(authRes)
+                        .build()
+        );
+    }
+
+    @PostMapping("/reissue-token")
+    public ResponseEntity<GlobalRes<AuthRes>> reissue(
+            HttpServletRequest request
+            ,HttpServletResponse response
+    ) {
+        return ResponseEntity.ok(
+                GlobalRes.<AuthRes>builder()
+                        .code("00")
+                        .message("토큰 재발급 완료")
+                        .data(authService.reissue(request, response))
                         .build()
         );
     }
