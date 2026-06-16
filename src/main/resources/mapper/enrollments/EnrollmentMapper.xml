@@ -34,9 +34,10 @@
         FROM enrollments
         JOIN lectures ON enrollments.lecture_id = lectures.id
         JOIN courses ON lectures.course_id = courses.id
+        JOIN semesters ON lectures.semester_id = semesters.id
         WHERE enrollments.student_id = #{studentId}
-          AND lectures.year = #{year}
-          AND lectures.semester = #{semester}
+          AND semesters.academic_year = #{year}
+          AND semesters.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
           AND enrollments.status != 'DROPPED'
     </select>
 
