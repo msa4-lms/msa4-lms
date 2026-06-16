@@ -20,22 +20,22 @@
 
 
 
-    <select id="findByUserNo" resultMap="UserResultMap">
+    <select id="findByLoginId" resultMap="UserResultMap">
         SELECT
-            id,
-            login_id,
-            name,
-            email,
-            password,
-            role,
-            department_id,
-            refresh_token,
-            created_at,
-            updated_at,
-            deleted_at
+            *
         FROM users
-        WHERE login_id = #{userNo}
+        WHERE login_id = #{loginId}
           AND deleted_at IS NULL
     </select>
+
+    <select id="findByPk" resultMap="UserResultMap">
+        SELECT
+            *
+        FROM users
+        WHERE
+            id = #{id}
+          AND deleted_at IS NULL
+    </select>
+
 
 </mapper>
