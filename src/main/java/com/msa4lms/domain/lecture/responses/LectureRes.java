@@ -9,9 +9,9 @@ public record LectureRes(
     String courseName,
     Integer credits,
     String professorName,
-    String room,
+    String classroom,
     String schedule,
     Integer capacity,
-    Integer year,
-    Integer semester
+    Integer academicYear,
+    String term
 ) {}

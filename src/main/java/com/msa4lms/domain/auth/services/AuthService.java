@@ -61,7 +61,7 @@ public class AuthService {
                 .user(
                         UserRes.builder()
                                 .id(user.getId())
-                                .userNo(user.getUserNo())
+                                .loginId(user.getLoginId())
                                 .name(user.getName())
                                 .email(user.getEmail())
                                 .role(user.getRole())
