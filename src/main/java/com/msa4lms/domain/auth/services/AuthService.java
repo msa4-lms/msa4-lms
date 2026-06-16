@@ -107,4 +107,23 @@ public class AuthService {
                 .build();
     }
 
+    // logout
+    public void logout(HttpServletResponse response, int id) {
+        User user = userMapper.findByPk(id);
+
+        if(user == null) {
+            throw new InvalidTokenException("유효하지 않은 회원의 토큰입니다.");
+        }
+
+        authMapper.updateRefreshToken(id, null);
+
+        cookieManager.setCookie(
+                response
+                , jwtConfig.refreshTokenCookieName()
+                , null
+                ,0
+                ,jwtConfig.reissUri()
+        );
+    }
+
 }
