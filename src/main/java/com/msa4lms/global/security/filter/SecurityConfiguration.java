@@ -84,16 +84,18 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 토큰 인증 비활성 설정
                 .cors(cors -> cors.configurationSource(this.corsConfigurationSource())) // CORS 추가
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 필터 등록
-                .authorizeHttpRequests(req ->
-                        // 리퀘스트에 대한 권한 설정 처리
-                        req.requestMatchers(HttpMethod.GET, SecurityUrlRegistry.AUTH_REQUIRED_GET_URLS).authenticated()
-                                .requestMatchers(HttpMethod.POST, SecurityUrlRegistry.AUTH_REQUIRED_POST_URLS).authenticated()
-                                .requestMatchers(HttpMethod.PUT, SecurityUrlRegistry.AUTH_REQUIRED_PUT_URLS).authenticated()
-                                .requestMatchers(HttpMethod.PATCH, SecurityUrlRegistry.AUTH_REQUIRED_PATCH_URLS).authenticated()
-                                .requestMatchers(HttpMethod.DELETE, SecurityUrlRegistry.AUTH_REQUIRED_DELETE_URLS).authenticated()
-                                .anyRequest().permitAll() // 그 외는 인증 불필요
-
-                )
+                .authorizeHttpRequests(req -> {
+                    // GET 요청 권한 설정
+                    if (SecurityUrlRegistry.AUTH_REQUIRED_GET_URLS.length > 0) {
+                        req.requestMatchers(HttpMethod.GET, SecurityUrlRegistry.AUTH_REQUIRED_GET_URLS).authenticated();
+                    }
+                    // POST 요청 권한 설정
+                    if (SecurityUrlRegistry.AUTH_REQUIRED_POST_URLS.length > 0) {
+                        req.requestMatchers(HttpMethod.POST, SecurityUrlRegistry.AUTH_REQUIRED_POST_URLS).authenticated();
+                    }
+                    // 그 외 모든 요청은 허용 (로그인 등)
+                    req.anyRequest().permitAll();
+                })
                 .exceptionHandling(e ->
                         e.authenticationEntryPoint(securityExceptionHandler)
                                 .accessDeniedHandler(securityExceptionHandler)
