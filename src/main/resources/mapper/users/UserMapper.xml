@@ -19,6 +19,16 @@
     </resultMap>
 
 
+    <update
+            id="updatePassword"
+        >
+        UPDATE users
+        SET password = #{password},
+            refresh_token = NULL,
+            updated_at = NOW()
+        WHERE id = #{id}
+            AND deleted_at IS NULL
+    </update>
 
     <select id="findByUserNo" resultMap="UserResultMap">
         SELECT

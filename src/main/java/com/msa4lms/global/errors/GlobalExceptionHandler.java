@@ -74,6 +74,19 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<GlobalRes<String>> passwordMismatchHandle(
+            PasswordMismatchException e
+    ) {
+        return ResponseEntity.status(400).body(
+                GlobalRes.<String>builder()
+                        .code("E10")
+                        .message("비밀번호 확인 실패")
+                        .data(e.getMessage())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(DuplicatedRecordException.class)
     public ResponseEntity<GlobalRes<String>> duplicatedRecordHandle(DuplicatedRecordException e) {
         return ResponseEntity.status(409).body(
@@ -82,6 +95,19 @@ public class GlobalExceptionHandler {
                 .message("중복된 데이터입니다.")
                 .data(e.getMessage())
                 .build()
+        );
+    }
+
+    @ExceptionHandler(PasswordChangeFailedException.class)
+    public ResponseEntity<GlobalRes<String>> passwordChangeFailedHandle(
+            PasswordChangeFailedException e
+    ) {
+        return ResponseEntity.status(400).body(
+                GlobalRes.<String>builder()
+                        .code("E11")
+                        .message("비밀번호 변경 실패")
+                        .data(e.getMessage())
+                        .build()
         );
     }
 
