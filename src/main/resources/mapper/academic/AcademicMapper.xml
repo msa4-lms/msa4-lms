@@ -38,7 +38,7 @@
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
         JOIN semesters s ON l.semester_id = s.id
-        LEFT JOIN grades g ON g.enrollment_id = e.id
+        JOIN grades g ON g.enrollment_id = e.id
         JOIN students st ON e.student_id = st.id
         WHERE st.user_id = #{studentId}
         ORDER BY s.academic_year DESC, s.term DESC
