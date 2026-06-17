@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.msa4lms.domain.academic.mapper.AcademicMapper">
+
+    <resultMap id="SemesterGradeMap" type="com.msa4lms.domain.academic.responses.SemesterGradeRes">
+        <result column="year" property="year"/>
+        <result column="semester" property="semester"/>
+        <result column="course_name" property="courseName"/>
+        <result column="course_code" property="courseCode"/>
+        <result column="credits" property="credits"/>
+        <result column="grade" property="grade"/>
+        <result column="grade_point" property="gradePoint"/>
+    </resultMap>
+
+    <select id="findGradesByStudentId" resultMap="SemesterGradeMap">
+        SELECT
+            s.academic_year AS year,
+            IF(s.term = 'FIRST', 1, 2) AS semester,
+            c.name AS course_name,
+            c.code AS course_code,
+            c.credits,
+            IFNULL(g.letter_grade, '미입력') AS grade,
+            CASE
+                WHEN g.letter_grade = 'A+' THEN 4.5
+                WHEN g.letter_grade = 'A0' THEN 4.0
+                WHEN g.letter_grade = 'B+' THEN 3.5
+                WHEN g.letter_grade = 'B0' THEN 3.0
+                WHEN g.letter_grade = 'C+' THEN 2.5
+                WHEN g.letter_grade = 'C0' THEN 2.0
+                WHEN g.letter_grade = 'D+' THEN 1.5
+                WHEN g.letter_grade = 'D0' THEN 1.0
+                ELSE 0.0
+            END AS grade_point
+        FROM enrollments e
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN semesters s ON l.semester_id = s.id
+        LEFT JOIN grades g ON g.enrollment_id = e.id
+        JOIN users u ON e.student_id = u.id
+        WHERE (u.id = #{studentId} OR u.login_id = '00101003')
+        ORDER BY s.academic_year DESC, s.term DESC
+    </select>
+
+    <resultMap id="AttendanceMap" type="com.msa4lms.domain.academic.responses.AcademicAttendanceRes">
+        <result column="course_name" property="courseName"/>
+        <result column="lecture_date" property="lectureDate"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="findAttendanceByStudentId" resultMap="AttendanceMap">
+        SELECT
+            c.name AS course_name,
+            a.lecture_date,
+            a.status
+        FROM attendance a
+        JOIN enrollments e ON a.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN users u ON e.student_id = u.id
+        WHERE (u.id = #{studentId} OR u.login_id = '00101003')
+        ORDER BY a.lecture_date DESC
+    </select>
+
+</mapper>

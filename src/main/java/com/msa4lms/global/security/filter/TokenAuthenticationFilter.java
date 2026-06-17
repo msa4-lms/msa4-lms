@@ -26,6 +26,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     // access token 유효 여부 확인하고, 인증 정보를 스프링 시큐리티에 설정하는 메소드
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        
+        // 토큰 재발급 요청은 필터를 건너뜀 (만료된 액세스 토큰을 들고 오기 때문)
+        if ("/api/reissue-token".equals(path) || "/api/login".equals(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 헤더에서 엑세스 토큰 획득
         Optional<String> tokenOptional = jwtProvider.extractAccessToken(request);
 
