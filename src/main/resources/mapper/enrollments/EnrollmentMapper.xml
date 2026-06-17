@@ -88,11 +88,14 @@
         SELECT EXISTS (
             SELECT 1
             FROM lecture_schedules new_ls
+            JOIN lectures new_l ON new_ls.lecture_id = new_l.id
             JOIN lecture_schedules existing_ls ON new_ls.day_of_week = existing_ls.day_of_week
-            JOIN enrollments e ON existing_ls.lecture_id = e.lecture_id
-            WHERE new_ls.lecture_id = #{lectureId}
+            JOIN lectures existing_l ON existing_ls.lecture_id = existing_l.id
+            JOIN enrollments e ON existing_l.id = e.lecture_id
+            WHERE new_l.id = #{lectureId}
               AND e.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
               AND e.status = 'ACTIVE'
+              AND new_l.semester_id = existing_l.semester_id
               AND new_ls.start_period &lt;= existing_ls.end_period
               AND new_ls.end_period &gt;= existing_ls.start_period
         )
