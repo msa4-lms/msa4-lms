@@ -2,12 +2,12 @@ package com.msa4lms.domain.auth.services;
 
 import com.msa4lms.domain.auth.mapper.AuthMapper;
 import com.msa4lms.domain.auth.requests.LoginReq;
+import com.msa4lms.domain.auth.requests.PasswordChangeReq;
 import com.msa4lms.domain.auth.responses.AuthRes;
 import com.msa4lms.domain.user.entities.User;
 import com.msa4lms.domain.user.mapper.UserMapper;
 import com.msa4lms.domain.user.responses.UserRes;
-import com.msa4lms.global.errors.custom.InvalidTokenException;
-import com.msa4lms.global.errors.custom.NotRegisteredException;
+import com.msa4lms.global.errors.custom.*;
 import com.msa4lms.global.security.cookie.CookieManager;
 import com.msa4lms.global.security.jwt.JwtConfig;
 import com.msa4lms.global.security.jwt.JwtProvider;
@@ -108,7 +108,7 @@ public class AuthService {
                 response
                 ,jwtConfig.refreshTokenCookieName()
                 ,newRefreshToken
-                , jwtConfig.refreshTokenExpiry()
+                , jwtConfig.refreshTokenCookieExpiry()
                 , jwtConfig.reissUri()
         );
 
@@ -126,6 +126,37 @@ public class AuthService {
                                 .build()
                 )
                 .build();
+    }
+
+
+    // 비밀번호 변경
+    public void changePassword(int id, PasswordChangeReq req){
+
+        User user = userMapper.findByPk(id);
+
+        if(user == null) {
+            throw new NotRegisteredException("사용자를 찾을 수 없습니다.");
+        }
+
+        // 같은 비밀번호 작성 제한
+        if (passwordEncoder.matches(
+                req.newPassword(),
+                user.getPassword()
+        )) {
+            throw new PasswordSameException(
+                    "현재 사용 중인 비밀번호와 동일합니다."
+            );
+        }
+
+        // 암호화
+        String encodedPassword =
+                passwordEncoder.encode(req.newPassword());
+
+        int result =userMapper.updatePassword(id, encodedPassword);
+
+        if (result == 0) {
+            throw new PasswordChangeFailedException("비밀번호 변경에 실패했습니다.");
+        }
     }
 
 

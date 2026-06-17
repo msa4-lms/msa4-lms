@@ -6,7 +6,7 @@
 <mapper namespace="com.msa4lms.domain.user.mapper.UserMapper">
     <resultMap id="UserResultMap" type="com.msa4lms.domain.user.entities.User">
         <id column="id" property="id"/>
-        <result column="login_id" property="loginId"/>
+        <result column="user_no" property="userNo"/>
         <result column="name" property="name"/>
         <result column="email" property="email"/>
         <result column="password" property="password"/>
@@ -19,6 +19,16 @@
     </resultMap>
 
 
+    <update
+            id="updatePassword"
+        >
+        UPDATE users
+        SET password = #{password},
+            refresh_token = NULL,
+            updated_at = NOW()
+        WHERE id = #{id}
+            AND deleted_at IS NULL
+    </update>
 
     <select id="findByLoginId" resultMap="UserResultMap">
         SELECT
@@ -36,6 +46,4 @@
             id = #{id}
           AND deleted_at IS NULL
     </select>
-
-
 </mapper>
