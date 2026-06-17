@@ -1,6 +1,7 @@
 package com.msa4lms.domain.auth.controllers;
 
 import com.msa4lms.domain.auth.requests.LoginReq;
+import com.msa4lms.domain.auth.requests.PasswordChangeReq;
 import com.msa4lms.domain.auth.responses.AuthRes;
 import com.msa4lms.domain.auth.services.AuthService;
 import com.msa4lms.global.responses.GlobalRes;
@@ -63,6 +64,24 @@ public class AuthController {
                 GlobalRes.<String>builder()
                         .code("00")
                         .message("로그아웃 완료")
+                        .build()
+        );
+    }
+
+    // 비밀번호 변경
+    @PostMapping("/password")
+    public ResponseEntity<GlobalRes<String>> changePassword(
+            @AuthenticationPrincipal Claims claims,
+            @Valid @RequestBody PasswordChangeReq req
+    ) {
+        int id = Integer.parseInt(claims.getSubject());
+
+        authService.changePassword(id, req);
+
+        return ResponseEntity.ok(
+                GlobalRes.<String>builder()
+                        .code("00")
+                        .message("비밀번호 변경이 완료되었습니다.")
                         .build()
         );
     }

@@ -111,6 +111,19 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PasswordSameException.class)
+    public ResponseEntity<GlobalRes<String>> passwordSameHandle(
+            PasswordSameException e
+    ) {
+        return ResponseEntity.status(400).body(
+                GlobalRes.<String>builder()
+                        .code("E12")
+                        .message("동일한 비밀번호는 사용할 수 없습니다.")
+                        .data(e.getMessage())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GlobalRes<Map<String, String>>> methodArgumentNotValidHandle(MethodArgumentNotValidException e) {
         Map<String, String> errors = e.getBindingResult()

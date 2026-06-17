@@ -7,10 +7,7 @@ import com.msa4lms.domain.auth.responses.AuthRes;
 import com.msa4lms.domain.user.entities.User;
 import com.msa4lms.domain.user.mapper.UserMapper;
 import com.msa4lms.domain.user.responses.UserRes;
-import com.msa4lms.global.errors.custom.InvalidTokenException;
-import com.msa4lms.global.errors.custom.NotRegisteredException;
-import com.msa4lms.global.errors.custom.PasswordChangeFailedException;
-import com.msa4lms.global.errors.custom.PasswordMismatchException;
+import com.msa4lms.global.errors.custom.*;
 import com.msa4lms.global.security.cookie.CookieManager;
 import com.msa4lms.global.security.jwt.JwtConfig;
 import com.msa4lms.global.security.jwt.JwtProvider;
@@ -139,6 +136,16 @@ public class AuthService {
 
         if(user == null) {
             throw new NotRegisteredException("사용자를 찾을 수 없습니다.");
+        }
+
+        // 같은 비밀번호 작성 제한
+        if (passwordEncoder.matches(
+                req.newPassword(),
+                user.getPassword()
+        )) {
+            throw new PasswordSameException(
+                    "현재 사용 중인 비밀번호와 동일합니다."
+            );
         }
 
         // 암호화
