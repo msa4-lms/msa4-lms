@@ -21,11 +21,11 @@ public class EnrollmentService {
     /**
      * 학생의 수강 내역 목록과 총 신청 학점 조회
      */
-    public EnrollmentRes getMyEnrollments(Long studentId, int year, int semester) {
+    public EnrollmentRes getMyEnrollments(Long userId, int year, int semester) {
         List<EnrollmentRes.EnrollmentDetail> enrollments = 
-            enrollmentMapper.findMyEnrollments(studentId, year, semester);
+            enrollmentMapper.findMyEnrollments(userId, year, semester);
         
-        int totalCredits = enrollmentMapper.calculateTotalCredits(studentId, year, semester);
+        int totalCredits = enrollmentMapper.calculateTotalCredits(userId, year, semester);
         
         return new EnrollmentRes(enrollments, totalCredits);
     }
@@ -34,9 +34,9 @@ public class EnrollmentService {
      * 수강 신청
      */
     @Transactional
-    public void applyEnrollment(Long studentId, Long lectureId) {
+    public void applyEnrollment(Long userId, Long lectureId) {
         // 1. 중복 신청 방지
-        if (enrollmentMapper.existsEnrollment(studentId, lectureId)) {
+        if (enrollmentMapper.existsEnrollment(userId, lectureId)) {
             throw new DuplicatedRecordException("이미 신청한 강의입니다.");
         }
 
@@ -48,19 +48,19 @@ public class EnrollmentService {
         }
 
         // 3. 시간표 중복 방지
-        if (enrollmentMapper.hasScheduleOverlap(studentId, lectureId)) {
+        if (enrollmentMapper.hasScheduleOverlap(userId, lectureId)) {
             throw new ScheduleOverlapException("이미 신청한 강의와 시간이 겹칩니다.");
         }
 
         // 4. 신청 등록
-        enrollmentMapper.insertEnrollment(studentId, lectureId);
+        enrollmentMapper.insertEnrollment(userId, lectureId);
     }
 
     /**
      * 수강 취소
      */
     @Transactional
-    public void cancelEnrollment(Long studentId, Long lectureId) {
-        enrollmentMapper.deleteEnrollment(studentId, lectureId);
+    public void cancelEnrollment(Long userId, Long lectureId) {
+        enrollmentMapper.deleteEnrollment(userId, lectureId);
     }
 }

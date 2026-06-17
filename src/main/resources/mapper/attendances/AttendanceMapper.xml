@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.attendance.mapper.AttendanceMapper">
+
+    <insert id="insertAttendance" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO attendances (enrollment_id, lecture_date, period, status, remarks)
+        VALUES (#{enrollmentId}, #{lectureDate}, #{period}, #{status}, #{remarks})
+    </insert>
+
+    <update id="updateAttendance">
+        UPDATE attendances
+        SET status = #{status},
+            remarks = #{remarks},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="findByEnrollmentId" resultType="com.msa4lms.domain.attendance.responses.AttendanceRes">
+        SELECT 
+            a.id,
+            a.enrollment_id,
+            u.name as student_name,
+            c.name as course_name,
+            a.lecture_date,
+            a.period,
+            a.status,
+            a.remarks
+        FROM attendances a
+        JOIN enrollments e ON a.enrollment_id = e.id
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        WHERE a.enrollment_id = #{enrollmentId}
+        ORDER BY a.lecture_date DESC, a.period ASC
+    </select>
+
+    <select id="findByLectureIdAndDate" resultType="com.msa4lms.domain.attendance.responses.AttendanceRes">
+        SELECT 
+            a.id,
+            a.enrollment_id,
+            u.name as student_name,
+            c.name as course_name,
+            a.lecture_date,
+            a.period,
+            a.status,
+            a.remarks
+        FROM attendances a
+        JOIN enrollments e ON a.enrollment_id = e.id
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        WHERE l.id = #{lectureId} AND a.lecture_date = #{date}
+        ORDER BY u.name ASC, a.period ASC
+    </select>
+
+    <select id="findById" resultType="com.msa4lms.domain.attendance.entities.Attendance">
+        SELECT * FROM attendances WHERE id = #{id}
+    </select>
+
+</mapper>
