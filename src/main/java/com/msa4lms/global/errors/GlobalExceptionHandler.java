@@ -79,8 +79,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(409).body(
             GlobalRes.<String>builder()
                 .code("E11")
-                .message("중복된 데이터입니다.")
-                .data(e.getMessage())
+                .message(e.getMessage())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(CapacityExceededException.class)
+    public ResponseEntity<GlobalRes<String>> capacityExceededHandle(CapacityExceededException e) {
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E12")
+                .message(e.getMessage())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(ScheduleOverlapException.class)
+    public ResponseEntity<GlobalRes<String>> scheduleOverlapHandle(ScheduleOverlapException e) {
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E13")
+                .message(e.getMessage())
                 .build()
         );
     }

@@ -15,6 +15,7 @@ public record EnrollmentRes(
      */
     public record EnrollmentDetail(
         Long id,               // 수강신청 식별자 (PK)
+        Long lectureId,        // 강의 식별자
         String courseCode,     // 과목 코드 (예: CS1001)
         String courseName,     // 과목명
         String professorName,  // 교수님 성함

@@ -8,6 +8,7 @@ public record LectureRes(
     String courseCode,
     String courseName,
     Integer credits,
+    String departmentName,
     String professorName,
     String classroom,
     String schedule,

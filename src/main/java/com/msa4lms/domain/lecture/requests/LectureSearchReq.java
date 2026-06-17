@@ -3,6 +3,7 @@ package com.msa4lms.domain.lecture.requests;
 public record LectureSearchReq(
     String courseName,
     String professorName,
+    String departmentName,
     Integer year,
     Integer semester,
     String courseCode,

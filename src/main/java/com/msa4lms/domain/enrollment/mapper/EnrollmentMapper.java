@@ -26,4 +26,34 @@ public interface EnrollmentMapper {
         @Param("year") int year,
         @Param("semester") int semester
     );
+
+    /**
+     * 수강 신청 정보 등록
+     */
+    void insertEnrollment(@Param("studentId") Long studentId, @Param("lectureId") Long lectureId);
+
+    /**
+     * 수강 신청 정보 삭제
+     */
+    void deleteEnrollment(@Param("studentId") Long studentId, @Param("lectureId") Long lectureId);
+
+    /**
+     * 중복 신청 확인
+     */
+    boolean existsEnrollment(@Param("studentId") Long studentId, @Param("lectureId") Long lectureId);
+
+    /**
+     * 현재 수강 신청 인원 조회
+     */
+    int getCurrentEnrollmentCount(@Param("lectureId") Long lectureId);
+
+    /**
+     * 강의 수강 정원 조회
+     */
+    int getLectureCapacity(@Param("lectureId") Long lectureId);
+
+    /**
+     * 시간표 중복 여부 확인
+     */
+    boolean hasScheduleOverlap(@Param("studentId") Long studentId, @Param("lectureId") Long lectureId);
 }
