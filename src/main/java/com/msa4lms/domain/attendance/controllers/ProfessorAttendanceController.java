@@ -14,10 +14,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/attendances")
 @RequiredArgsConstructor
-public class AttendanceController {
-
+@RequestMapping("/api/professor/attendances")
+public class ProfessorAttendanceController {
     private final AttendanceService attendanceService;
 
     /**
@@ -27,28 +26,12 @@ public class AttendanceController {
     public ResponseEntity<GlobalRes<Void>> saveAttendance(@RequestBody @Valid PostAttendanceReq req) {
         attendanceService.saveAttendance(req);
         return ResponseEntity.ok(
-            GlobalRes.<Void>builder()
-                .code("00")
-                .message("출결 정보가 등록되었습니다.")
-                .build()
+                GlobalRes.<Void>builder()
+                        .code("00")
+                        .message("출결 정보가 등록되었습니다.")
+                        .build()
         );
     }
-
-    /**
-     * 특정 수강신청의 출결 내역 조회 (학생용)
-     */
-    @GetMapping("/my/{enrollmentId}")
-    public ResponseEntity<GlobalRes<List<AttendanceRes>>> getMyAttendances(@PathVariable Long enrollmentId) {
-        List<AttendanceRes> data = attendanceService.getMyAttendances(enrollmentId);
-        return ResponseEntity.ok(
-            GlobalRes.<List<AttendanceRes>>builder()
-                .code("00")
-                .message("출결 내역 조회가 완료되었습니다.")
-                .data(data)
-                .build()
-        );
-    }
-
     /**
      * 특정 강의/날짜의 전체 출결 내역 조회 (교수용)
      */
@@ -58,13 +41,14 @@ public class AttendanceController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<AttendanceRes> data = attendanceService.getLectureAttendances(lectureId, date);
         return ResponseEntity.ok(
-            GlobalRes.<List<AttendanceRes>>builder()
-                .code("00")
-                .message("강의 출결 내역 조회가 완료되었습니다.")
-                .data(data)
-                .build()
+                GlobalRes.<List<AttendanceRes>>builder()
+                        .code("00")
+                        .message("강의 출결 내역 조회가 완료되었습니다.")
+                        .data(data)
+                        .build()
         );
     }
+
 
     /**
      * 출결 정보 수정
@@ -76,10 +60,11 @@ public class AttendanceController {
             @RequestParam(required = false) String remarks) {
         attendanceService.updateAttendance(id, status, remarks);
         return ResponseEntity.ok(
-            GlobalRes.<Void>builder()
-                .code("00")
-                .message("출결 정보가 수정되었습니다.")
-                .build()
+                GlobalRes.<Void>builder()
+                        .code("00")
+                        .message("출결 정보가 수정되었습니다.")
+                        .build()
         );
     }
+
 }

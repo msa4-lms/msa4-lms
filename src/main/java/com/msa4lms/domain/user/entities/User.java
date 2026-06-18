@@ -6,13 +6,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class User {
-    private Integer id;
+    private Long id;
     private String loginId;
     private String name;
     private String email;
     private String password;
     private Role role;
-    private Integer departmentId;
+    private Long departmentId;
     private String refreshToken;
     private String createdAt;
     private String updatedAt;

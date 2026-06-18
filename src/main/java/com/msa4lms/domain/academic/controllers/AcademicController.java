@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/academic")
+@RequestMapping("/api/student/academic")
 public class AcademicController {
     private final AcademicService academicService;
 

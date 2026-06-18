@@ -5,12 +5,12 @@ import lombok.Builder;
 
 @Builder
 public record UserRes(
-        Integer id
+        Long id
         , String loginId
         , String name
         , String email
         , Role role
-        , Integer departmentId
+        , Long departmentId
         , String createdAt
 ) {
 }
