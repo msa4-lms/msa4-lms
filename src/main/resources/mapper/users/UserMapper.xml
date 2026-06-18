@@ -6,7 +6,7 @@
 <mapper namespace="com.msa4lms.domain.user.mapper.UserMapper">
     <resultMap id="UserResultMap" type="com.msa4lms.domain.user.entities.User">
         <id column="id" property="id"/>
-        <result column="user_no" property="userNo"/>
+        <result column="login_id" property="loginId"/>
         <result column="name" property="name"/>
         <result column="email" property="email"/>
         <result column="password" property="password"/>

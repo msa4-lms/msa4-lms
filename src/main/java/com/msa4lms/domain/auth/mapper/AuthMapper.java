@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface AuthMapper {
     int updateRefreshToken(
-            @Param("id") int id,
+            @Param("id") long id,
             @Param("refreshToken") String refreshToken
     );
 }

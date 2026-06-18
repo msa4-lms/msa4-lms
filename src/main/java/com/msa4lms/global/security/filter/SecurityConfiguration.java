@@ -85,6 +85,30 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(this.corsConfigurationSource())) // CORS 추가
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 필터 등록
                 .authorizeHttpRequests(req -> {
+
+                    // 누구나 접근 가능
+                    req.requestMatchers(
+                            "/api/auth/login",
+                            "/api/auth/reissue-token"
+                    ).permitAll();
+
+                    // 로그인한 사용자만 가능
+                    req.requestMatchers(
+                            "/api/auth/logout",
+                            "/api/auth/password",
+                            "/api/lectures/**",
+                            "/api/profile"
+                    ).authenticated();
+
+                    // 학생 권한
+                    req.requestMatchers("/api/student/**").hasRole("STUDENT");
+
+                    // 교수 권한
+                    req.requestMatchers("/api/professor/**").hasRole("PROFESSOR");
+
+                    // 관리자 권한
+                    req.requestMatchers("/api/admin/**").hasRole("ADMIN");
+
                     // GET 요청 권한 설정
                     if (SecurityUrlRegistry.AUTH_REQUIRED_GET_URLS.length > 0) {
                         req.requestMatchers(HttpMethod.GET, SecurityUrlRegistry.AUTH_REQUIRED_GET_URLS).authenticated();
