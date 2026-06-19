@@ -13,6 +13,7 @@ public class User {
     private String password;
     private Role role;
     private Long departmentId;
+    private String departmentName;
     private String refreshToken;
     private String createdAt;
     private String updatedAt;

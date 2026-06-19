@@ -11,6 +11,7 @@ public record UserRes(
         , String email
         , Role role
         , Long departmentId
+        , String departmentName
         , String createdAt
 ) {
 }

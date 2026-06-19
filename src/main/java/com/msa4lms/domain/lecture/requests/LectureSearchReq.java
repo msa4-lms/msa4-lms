@@ -4,6 +4,7 @@ public record LectureSearchReq(
     String courseName,
     String professorName,
     String departmentName,
+    String collegeName,
     Integer year,
     Integer semester,
     String courseCode,
@@ -19,3 +20,4 @@ public record LectureSearchReq(
         return (page - 1) * size;
     }
 }
+

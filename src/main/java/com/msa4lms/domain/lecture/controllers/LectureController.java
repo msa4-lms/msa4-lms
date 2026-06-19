@@ -2,6 +2,7 @@ package com.msa4lms.domain.lecture.controllers;
 
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LecturePagedRes;
+import com.msa4lms.domain.lecture.responses.CollegeWithDepartmentsRes;
 import com.msa4lms.domain.lecture.services.LectureService;
 import com.msa4lms.global.responses.GlobalRes;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +28,18 @@ public class LectureController {
                 GlobalRes.<LecturePagedRes>builder()
                         .code("00")
                         .message("강의 조회가 완료되었습니다.")
+                        .data(result)
+                        .build()
+        );
+    }
+
+    @GetMapping("/lectures/colleges")
+    public ResponseEntity<GlobalRes<List<CollegeWithDepartmentsRes>>> getCollegesWithDepartments() {
+        List<CollegeWithDepartmentsRes> result = lectureService.getCollegesWithDepartments();
+        return ResponseEntity.status(200).body(
+                GlobalRes.<List<CollegeWithDepartmentsRes>>builder()
+                        .code("00")
+                        .message("단과대 및 학과 조회가 완료되었습니다.")
                         .data(result)
                         .build()
         );
