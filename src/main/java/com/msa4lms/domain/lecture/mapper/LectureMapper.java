@@ -2,6 +2,7 @@ package com.msa4lms.domain.lecture.mapper;
 
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LectureRes;
+import com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -17,4 +18,6 @@ public interface LectureMapper {
     );
     
     long countLecturesBySearch(@Param("searchReq") LectureSearchReq searchReq);
+
+    List<FlatCollegeDeptDto> findFlatCollegesAndDepartments();
 }

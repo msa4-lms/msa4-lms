@@ -122,6 +122,7 @@ public class AuthService {
                                 .email(user.getEmail())
                                 .role(user.getRole())
                                 .departmentId(user.getDepartmentId())
+                                .departmentName(user.getDepartmentName())
                                 .createdAt(user.getCreatedAt())
                                 .build()
                 )
