@@ -14,4 +14,5 @@ public class SemesterGradeRes {
     private Integer credits;
     private String grade;
     private Double gradePoint;
+    private Double attendanceRate;
 }
