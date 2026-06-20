@@ -58,7 +58,7 @@ public class AuthController {
             HttpServletResponse response
             , @AuthenticationPrincipal Claims claims
     ) {
-        authService.logout(response, Integer.parseInt(claims.getSubject()));
+        authService.logout(response, Long.parseLong(claims.getSubject()));
 
         return ResponseEntity.ok(
                 GlobalRes.<String>builder()
