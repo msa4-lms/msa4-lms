@@ -38,6 +38,11 @@ public interface EnrollmentMapper {
     void deleteEnrollment(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
 
     /**
+     * 수강 취소 시 연관된 성적 정보 먼저 삭제
+     */
+    void deleteGradeByEnrollment(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
+
+    /**
      * 중복 신청 확인
      */
     boolean existsEnrollment(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);

@@ -61,6 +61,7 @@ public class EnrollmentService {
      */
     @Transactional
     public void cancelEnrollment(Long userId, Long lectureId) {
+        enrollmentMapper.deleteGradeByEnrollment(userId, lectureId);
         enrollmentMapper.deleteEnrollment(userId, lectureId);
     }
 }

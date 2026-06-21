@@ -57,10 +57,21 @@
         VALUES ((SELECT id FROM students WHERE user_id = #{studentId}), #{lectureId}, 'ACTIVE', CURRENT_TIMESTAMP)
         </insert>
 
+        <!-- 수강 취소 시 연동된 성적 데이터 먼저 삭제 -->
+        <delete id="deleteGradeByEnrollment">
+        DELETE FROM grades
+        WHERE enrollment_id = (
+            SELECT id FROM enrollments
+            WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+              AND lecture_id = #{lectureId}
+        )
+        </delete>
+
         <!-- 수강 신청 정보 삭제 -->
         <delete id="deleteEnrollment">
         DELETE FROM enrollments
-        WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId}) AND lecture_id = #{lectureId}
+        WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+          AND lecture_id = #{lectureId}
         </delete>
 
         <!-- 중복 신청 확인 -->
