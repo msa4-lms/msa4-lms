@@ -101,4 +101,15 @@
         )
     </select>
 
+    <select id="findLectureInfoForEnrollment" resultType="com.msa4lms.domain.enrollment.responses.LectureInfoForEnrollment">
+        SELECT
+            s.academic_year AS academicYear,
+            s.term AS term,
+            c.credits AS credits
+        FROM lectures l
+        JOIN semesters s ON l.semester_id = s.id
+        JOIN courses c ON l.course_id = c.id
+        WHERE l.id = #{lectureId}
+    </select>
+
 </mapper>

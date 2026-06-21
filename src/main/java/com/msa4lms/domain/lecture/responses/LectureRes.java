@@ -14,5 +14,11 @@ public record LectureRes(
     String schedule,
     Integer capacity,
     Integer academicYear,
-    String term
+    String term,
+    
+    // 성적 평가 비율 필드 추가
+    Integer midtermRatio,
+    Integer finalRatio,
+    Integer assignmentRatio,
+    Integer attendanceRatio
 ) {}

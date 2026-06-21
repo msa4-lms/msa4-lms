@@ -13,4 +13,7 @@ public interface UserMapper {
             @Param("password") String password
     );
 
+    Long findProfessorIdByUserId(@Param("userId") Long userId);
+
+    Long findStudentIdByUserId(@Param("userId") Long userId);
 }

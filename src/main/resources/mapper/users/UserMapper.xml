@@ -46,4 +46,12 @@
             id = #{id}
           AND deleted_at IS NULL
     </select>
+
+    <select id="findProfessorIdByUserId" resultType="long">
+        SELECT id FROM professors WHERE user_id = #{userId}
+    </select>
+
+    <select id="findStudentIdByUserId" resultType="long">
+        SELECT id FROM students WHERE user_id = #{userId}
+    </select>
 </mapper>

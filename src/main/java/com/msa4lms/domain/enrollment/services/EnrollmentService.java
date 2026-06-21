@@ -52,7 +52,7 @@ public class EnrollmentService {
             throw new ScheduleOverlapException("이미 신청한 강의와 시간이 겹칩니다.");
         }
 
-        // 4. 신청 등록
+        // 5. 신청 등록
         enrollmentMapper.insertEnrollment(userId, lectureId);
     }
 

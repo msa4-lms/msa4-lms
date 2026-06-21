@@ -56,4 +56,6 @@ public interface EnrollmentMapper {
      * 시간표 중복 여부 확인
      */
     boolean hasScheduleOverlap(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
+
+    com.msa4lms.domain.enrollment.responses.LectureInfoForEnrollment findLectureInfoForEnrollment(@Param("lectureId") Long lectureId);
 }
