@@ -12,6 +12,7 @@
         <result column="password" property="password"/>
         <result column="role" property="role"/>
         <result column="department_id" property="departmentId"/>
+        <result column="department_name" property="departmentName"/>
         <result column="refresh_token" property="refreshToken"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
@@ -32,19 +33,28 @@
 
     <select id="findByLoginId" resultMap="UserResultMap">
         SELECT
-            *
-        FROM users
-        WHERE login_id = #{loginId}
-          AND deleted_at IS NULL
+            u.*,
+            COALESCE(s.department_id, p.department_id) AS department_id,
+            d.name AS department_name
+        FROM users u
+        LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
+        LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
+        LEFT JOIN departments d ON COALESCE(s.department_id, p.department_id) = d.id
+        WHERE u.login_id = #{loginId}
+          AND u.deleted_at IS NULL
     </select>
 
     <select id="findByPk" resultMap="UserResultMap">
         SELECT
-            *
-        FROM users
-        WHERE
-            id = #{id}
-          AND deleted_at IS NULL
+            u.*,
+            COALESCE(s.department_id, p.department_id) AS department_id,
+            d.name AS department_name
+        FROM users u
+        LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
+        LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
+        LEFT JOIN departments d ON COALESCE(s.department_id, p.department_id) = d.id
+        WHERE u.id = #{id}
+          AND u.deleted_at IS NULL
     </select>
 
     <select id="findProfessorIdByUserId" resultType="long">
