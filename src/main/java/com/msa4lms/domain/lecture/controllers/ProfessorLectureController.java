@@ -33,4 +33,19 @@ public class ProfessorLectureController {
                         .build()
         );
     }
+
+    @org.springframework.web.bind.annotation.PostMapping
+    public ResponseEntity<GlobalRes<String>> createLecture(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal io.jsonwebtoken.Claims claims,
+            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody com.msa4lms.domain.lecture.requests.LectureCreateReq req
+    ) {
+        Long professorId = Long.parseLong(claims.getSubject());
+        lectureService.createLecture(professorId, req);
+        return ResponseEntity.ok(
+                GlobalRes.<String>builder()
+                        .code("00")
+                        .message("강의 개설이 완료되었습니다.")
+                        .build()
+        );
+    }
 }

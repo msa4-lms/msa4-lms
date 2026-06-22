@@ -35,35 +35,7 @@ public class LectureController {
         );
     }
 
-    @org.springframework.web.bind.annotation.PostMapping("/professor/lectures")
-    public ResponseEntity<GlobalRes<String>> createLecture(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal io.jsonwebtoken.Claims claims,
-            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody LectureCreateReq req
-    ) {
-        Long professorId = Long.parseLong(claims.getSubject());
-        lectureService.createLecture(professorId, req);
-        return ResponseEntity.ok(
-                GlobalRes.<String>builder()
-                        .code("00")
-                        .message("강의 개설이 완료되었습니다.")
-                        .build()
-        );
-    }
 
-    @org.springframework.web.bind.annotation.GetMapping("/professor/lectures")
-    public ResponseEntity<GlobalRes<java.util.List<LectureRes>>> getProfessorLectures(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal io.jsonwebtoken.Claims claims
-    ) {
-        Long professorId = Long.parseLong(claims.getSubject());
-        java.util.List<LectureRes> result = lectureService.getLecturesByProfessor(professorId);
-        return ResponseEntity.ok(
-                GlobalRes.<java.util.List<LectureRes>>builder()
-                        .code("00")
-                        .message("담당 강의 조회가 완료되었습니다.")
-                        .data(result)
-                        .build()
-        );
-    }
 
     @GetMapping("/lectures/colleges")
     public ResponseEntity<GlobalRes<List<CollegeWithDepartmentsRes>>> getCollegesWithDepartments() {

@@ -16,4 +16,5 @@ public class SemesterGradeRes {
     private String grade;
     private Double gradePoint;
     private String status;
+    private Double attendanceRate;
 }
