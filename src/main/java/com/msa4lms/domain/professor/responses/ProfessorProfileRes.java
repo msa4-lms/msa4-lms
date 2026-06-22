@@ -8,8 +8,11 @@ public record ProfessorProfileRes(
         , String status
         , String departmentName
         , String professorNo
+        , String phoneNum
+        , String address
         , String email
+        , String collegeName
         , Integer hireYear
-        // 나머지는 db 추가 후 넣기
+
 ) {
 }
