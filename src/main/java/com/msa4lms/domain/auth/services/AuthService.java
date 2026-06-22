@@ -61,7 +61,7 @@ public class AuthService {
 
         String extractRefreshToken = refreshTokenOptional.get();
 
-        int id = Integer.parseInt(jwtProvider.extractClaims(extractRefreshToken).getSubject());
+        long id = Long.parseLong(jwtProvider.extractClaims(extractRefreshToken).getSubject());
 
         User user = userMapper.findByPk(id);
 
@@ -79,7 +79,7 @@ public class AuthService {
     }
 
     // logout
-    public void logout(HttpServletResponse response, int id) {
+    public void logout(HttpServletResponse response, long id) {
         User user = userMapper.findByPk(id);
 
         if(user == null) {
@@ -123,6 +123,7 @@ public class AuthService {
                                 .role(user.getRole())
                                 .departmentId(user.getDepartmentId())
                                 .departmentName(user.getDepartmentName())
+                                .gradeLevel(user.getGradeLevel())
                                 .createdAt(user.getCreatedAt())
                                 .build()
                 )
@@ -131,7 +132,7 @@ public class AuthService {
 
 
     // 비밀번호 변경
-    public void changePassword(int id, PasswordChangeReq req){
+    public void changePassword(long id, PasswordChangeReq req){
 
         User user = userMapper.findByPk(id);
 

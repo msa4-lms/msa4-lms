@@ -13,6 +13,7 @@
         <result column="role" property="role"/>
         <result column="department_id" property="departmentId"/>
         <result column="department_name" property="departmentName"/>
+        <result column="grade_level" property="gradeLevel"/>
         <result column="refresh_token" property="refreshToken"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
@@ -35,7 +36,8 @@
         SELECT
             u.*,
             COALESCE(s.department_id, p.department_id) AS department_id,
-            d.name AS department_name
+            d.name AS department_name,
+            s.grade_level
         FROM users u
         LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
         LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
@@ -48,7 +50,8 @@
         SELECT
             u.*,
             COALESCE(s.department_id, p.department_id) AS department_id,
-            d.name AS department_name
+            d.name AS department_name,
+            s.grade_level
         FROM users u
         LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
         LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'

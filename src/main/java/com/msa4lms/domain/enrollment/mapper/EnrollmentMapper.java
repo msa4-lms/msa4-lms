@@ -38,11 +38,6 @@ public interface EnrollmentMapper {
     void deleteEnrollment(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
 
     /**
-     * 수강 취소 시 연관된 성적 정보 먼저 삭제
-     */
-    void deleteGradeByEnrollment(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
-
-    /**
      * 중복 신청 확인
      */
     boolean existsEnrollment(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
@@ -58,9 +53,17 @@ public interface EnrollmentMapper {
     int getLectureCapacity(@Param("lectureId") Long lectureId);
 
     /**
+     * 강의 수강 정원 조회 (비관적 락 - FOR UPDATE)
+     */
+    int getLectureCapacityWithLock(@Param("lectureId") Long lectureId);
+
+    /**
      * 시간표 중복 여부 확인
      */
     boolean hasScheduleOverlap(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
 
-    com.msa4lms.domain.enrollment.responses.LectureInfoForEnrollment findLectureInfoForEnrollment(@Param("lectureId") Long lectureId);
+    /**
+     * 수강 신청 이력 저장 (ENROLL / CANCEL)
+     */
+    void insertEnrollmentHistory(@Param("studentId") Long userId, @Param("lectureId") Long lectureId, @Param("action") String action);
 }

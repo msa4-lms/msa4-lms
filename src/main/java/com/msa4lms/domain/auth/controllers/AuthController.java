@@ -58,7 +58,7 @@ public class AuthController {
             HttpServletResponse response
             , @AuthenticationPrincipal Claims claims
     ) {
-        authService.logout(response, Integer.parseInt(claims.getSubject()));
+        authService.logout(response, Long.parseLong(claims.getSubject()));
 
         return ResponseEntity.ok(
                 GlobalRes.<String>builder()
@@ -74,7 +74,7 @@ public class AuthController {
             @AuthenticationPrincipal Claims claims,
             @Valid @RequestBody PasswordChangeReq req
     ) {
-        int id = Integer.parseInt(claims.getSubject());
+        long id = Long.parseLong(claims.getSubject());
 
         authService.changePassword(id, req);
 
