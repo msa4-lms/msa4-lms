@@ -63,6 +63,7 @@
                 ) SEPARATOR ', '
              ) FROM lecture_schedules WHERE lecture_id = lectures.id) AS schedule,
             lectures.capacity,
+            (SELECT COUNT(*) FROM enrollments e WHERE e.lecture_id = lectures.id AND e.status = 'ACTIVE') AS current_enrollment,
             semesters.academic_year,
             semesters.term
         FROM lectures
@@ -95,6 +96,7 @@
                 ) SEPARATOR ', '
              ) FROM lecture_schedules WHERE lecture_id = lectures.id) AS schedule,
             lectures.capacity,
+            (SELECT COUNT(*) FROM enrollments e WHERE e.lecture_id = lectures.id AND e.status = 'ACTIVE') AS current_enrollment,
             semesters.academic_year,
             semesters.term
         <include refid="searchConditions" />
