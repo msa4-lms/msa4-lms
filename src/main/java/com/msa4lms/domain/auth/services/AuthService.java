@@ -123,6 +123,7 @@ public class AuthService {
                                 .role(user.getRole())
                                 .departmentId(user.getDepartmentId())
                                 .departmentName(user.getDepartmentName())
+                                .gradeLevel(user.getGradeLevel())
                                 .createdAt(user.getCreatedAt())
                                 .build()
                 )

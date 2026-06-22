@@ -26,6 +26,9 @@
             <if test="searchReq.collegeName != null and searchReq.collegeName != ''">
                 AND colleges.name LIKE CONCAT('%', #{searchReq.collegeName}, '%')
             </if>
+            <if test="searchReq.targetGrade != null">
+                AND courses.target_grade = #{searchReq.targetGrade}
+            </if>
             <if test="searchReq.year != null">
                 AND semesters.academic_year = #{searchReq.year}
             </if>

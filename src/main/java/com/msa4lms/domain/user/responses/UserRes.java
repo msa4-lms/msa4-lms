@@ -12,6 +12,7 @@ public record UserRes(
         , Role role
         , Long departmentId
         , String departmentName
+        , Integer gradeLevel
         , String createdAt
 ) {
 }

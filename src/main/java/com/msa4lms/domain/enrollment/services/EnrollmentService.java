@@ -35,25 +35,30 @@ public class EnrollmentService {
      */
     @Transactional
     public void applyEnrollment(Long userId, Long lectureId) {
-        // 1. 중복 신청 방지
-        if (enrollmentMapper.existsEnrollment(userId, lectureId)) {
-            throw new DuplicatedRecordException("이미 신청한 강의입니다.");
-        }
+        // 1. 비관적 락(Pessimistic Lock)을 통한 강의 정원 조회 및 락 획득
+        int capacity = enrollmentMapper.getLectureCapacityWithLock(lectureId);
 
-        // 2. 정원 초과 방지
+        // 2. 현재 신청 인원 조회 (락 획득 후 조회하여 동시성 문제 차단)
         int currentCount = enrollmentMapper.getCurrentEnrollmentCount(lectureId);
-        int capacity = enrollmentMapper.getLectureCapacity(lectureId);
         if (currentCount >= capacity) {
             throw new CapacityExceededException("수강 정원이 초과되었습니다. (정원: " + capacity + "명)");
         }
 
-        // 3. 시간표 중복 방지
+        // 3. 중복 신청 방지
+        if (enrollmentMapper.existsEnrollment(userId, lectureId)) {
+            throw new DuplicatedRecordException("이미 신청한 강의입니다.");
+        }
+
+        // 4. 시간표 중복 방지
         if (enrollmentMapper.hasScheduleOverlap(userId, lectureId)) {
             throw new ScheduleOverlapException("이미 신청한 강의와 시간이 겹칩니다.");
         }
 
-        // 4. 신청 등록
+        // 5. 신청 등록
         enrollmentMapper.insertEnrollment(userId, lectureId);
+
+        // 6. 신청 이력 기록
+        enrollmentMapper.insertEnrollmentHistory(userId, lectureId, "ENROLL");
     }
 
     /**
@@ -62,5 +67,8 @@ public class EnrollmentService {
     @Transactional
     public void cancelEnrollment(Long userId, Long lectureId) {
         enrollmentMapper.deleteEnrollment(userId, lectureId);
+        
+        // 취소 이력 기록
+        enrollmentMapper.insertEnrollmentHistory(userId, lectureId, "CANCEL");
     }
 }
