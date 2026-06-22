@@ -61,7 +61,7 @@ public class AuthService {
 
         String extractRefreshToken = refreshTokenOptional.get();
 
-        int id = Integer.parseInt(jwtProvider.extractClaims(extractRefreshToken).getSubject());
+        long id = Long.parseLong(jwtProvider.extractClaims(extractRefreshToken).getSubject());
 
         User user = userMapper.findByPk(id);
 
@@ -131,7 +131,7 @@ public class AuthService {
 
 
     // 비밀번호 변경
-    public void changePassword(int id, PasswordChangeReq req){
+    public void changePassword(long id, PasswordChangeReq req){
 
         User user = userMapper.findByPk(id);
 
