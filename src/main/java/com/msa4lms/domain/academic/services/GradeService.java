@@ -48,9 +48,9 @@ public class GradeService {
                 grade = gradeMapper.findGradeByEnrollmentId(input.enrollmentId());
             }
 
-            // 기존 상태가 FINAL인 경우 수정 금지
-            if (GradeStatus.FINAL.name().equals(grade.getStatus())) {
-                throw new IllegalStateException("최종 확정(FINAL)된 성적은 수정할 수 없습니다.");
+            // 제출(SUBMITTED) 이상의 상태인 경우 메인 폼에서 수정 금지 (정정 기능으로만 가능)
+            if (grade.getStatus() != null && !GradeStatus.DRAFT.name().equals(grade.getStatus())) {
+                throw new IllegalStateException("제출이 완료된 성적은 일반 입력으로 수정할 수 없습니다. (정정 기능을 이용해주세요)");
             }
 
             grade.setMidtermScore(input.midtermScore());
@@ -134,9 +134,9 @@ public class GradeService {
             throw new IllegalArgumentException("성적 정보가 존재하지 않습니다.");
         }
 
-        // 이의신청(OBJECTION) 상태인 경우에만 처리 가능
-        if (!GradeStatus.OBJECTION.name().equals(grade.getStatus())) {
-            throw new IllegalStateException("이의신청(OBJECTION) 상태의 성적만 처리할 수 있습니다.");
+        // 정정 기능은 OPENED 또는 APPROVED 상태일 때만 가능
+        if (!GradeStatus.OPENED.name().equals(grade.getStatus()) && !GradeStatus.APPROVED.name().equals(grade.getStatus())) {
+            throw new IllegalStateException("성적 정정은 학생들에게 성적이 공개(OPENED)된 상태에서만 가능합니다.");
         }
 
         // 권한 체크

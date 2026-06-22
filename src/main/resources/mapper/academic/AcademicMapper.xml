@@ -6,6 +6,7 @@
 <mapper namespace="com.msa4lms.domain.academic.mapper.AcademicMapper">
 
     <resultMap id="SemesterGradeMap" type="com.msa4lms.domain.academic.responses.SemesterGradeRes">
+        <result column="id" property="id"/>
         <result column="year" property="year"/>
         <result column="semester" property="semester"/>
         <result column="course_name" property="courseName"/>
@@ -13,16 +14,19 @@
         <result column="credits" property="credits"/>
         <result column="grade" property="grade"/>
         <result column="grade_point" property="gradePoint"/>
+        <result column="status" property="status"/>
     </resultMap>
 
     <select id="findGradesByStudentId" resultMap="SemesterGradeMap">
         SELECT
+            g.id AS id,
             s.academic_year AS year,
             IF(s.term = 'FIRST', 1, 2) AS semester,
             c.name AS course_name,
             c.code AS course_code,
             c.credits,
             IFNULL(g.letter_grade, '미입력') AS grade,
+            g.status AS status,
             CASE
                 WHEN g.letter_grade = 'A+' THEN 4.5
                 WHEN g.letter_grade = 'A0' THEN 4.0
@@ -38,7 +42,7 @@
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
         JOIN semesters s ON l.semester_id = s.id
-        JOIN grades g ON g.enrollment_id = e.id
+        LEFT JOIN grades g ON g.enrollment_id = e.id
         JOIN students st ON e.student_id = st.id
         WHERE st.user_id = #{studentId}
         ORDER BY s.academic_year DESC, s.term DESC

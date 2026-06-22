@@ -44,6 +44,16 @@ public class MigrationRunner implements CommandLineRunner {
             log.info("grades 테이블 컬럼 추가 스킵 (이미 컬럼이 존재할 수 있음): {}", e.getMessage());
         }
 
+        // 3. 기존 데이터 보정 (과거 학기 성적은 FINAL로 처리)
+        try {
+            int updatedRows = jdbcTemplate.update("UPDATE `grades` SET status = 'FINAL' WHERE letter_grade IS NOT NULL AND status = 'DRAFT'");
+            if (updatedRows > 0) {
+                log.info("과거 성적 데이터 {}건을 'FINAL' 상태로 보정했습니다.", updatedRows);
+            }
+        } catch (Exception e) {
+            log.info("과거 성적 데이터 보정 스킵: {}", e.getMessage());
+        }
+
         log.info("=== DB Migration End ===");
     }
 }
