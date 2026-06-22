@@ -183,16 +183,15 @@
 
     <select id="findFlatCollegesAndDepartments" resultType="com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto">
         SELECT
-            c.id AS college_id,
-            c.code AS college_code,
-            c.name AS college_name,
-            d.id AS dept_id,
-            d.code AS dept_code,
-            d.name AS dept_name
-        FROM colleges c
-        LEFT JOIN departments d ON c.id = d.college_id AND d.active = 1
-        WHERE c.active = 1
-        ORDER BY c.code ASC, d.code ASC
+            NULL AS college_id,
+            NULL AS college_code,
+            NULL AS college_name,
+            id AS dept_id,
+            code AS dept_code,
+            name AS dept_name
+        FROM departments
+        WHERE active = 1
+        ORDER BY code ASC
     </select>
 
 </mapper>

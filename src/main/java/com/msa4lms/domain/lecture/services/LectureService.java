@@ -68,32 +68,43 @@ public class LectureService {
     }
 
     public List<CollegeWithDepartmentsRes> getCollegesWithDepartments() {
+        List<FlatCollegeDeptDto> flatDepts = lectureMapper.findFlatCollegesAndDepartments();
+
+        List<CollegeWithDepartmentsRes.DepartmentDetail> humanities = new java.util.ArrayList<>();
+        List<CollegeWithDepartmentsRes.DepartmentDetail> engineering = new java.util.ArrayList<>();
+        List<CollegeWithDepartmentsRes.DepartmentDetail> business = new java.util.ArrayList<>();
+        List<CollegeWithDepartmentsRes.DepartmentDetail> naturalScience = new java.util.ArrayList<>();
+        List<CollegeWithDepartmentsRes.DepartmentDetail> socialScience = new java.util.ArrayList<>();
+
+        for (FlatCollegeDeptDto dto : flatDepts) {
+            if (dto.deptId() == null || dto.deptCode() == null) continue;
+            
+            CollegeWithDepartmentsRes.DepartmentDetail deptDetail = new CollegeWithDepartmentsRes.DepartmentDetail(
+                dto.deptId(), dto.deptCode(), dto.deptName()
+            );
+            String code = dto.deptCode();
+
+            if (code.startsWith("10")) {
+                humanities.add(deptDetail);
+            } else if (code.startsWith("14") || code.startsWith("15") || code.startsWith("17") || code.startsWith("18") || code.startsWith("19")) {
+                engineering.add(deptDetail);
+            } else if (code.startsWith("16")) {
+                business.add(deptDetail);
+            } else if (code.startsWith("12")) {
+                naturalScience.add(deptDetail);
+            } else if (code.startsWith("11") || code.startsWith("13")) {
+                socialScience.add(deptDetail);
+            } else {
+                socialScience.add(deptDetail);
+            }
+        }
+
         return List.of(
-            new CollegeWithDepartmentsRes(1L, "C01", "인문대학", List.of(
-                new CollegeWithDepartmentsRes.DepartmentDetail(1L, "101", "국어국문학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(2L, "102", "중국어문화학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(3L, "103", "영어영문학과")
-            )),
-            new CollegeWithDepartmentsRes(2L, "C02", "공과대학", List.of(
-                new CollegeWithDepartmentsRes.DepartmentDetail(4L, "141", "컴퓨터학부"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(5L, "142", "전자공학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(6L, "150", "기계공학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(10L, "170", "생명공학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(14L, "180", "미래자동차공학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(15L, "190", "로봇공학과")
-            )),
-            new CollegeWithDepartmentsRes(3L, "C03", "경영대학", List.of(
-                new CollegeWithDepartmentsRes.DepartmentDetail(7L, "161", "경영학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(8L, "162", "경제금융학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(9L, "163", "회계세무학과")
-            )),
-            new CollegeWithDepartmentsRes(4L, "C04", "자연과학대학", List.of(
-                new CollegeWithDepartmentsRes.DepartmentDetail(12L, "120", "통계학과")
-            )),
-            new CollegeWithDepartmentsRes(5L, "C05", "사회과학대학", List.of(
-                new CollegeWithDepartmentsRes.DepartmentDetail(11L, "110", "심리학과"),
-                new CollegeWithDepartmentsRes.DepartmentDetail(13L, "130", "사회학과")
-            ))
+            new CollegeWithDepartmentsRes(1L, "C01", "인문대학", humanities),
+            new CollegeWithDepartmentsRes(2L, "C02", "공과대학", engineering),
+            new CollegeWithDepartmentsRes(3L, "C03", "경영대학", business),
+            new CollegeWithDepartmentsRes(4L, "C04", "자연과학대학", naturalScience),
+            new CollegeWithDepartmentsRes(5L, "C05", "사회과학대학", socialScience)
         );
     }
 
