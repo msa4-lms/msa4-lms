@@ -79,7 +79,7 @@ public class AuthService {
     }
 
     // logout
-    public void logout(HttpServletResponse response, int id) {
+    public void logout(HttpServletResponse response, long id) {
         User user = userMapper.findByPk(id);
 
         if(user == null) {
