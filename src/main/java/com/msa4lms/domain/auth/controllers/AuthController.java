@@ -74,7 +74,7 @@ public class AuthController {
             @AuthenticationPrincipal Claims claims,
             @Valid @RequestBody PasswordChangeReq req
     ) {
-        int id = Integer.parseInt(claims.getSubject());
+        long id = Long.parseLong(claims.getSubject());
 
         authService.changePassword(id, req);
 
