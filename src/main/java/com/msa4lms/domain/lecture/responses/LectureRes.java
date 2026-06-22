@@ -17,8 +17,6 @@ public record LectureRes(
     Integer currentEnrollment,
     Integer academicYear,
     String term,
-    
-    // 성적 평가 비율 필드 추가
     Integer midtermRatio,
     Integer finalRatio,
     Integer assignmentRatio,

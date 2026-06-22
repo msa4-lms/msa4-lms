@@ -27,10 +27,5 @@ public interface LectureMapper {
 
     List<FlatCollegeDeptDto> findFlatCollegesAndDepartments();
 
-    Lecture findLectureById(@Param("id") Long id);
-
-    void insertLectureSchedule(
-        @Param("lectureId") Long lectureId, 
-        @Param("schedule") com.msa4lms.domain.lecture.requests.ScheduleInput schedule
-    );
+    List<LectureRes> findLecturesByProfessorId(@Param("professorId") Long professorId);
 }

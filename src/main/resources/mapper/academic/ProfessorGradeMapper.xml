@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.academic.mapper.ProfessorGradeMapper">
+
+    <select id="checkLectureOwnership" resultType="int">
+        SELECT COUNT(*)
+        FROM lectures
+        WHERE id = #{lectureId} AND professor_id = #{professorId}
+    </select>
+
+    <select id="findGradesByLectureId" resultType="com.msa4lms.domain.academic.responses.GradeDetailRes">
+        SELECT
+            e.id AS id,
+            e.id AS enrollmentId,
+            u.name AS studentName,
+            u.login_id AS studentLoginId,
+            e.midterm_score AS midtermScore,
+            e.final_score AS finalScore,
+            e.assignment_score AS assignmentScore,
+            e.attendance_score AS attendanceScore,
+            e.grade_status AS status,
+            e.objection_reply AS objectionReply
+        FROM enrollments e
+        JOIN students s ON e.student_id = s.user_id
+        JOIN users u ON s.user_id = u.id
+        WHERE e.lecture_id = #{lectureId} AND e.status = 'ACTIVE'
+        ORDER BY u.name ASC
+    </select>
+
+    <update id="upsertGrade">
+        UPDATE enrollments
+        SET midterm_score = #{dto.midtermScore},
+            final_score = #{dto.finalScore},
+            assignment_score = #{dto.assignmentScore},
+            attendance_score = #{dto.attendanceScore},
+            updated_at = NOW()
+        WHERE id = #{dto.enrollmentId}
+    </update>
+
+    <update id="updateGradesStatusByLectureId">
+        UPDATE enrollments
+        SET grade_status = #{status}, updated_at = NOW()
+        WHERE lecture_id = #{lectureId}
+    </update>
+
+    <select id="findLectureIdByGradeId" resultType="Long">
+        SELECT lecture_id
+        FROM enrollments
+        WHERE id = #{gradeId}
+    </select>
+
+    <update id="updateGradeStatus">
+        UPDATE enrollments
+        SET grade_status = #{status},
+            objection_reply = #{objectionReply},
+            updated_at = NOW()
+        WHERE id = #{gradeId}
+    </update>
+
+</mapper>
