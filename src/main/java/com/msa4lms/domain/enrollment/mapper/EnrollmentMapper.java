@@ -76,4 +76,9 @@ public interface EnrollmentMapper {
      * 수강 신청 이력 저장 (ENROLL / CANCEL)
      */
     void insertEnrollmentHistory(@Param("studentId") Long userId, @Param("lectureId") Long lectureId, @Param("action") String action);
+
+    /**
+     * 수강 취소 시 성적 정보 함께 삭제
+     */
+    void deleteGradeByEnrollment(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
 }

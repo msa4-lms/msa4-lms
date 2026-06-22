@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SemesterGradeRes {
+    private Long id;
     private Integer year;
     private Integer semester;
     private String courseName;
@@ -14,5 +15,5 @@ public class SemesterGradeRes {
     private Integer credits;
     private String grade;
     private Double gradePoint;
-    private Double attendanceRate;
+    private String status;
 }
