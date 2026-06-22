@@ -11,11 +11,15 @@
             u.status AS status,
             d.name AS departmentName,
             u.login_id AS professorNo,
+            u.phone_number AS phoneNum,
+            u.address AS address,
             u.email AS email,
+            c.name AS collegeName,
             p.hire_year AS hireYear
         FROM professors p
-            JOIN users u ON p.user_id = u.id
-            JOIN departments d ON p.department_id = d.id
+                 JOIN users u ON p.user_id = u.id
+                 JOIN departments d ON p.department_id = d.id
+                 JOIN colleges c ON d.college_id = c.id
         WHERE p.user_id = #{userId}
     </select>
 </mapper>
