@@ -10,10 +10,10 @@ public record StudentProfileRes(
         ,Integer grade
         ,String studentNo
         ,String email
-       // ,String phoneNum
-       // ,String address
-       // ,String collage
-       // ,String advisorName
+        ,String phoneNum
+        ,String address
+        ,String collegeName
+        ,String advisorName
         ,Integer admissionYear
         ,Integer credits
 ) {

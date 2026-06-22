@@ -10,6 +10,8 @@ public class User {
     private String loginId;
     private String name;
     private String email;
+    private String phoneNumber;
+    private String address;
     private String password;
     private Role role;
     private Long departmentId;
