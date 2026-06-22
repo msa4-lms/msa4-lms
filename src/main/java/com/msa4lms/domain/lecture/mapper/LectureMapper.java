@@ -2,6 +2,7 @@ package com.msa4lms.domain.lecture.mapper;
 
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LectureRes;
+import com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -23,6 +24,8 @@ public interface LectureMapper {
     void insertLecture(Lecture lecture);
 
     List<LectureRes> findLecturesByProfessor(@Param("professorId") Long professorId);
+
+    List<FlatCollegeDeptDto> findFlatCollegesAndDepartments();
 
     Lecture findLectureById(@Param("id") Long id);
 

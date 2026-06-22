@@ -41,6 +41,7 @@
             courses.code AS course_code,
             courses.name AS course_name,
             courses.credits,
+            NULL AS target_grade,
             departments.name AS department_name,
             users.name AS professor_name,
             lectures.classroom,
@@ -77,6 +78,7 @@
             courses.code AS course_code,
             courses.name AS course_name,
             courses.credits,
+            NULL AS target_grade,
             departments.name AS department_name,
             users.name AS professor_name,
             lectures.classroom,
@@ -124,6 +126,7 @@
             courses.code AS course_code,
             courses.name AS course_name,
             courses.credits,
+            NULL AS target_grade,
             departments.name AS department_name,
             users.name AS professor_name,
             lectures.classroom,
@@ -177,5 +180,19 @@
         INSERT INTO lecture_schedules (lecture_id, day_of_week, start_period, end_period)
         VALUES (#{lectureId}, #{schedule.dayOfWeek}, #{schedule.startPeriod}, #{schedule.endPeriod})
     </insert>
+
+    <select id="findFlatCollegesAndDepartments" resultType="com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto">
+        SELECT
+            c.id AS college_id,
+            c.code AS college_code,
+            c.name AS college_name,
+            d.id AS dept_id,
+            d.code AS dept_code,
+            d.name AS dept_name
+        FROM colleges c
+        LEFT JOIN departments d ON c.id = d.college_id AND d.active = 1
+        WHERE c.active = 1
+        ORDER BY c.code ASC, d.code ASC
+    </select>
 
 </mapper>
