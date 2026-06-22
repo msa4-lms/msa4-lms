@@ -83,6 +83,13 @@
         WHERE id = #{lectureId}
     </select>
 
+    <!-- 강의 수강 정원 조회 (비관적 락 적용) -->
+    <select id="getLectureCapacityWithLock" resultType="int">
+        SELECT capacity FROM lectures
+        WHERE id = #{lectureId}
+        FOR UPDATE
+    </select>
+
     <!-- 시간표 중복 여부 확인 -->
     <select id="hasScheduleOverlap" resultType="boolean">
         SELECT EXISTS (
@@ -100,5 +107,11 @@
               AND new_ls.end_period &gt;= existing_ls.start_period
         )
     </select>
+
+    <!-- 수강 신청 이력 저장 -->
+    <insert id="insertEnrollmentHistory">
+        INSERT INTO enrollment_histories (student_id, lecture_id, action, created_at)
+        VALUES ((SELECT id FROM students WHERE user_id = #{studentId}), #{lectureId}, #{action}, CURRENT_TIMESTAMP)
+    </insert>
 
 </mapper>

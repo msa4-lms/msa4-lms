@@ -5,6 +5,7 @@ public record LectureSearchReq(
     String professorName,
     String departmentName,
     String collegeName,
+    Integer targetGrade,
     Integer year,
     Integer semester,
     String courseCode,
