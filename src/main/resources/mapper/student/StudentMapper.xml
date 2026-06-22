@@ -13,11 +13,17 @@
             s.grade_level AS grade,
             u.login_id AS studentNo,
             u.email AS email,
+            u.phone_number AS phoneNum,
+            u.address AS address,
+            c.name AS collegeName,
+            u.name AS advisorName,
             s.admission_year AS admissionYear,
             0 AS credits
         FROM students s
                  JOIN users u ON s.user_id = u.id
                  JOIN departments d ON s.department_id = d.id
+                 JOIN colleges c ON d.college_id = c.id
+                 JOIN users au ON s.advisor_id = au.id
         WHERE s.user_id = #{userId}
     </select>
 </mapper>
