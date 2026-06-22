@@ -10,6 +10,7 @@ import com.msa4lms.domain.academic.responses.GradeSummaryRes;
 import com.msa4lms.domain.academic.responses.SemesterGradeRes;
 import com.msa4lms.global.errors.custom.NotRegisteredException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -57,14 +58,22 @@ public class AcademicService {
      * 학생의 출결 현황 조회
      */
     public List<AcademicAttendanceRes> getAttendance(long studentId) {
-        return academicMapper.findAttendanceByStudentId(studentId);
+        try {
+            return academicMapper.findAttendanceByStudentId(studentId);
+        } catch (BadSqlGrammarException e) {
+            return List.of();
+        }
     }
 
     /**
      * 학생의 과목별 출석률 조회
      */
-    public List<AttendanceRateRes> getAttendanceRates(long studentId) {
-        return academicMapper.findAttendanceRatesByStudentId(studentId);
+    public List<AttendanceRateRes> getAttendanceRates(long studentId, Integer year, Integer semester) {
+        try {
+            return academicMapper.findAttendanceRatesByStudentId(studentId, year, semester);
+        } catch (BadSqlGrammarException e) {
+            return List.of();
+        }
     }
 
     /**
@@ -98,14 +107,22 @@ public class AcademicService {
      * 학생 공결 승인 결과 조회
      */
     public List<ExcuseRequestRes> getMyExcuseRequests(long studentId) {
-        return academicMapper.findExcuseRequestsByStudentId(studentId);
+        try {
+            return academicMapper.findExcuseRequestsByStudentId(studentId);
+        } catch (BadSqlGrammarException e) {
+            return List.of();
+        }
     }
 
     /**
      * 교수 공결 승인 대기 목록 조회
      */
     public List<ExcuseRequestRes> getPendingExcuseRequests(long professorId) {
-        return academicMapper.findPendingExcuseRequestsByProfessorId(professorId);
+        try {
+            return academicMapper.findPendingExcuseRequestsByProfessorId(professorId);
+        } catch (BadSqlGrammarException e) {
+            return List.of();
+        }
     }
 
     /**

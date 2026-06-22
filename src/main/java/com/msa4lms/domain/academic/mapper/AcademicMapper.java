@@ -18,7 +18,10 @@ public interface AcademicMapper {
 
     List<AcademicAttendanceRes> findAttendanceByStudentId(@Param("studentId") long studentId);
 
-    List<AttendanceRateRes> findAttendanceRatesByStudentId(@Param("studentId") long studentId);
+    List<AttendanceRateRes> findAttendanceRatesByStudentId(
+            @Param("studentId") long studentId,
+            @Param("year") Integer year,
+            @Param("semester") Integer semester);
 
     int countOwnedEnrollment(
             @Param("studentId") long studentId,
