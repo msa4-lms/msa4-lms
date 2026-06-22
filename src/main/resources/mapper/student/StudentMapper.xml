@@ -16,7 +16,7 @@
             u.phone_number AS phoneNum,
             u.address AS address,
             c.name AS collegeName,
-            u.name AS advisorName,
+            au.name AS advisorName,
             s.admission_year AS admissionYear,
             0 AS credits
         FROM students s
