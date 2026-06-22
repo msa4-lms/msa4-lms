@@ -1,11 +1,13 @@
 package com.msa4lms.domain.lecture.services;
 
 import com.msa4lms.domain.lecture.mapper.LectureMapper;
+import com.msa4lms.domain.lecture.requests.LectureCreateReq;
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LecturePagedRes;
 import com.msa4lms.domain.lecture.responses.LectureRes;
 import com.msa4lms.domain.lecture.responses.CollegeWithDepartmentsRes;
 import com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,29 +32,64 @@ public class LectureService {
         return new LecturePagedRes(lectures, totalCount, searchReq.page(), searchReq.size());
     }
 
-    public List<CollegeWithDepartmentsRes> getCollegesWithDepartments() {
-        List<FlatCollegeDeptDto> flatList = lectureMapper.findFlatCollegesAndDepartments();
+    @Transactional
+    public void createLecture(Long professorId, LectureCreateReq req) {
+        if (req.midtermRatio() + req.finalRatio() + req.assignmentRatio() + req.attendanceRatio() != 100) {
+            throw new IllegalArgumentException("성적 비율의 합은 100이어야 합니다.");
+        }
 
-        return flatList.stream()
-            .collect(java.util.stream.Collectors.groupingBy(
-                dto -> new CollegeKey(dto.collegeId(), dto.collegeCode(), dto.collegeName()),
-                java.util.LinkedHashMap::new,
-                java.util.stream.Collectors.mapping(
-                    dto -> new CollegeWithDepartmentsRes.DepartmentDetail(dto.deptId(), dto.deptCode(), dto.deptName()),
-                    java.util.stream.Collectors.toList()
-                )
-            ))
-            .entrySet().stream()
-            .map(entry -> new CollegeWithDepartmentsRes(
-                entry.getKey().id(),
-                entry.getKey().code(),
-                entry.getKey().name(),
-                entry.getValue().stream()
-                    .filter(d -> d.id() != null)
-                    .toList()
-            ))
-            .toList();
+        com.msa4lms.domain.lecture.entities.Lecture lecture = new com.msa4lms.domain.lecture.entities.Lecture();
+        lecture.setSemesterId(req.semesterId());
+        lecture.setCourseId(req.courseId());
+        lecture.setProfessorId(professorId);
+        lecture.setSectionNo(req.sectionNo());
+        lecture.setCapacity(req.capacity());
+        lecture.setClassroom(req.classroom());
+        lecture.setMidtermRatio(req.midtermRatio());
+        lecture.setFinalRatio(req.finalRatio());
+        lecture.setAssignmentRatio(req.assignmentRatio());
+        lecture.setAttendanceRatio(req.attendanceRatio());
+
+        lectureMapper.insertLecture(lecture);
+
+        // 시간표 저장
+        if (req.schedules() != null) {
+            for (com.msa4lms.domain.lecture.requests.ScheduleInput schedule : req.schedules()) {
+                if (schedule.startPeriod() > schedule.endPeriod()) {
+                    throw new IllegalArgumentException("시작 교시는 종료 교시보다 클 수 없습니다.");
+                }
+                lectureMapper.insertLectureSchedule(lecture.getId(), schedule);
+            }
+        }
     }
 
-    private record CollegeKey(Long id, String code, String name) {}
+    public List<LectureRes> getLecturesByProfessor(Long professorId) {
+        return lectureMapper.findLecturesByProfessor(professorId);
+    }
+
+    public List<CollegeWithDepartmentsRes> getCollegesWithDepartments() {
+        List<FlatCollegeDeptDto> flatDepts = lectureMapper.findFlatCollegesAndDepartments();
+
+        return flatDepts.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        FlatCollegeDeptDto::collegeId,
+                        java.util.LinkedHashMap::new,
+                        java.util.stream.Collectors.toList()
+                ))
+                .values().stream()
+                .map(list -> {
+                    FlatCollegeDeptDto first = list.get(0);
+                    List<CollegeWithDepartmentsRes.DepartmentDetail> depts = list.stream()
+                            .filter(dto -> dto.deptId() != null)
+                            .map(dto -> new CollegeWithDepartmentsRes.DepartmentDetail(
+                                    dto.deptId(), dto.deptCode(), dto.deptName()
+                            ))
+                            .toList();
+                    return new CollegeWithDepartmentsRes(
+                            first.collegeId(), first.collegeCode(), first.collegeName(), depts
+                    );
+                })
+                .toList();
+    }
+
 }
