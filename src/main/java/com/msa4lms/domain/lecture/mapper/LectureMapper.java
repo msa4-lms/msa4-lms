@@ -20,4 +20,6 @@ public interface LectureMapper {
     long countLecturesBySearch(@Param("searchReq") LectureSearchReq searchReq);
 
     List<FlatCollegeDeptDto> findFlatCollegesAndDepartments();
+
+    List<LectureRes> findLecturesByProfessorId(@Param("professorId") Long professorId);
 }

@@ -16,5 +16,9 @@ public record LectureRes(
     Integer capacity,
     Integer currentEnrollment,
     Integer academicYear,
-    String term
+    String term,
+    Integer midtermRatio,
+    Integer finalRatio,
+    Integer assignmentRatio,
+    Integer attendanceRatio
 ) {}

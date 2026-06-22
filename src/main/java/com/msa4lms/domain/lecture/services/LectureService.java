@@ -55,4 +55,8 @@ public class LectureService {
     }
 
     private record CollegeKey(Long id, String code, String name) {}
+
+    public List<LectureRes> getLecturesByProfessorId(Long professorId) {
+        return lectureMapper.findLecturesByProfessorId(professorId);
+    }
 }

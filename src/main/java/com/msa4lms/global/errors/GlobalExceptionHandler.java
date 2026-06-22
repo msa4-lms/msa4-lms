@@ -187,6 +187,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<GlobalRes<String>> illegalArgumentHandle(IllegalArgumentException e) {
+        log.warn("잘못된 파라미터 예외: {}", e.getMessage());
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E22")
+                .message("잘못된 요청 파라미터입니다.")
+                .data(e.getMessage())
+                .build()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GlobalRes<String>> othersHandle(Exception e) {
         log.error("시스템 에러", e);

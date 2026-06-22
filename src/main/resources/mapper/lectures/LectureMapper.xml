@@ -41,50 +41,33 @@
         </where>
     </sql>
 
-    <select id="findAllLectures" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
-        SELECT
-            lectures.id,
-            courses.code AS course_code,
-            courses.name AS course_name,
-            courses.credits,
-            courses.target_grade AS target_grade,
-            departments.name AS department_name,
-            users.name AS professor_name,
-            lectures.classroom,
-            (SELECT GROUP_CONCAT(
-                CONCAT(
-                    CASE day_of_week 
-                        WHEN 'MON' THEN '월요일' WHEN 'TUE' THEN '화요일' WHEN 'WED' THEN '수요일' 
-                        WHEN 'THU' THEN '목요일' WHEN 'FRI' THEN '금요일' ELSE day_of_week 
-                    END, 
-                    ' ',
-                    LPAD(start_period + 8, 2, '0'), ':00 ~ ',
-                    LPAD(end_period + 8, 2, '0'), ':50'
-                ) SEPARATOR ', '
-             ) FROM lecture_schedules WHERE lecture_id = lectures.id) AS schedule,
-            lectures.capacity,
-            (SELECT COUNT(*) FROM enrollments e WHERE e.lecture_id = lectures.id AND e.status = 'ACTIVE') AS current_enrollment,
-            semesters.academic_year,
-            semesters.term
-        FROM lectures
+    <sql id="lectureSelectFields">
+        lectures.id,
+        courses.code AS course_code,
+        courses.name AS course_name,
+        courses.credits,
+        courses.target_grade AS target_grade,
+        departments.name AS department_name,
+        users.name AS professor_name,
+        lectures.classroom,
+        COALESCE(sched.schedule_str, '') AS schedule,
+        lectures.capacity,
+        COALESCE(enrl.current_enrollment, 0) AS current_enrollment,
+        semesters.academic_year,
+        semesters.term,
+        lectures.midterm_ratio,
+        lectures.final_ratio,
+        lectures.assignment_ratio,
+        lectures.attendance_ratio
+    </sql>
+
+    <sql id="lectureJoins">
         JOIN courses ON lectures.course_id = courses.id
         JOIN departments ON courses.department_id = departments.id
         JOIN users ON lectures.professor_id = users.id
         JOIN semesters ON lectures.semester_id = semesters.id
-        ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
-    </select>
-
-    <select id="findLecturesBySearch" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
-        SELECT
-            lectures.id,
-            courses.code AS course_code,
-            courses.name AS course_name,
-            courses.credits,
-            courses.target_grade AS target_grade,
-            departments.name AS department_name,
-            users.name AS professor_name,
-            lectures.classroom,
-            (SELECT GROUP_CONCAT(
+        LEFT JOIN (
+            SELECT lecture_id, GROUP_CONCAT(
                 CONCAT(
                     CASE day_of_week 
                         WHEN 'MON' THEN '월요일' WHEN 'TUE' THEN '화요일' WHEN 'WED' THEN '수요일' 
@@ -94,14 +77,36 @@
                     LPAD(start_period + 8, 2, '0'), ':00 ~ ',
                     LPAD(end_period + 8, 2, '0'), ':50'
                 ) SEPARATOR ', '
-             ) FROM lecture_schedules WHERE lecture_id = lectures.id) AS schedule,
-            lectures.capacity,
-            (SELECT COUNT(*) FROM enrollments e WHERE e.lecture_id = lectures.id AND e.status = 'ACTIVE') AS current_enrollment,
-            semesters.academic_year,
-            semesters.term
-        <include refid="searchConditions" />
+            ) AS schedule_str
+            FROM lecture_schedules
+            GROUP BY lecture_id
+        ) sched ON lectures.id = sched.lecture_id
+        LEFT JOIN (
+            SELECT lecture_id, COUNT(*) AS current_enrollment
+            FROM enrollments
+            WHERE status = 'ACTIVE'
+            GROUP BY lecture_id
+        ) enrl ON lectures.id = enrl.lecture_id
+    </sql>
+
+    <select id="findAllLectures" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
+        SELECT <include refid="lectureSelectFields" />
+        FROM lectures
+        <include refid="lectureJoins" />
         ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
-        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="findLecturesBySearch" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
+        SELECT <include refid="lectureSelectFields" />
+        FROM (
+            SELECT lectures.id
+            <include refid="searchConditions" />
+            ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
+            LIMIT #{size} OFFSET #{offset}
+        ) AS filtered_lectures
+        JOIN lectures ON lectures.id = filtered_lectures.id
+        <include refid="lectureJoins" />
+        ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
     </select>
 
     <select id="countLecturesBySearch" resultType="long">
@@ -123,4 +128,11 @@
         ORDER BY c.code ASC, d.code ASC
     </select>
 
+    <select id="findLecturesByProfessorId" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
+        SELECT <include refid="lectureSelectFields" />
+        FROM lectures
+        <include refid="lectureJoins" />
+        WHERE lectures.professor_id = #{professorId}
+        ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
+    </select>
 </mapper>

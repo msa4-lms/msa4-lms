@@ -1,0 +1,36 @@
+package com.msa4lms.domain.lecture.controllers;
+
+import com.msa4lms.domain.lecture.responses.LectureRes;
+import com.msa4lms.domain.lecture.services.LectureService;
+import com.msa4lms.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/professor/lectures")
+public class ProfessorLectureController {
+
+    private final LectureService lectureService;
+
+    @GetMapping
+    public ResponseEntity<GlobalRes<List<LectureRes>>> getMyLectures(@AuthenticationPrincipal Claims claims) {
+        Long professorId = Long.parseLong(claims.getSubject());
+        List<LectureRes> result = lectureService.getLecturesByProfessorId(professorId);
+
+        return ResponseEntity.status(200).body(
+                GlobalRes.<List<LectureRes>>builder()
+                        .code("00")
+                        .message("나의 강좌 조회가 완료되었습니다.")
+                        .data(result)
+                        .build()
+        );
+    }
+}
