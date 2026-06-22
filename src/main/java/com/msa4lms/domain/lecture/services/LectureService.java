@@ -70,42 +70,26 @@ public class LectureService {
     public List<CollegeWithDepartmentsRes> getCollegesWithDepartments() {
         List<FlatCollegeDeptDto> flatDepts = lectureMapper.findFlatCollegesAndDepartments();
 
-        List<CollegeWithDepartmentsRes.DepartmentDetail> humanities = new java.util.ArrayList<>();
-        List<CollegeWithDepartmentsRes.DepartmentDetail> engineering = new java.util.ArrayList<>();
-        List<CollegeWithDepartmentsRes.DepartmentDetail> business = new java.util.ArrayList<>();
-        List<CollegeWithDepartmentsRes.DepartmentDetail> naturalScience = new java.util.ArrayList<>();
-        List<CollegeWithDepartmentsRes.DepartmentDetail> socialScience = new java.util.ArrayList<>();
-
-        for (FlatCollegeDeptDto dto : flatDepts) {
-            if (dto.deptId() == null || dto.deptCode() == null) continue;
-            
-            CollegeWithDepartmentsRes.DepartmentDetail deptDetail = new CollegeWithDepartmentsRes.DepartmentDetail(
-                dto.deptId(), dto.deptCode(), dto.deptName()
-            );
-            String code = dto.deptCode();
-
-            if (code.startsWith("10")) {
-                humanities.add(deptDetail);
-            } else if (code.startsWith("14") || code.startsWith("15") || code.startsWith("17") || code.startsWith("18") || code.startsWith("19")) {
-                engineering.add(deptDetail);
-            } else if (code.startsWith("16")) {
-                business.add(deptDetail);
-            } else if (code.startsWith("12")) {
-                naturalScience.add(deptDetail);
-            } else if (code.startsWith("11") || code.startsWith("13")) {
-                socialScience.add(deptDetail);
-            } else {
-                socialScience.add(deptDetail);
-            }
-        }
-
-        return List.of(
-            new CollegeWithDepartmentsRes(1L, "C01", "인문대학", humanities),
-            new CollegeWithDepartmentsRes(2L, "C02", "공과대학", engineering),
-            new CollegeWithDepartmentsRes(3L, "C03", "경영대학", business),
-            new CollegeWithDepartmentsRes(4L, "C04", "자연과학대학", naturalScience),
-            new CollegeWithDepartmentsRes(5L, "C05", "사회과학대학", socialScience)
-        );
+        return flatDepts.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        FlatCollegeDeptDto::collegeId,
+                        java.util.LinkedHashMap::new,
+                        java.util.stream.Collectors.toList()
+                ))
+                .values().stream()
+                .map(list -> {
+                    FlatCollegeDeptDto first = list.get(0);
+                    List<CollegeWithDepartmentsRes.DepartmentDetail> depts = list.stream()
+                            .filter(dto -> dto.deptId() != null)
+                            .map(dto -> new CollegeWithDepartmentsRes.DepartmentDetail(
+                                    dto.deptId(), dto.deptCode(), dto.deptName()
+                            ))
+                            .toList();
+                    return new CollegeWithDepartmentsRes(
+                            first.collegeId(), first.collegeCode(), first.collegeName(), depts
+                    );
+                })
+                .toList();
     }
 
 }

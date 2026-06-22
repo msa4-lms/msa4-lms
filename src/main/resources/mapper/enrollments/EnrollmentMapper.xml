@@ -114,4 +114,14 @@
         VALUES ((SELECT id FROM students WHERE user_id = #{studentId}), #{lectureId}, #{action}, CURRENT_TIMESTAMP)
     </insert>
 
+    <!-- 수강 취소 시 성적 정보 삭제 -->
+    <delete id="deleteGradeByEnrollment">
+        DELETE FROM grades
+        WHERE enrollment_id = (
+            SELECT id FROM enrollments
+            WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+              AND lecture_id = #{lectureId}
+        )
+    </delete>
+
 </mapper>
