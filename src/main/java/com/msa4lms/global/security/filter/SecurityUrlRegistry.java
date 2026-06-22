@@ -9,16 +9,20 @@ public final class SecurityUrlRegistry {
     // ------------------------------------
     public static final String[] AUTH_REQUIRED_GET_URLS = {
             "/api/academic/grades",
-            "/api/academic/attendance"
+            "/api/academic/attendance",
+            "/api/academic/attendance-rates",
+            "/api/academic/excuses/my",
+            "/api/academic/excuses/pending"
     };
     public static final String[] AUTH_REQUIRED_POST_URLS = {
-            "/api/logout"
+            "/api/logout",
+            "/api/academic/excuses"
     };
     public static final String[] AUTH_REQUIRED_PUT_URLS = {
 
     };
     public static final String[] AUTH_REQUIRED_PATCH_URLS = {
-
+            "/api/academic/excuses/*"
     };
     public static final String[] AUTH_REQUIRED_DELETE_URLS = {
 

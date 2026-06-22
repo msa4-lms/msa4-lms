@@ -9,5 +9,6 @@ import lombok.*;
 public class AcademicAttendanceRes {
     private String courseName;
     private String lectureDate;
+    private Integer period;
     private String status;
 }
