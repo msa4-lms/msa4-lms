@@ -67,6 +67,9 @@
             lectures.final_ratio AS final_ratio,
             lectures.assignment_ratio AS assignment_ratio,
             lectures.attendance_ratio AS attendance_ratio
+            (SELECT COUNT(*) FROM enrollments e WHERE e.lecture_id = lectures.id AND e.status = 'ACTIVE') AS current_enrollment,
+            semesters.academic_year,
+            semesters.term
         FROM lectures
         JOIN courses ON lectures.course_id = courses.id
         JOIN departments ON courses.department_id = departments.id
@@ -103,6 +106,9 @@
             lectures.final_ratio AS final_ratio,
             lectures.assignment_ratio AS assignment_ratio,
             lectures.attendance_ratio AS attendance_ratio
+            (SELECT COUNT(*) FROM enrollments e WHERE e.lecture_id = lectures.id AND e.status = 'ACTIVE') AS current_enrollment,
+            semesters.academic_year,
+            semesters.term
         <include refid="searchConditions" />
         ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
         LIMIT #{size} OFFSET #{offset}

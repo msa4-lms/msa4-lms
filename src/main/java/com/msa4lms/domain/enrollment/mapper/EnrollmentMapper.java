@@ -58,6 +58,16 @@ public interface EnrollmentMapper {
     int getLectureCapacityWithLock(@Param("lectureId") Long lectureId);
 
     /**
+     * 특정 강의의 학점 조회
+     */
+    int getLectureCredits(@Param("lectureId") Long lectureId);
+
+    /**
+     * 특정 학생의 (해당 강의가 속한 학기의) 현재 총 신청 학점 계산
+     */
+    int calculateTotalCreditsByLectureSemester(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
+
+    /**
      * 시간표 중복 여부 확인
      */
     boolean hasScheduleOverlap(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);

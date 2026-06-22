@@ -10,11 +10,15 @@ public class User {
     private String loginId;
     private String name;
     private String email;
+    private String phoneNumber;
+    private String address;
     private String password;
     private Role role;
     private Long departmentId;
     private String departmentName;
     private Integer gradeLevel;
+    private Long advisorId;
+    private String advisorName;
     private String refreshToken;
     private String createdAt;
     private String updatedAt;

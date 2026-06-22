@@ -44,6 +44,14 @@ public class EnrollmentService {
             throw new CapacityExceededException("수강 정원이 초과되었습니다. (정원: " + capacity + "명)");
         }
 
+        // 3. 최대 신청 가능 학점(18학점) 검증
+        int lectureCredits = enrollmentMapper.getLectureCredits(lectureId);
+        int currentTotalCredits = enrollmentMapper.calculateTotalCreditsByLectureSemester(userId, lectureId);
+        
+        if (currentTotalCredits + lectureCredits > 18) {
+            throw new CapacityExceededException("한 학기에 최대 18학점까지만 수강할 수 있습니다.");
+        }
+
         // 3. 중복 신청 방지
         if (enrollmentMapper.existsEnrollment(userId, lectureId)) {
             throw new DuplicatedRecordException("이미 신청한 강의입니다.");

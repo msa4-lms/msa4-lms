@@ -90,6 +90,24 @@
         FOR UPDATE
     </select>
 
+    <!-- 특정 강의의 학점 조회 -->
+    <select id="getLectureCredits" resultType="int">
+        SELECT c.credits FROM lectures l
+        JOIN courses c ON l.course_id = c.id
+        WHERE l.id = #{lectureId}
+    </select>
+
+    <!-- 특정 학생의 (해당 강의가 속한 학기의) 현재 총 신청 학점 계산 -->
+    <select id="calculateTotalCreditsByLectureSemester" resultType="int">
+        SELECT IFNULL(SUM(c.credits), 0)
+        FROM enrollments e
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        WHERE e.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+          AND l.semester_id = (SELECT semester_id FROM lectures WHERE id = #{lectureId})
+          AND e.status != 'DROPPED'
+    </select>
+
     <!-- 시간표 중복 여부 확인 -->
     <select id="hasScheduleOverlap" resultType="boolean">
         SELECT EXISTS (

@@ -97,7 +97,8 @@ public class SecurityConfiguration {
                             "/api/auth/logout",
                             "/api/auth/password",
                             "/api/lectures/**",
-                            "/api/profile"
+                            "/api/profile",
+                            "/api/dashboard/**"
                     ).authenticated();
 
                     // 학생 권한

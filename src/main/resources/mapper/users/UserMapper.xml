@@ -9,11 +9,15 @@
         <result column="login_id" property="loginId"/>
         <result column="name" property="name"/>
         <result column="email" property="email"/>
+        <result column="phone_number" property="phoneNumber"/>
+        <result column="address" property="address"/>
         <result column="password" property="password"/>
         <result column="role" property="role"/>
         <result column="department_id" property="departmentId"/>
         <result column="department_name" property="departmentName"/>
         <result column="grade_level" property="gradeLevel"/>
+        <result column="advisor_id" property="advisorId"/>
+        <result column="advisor_name" property="advisorName"/>
         <result column="refresh_token" property="refreshToken"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
@@ -37,11 +41,15 @@
             u.*,
             COALESCE(s.department_id, p.department_id) AS department_id,
             d.name AS department_name,
-            s.grade_level
+            s.grade_level,
+            s.advisor_id,
+            pu.name AS advisor_name
         FROM users u
         LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
         LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
         LEFT JOIN departments d ON COALESCE(s.department_id, p.department_id) = d.id
+        LEFT JOIN professors adv ON s.advisor_id = adv.id
+        LEFT JOIN users pu ON adv.user_id = pu.id
         WHERE u.login_id = #{loginId}
           AND u.deleted_at IS NULL
     </select>
@@ -51,11 +59,15 @@
             u.*,
             COALESCE(s.department_id, p.department_id) AS department_id,
             d.name AS department_name,
-            s.grade_level
+            s.grade_level,
+            s.advisor_id,
+            pu.name AS advisor_name
         FROM users u
         LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
         LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
         LEFT JOIN departments d ON COALESCE(s.department_id, p.department_id) = d.id
+        LEFT JOIN professors adv ON s.advisor_id = adv.id
+        LEFT JOIN users pu ON adv.user_id = pu.id
         WHERE u.id = #{id}
           AND u.deleted_at IS NULL
     </select>

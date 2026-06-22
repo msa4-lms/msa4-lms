@@ -14,6 +14,7 @@ public record LectureRes(
     String classroom,
     String schedule,
     Integer capacity,
+    Integer currentEnrollment,
     Integer academicYear,
     String term,
     

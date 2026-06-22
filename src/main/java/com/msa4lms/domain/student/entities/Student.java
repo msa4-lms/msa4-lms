@@ -13,4 +13,5 @@ public class Student {
     private Integer gradeLevel;
     private Integer admissionYear;
     private String academicStatus;
+    private Long advisorId;
 }
