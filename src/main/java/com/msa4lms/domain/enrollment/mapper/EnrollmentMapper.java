@@ -53,7 +53,17 @@ public interface EnrollmentMapper {
     int getLectureCapacity(@Param("lectureId") Long lectureId);
 
     /**
+     * 강의 수강 정원 조회 (비관적 락 - FOR UPDATE)
+     */
+    int getLectureCapacityWithLock(@Param("lectureId") Long lectureId);
+
+    /**
      * 시간표 중복 여부 확인
      */
     boolean hasScheduleOverlap(@Param("studentId") Long userId, @Param("lectureId") Long lectureId);
+
+    /**
+     * 수강 신청 이력 저장 (ENROLL / CANCEL)
+     */
+    void insertEnrollmentHistory(@Param("studentId") Long userId, @Param("lectureId") Long lectureId, @Param("action") String action);
 }
