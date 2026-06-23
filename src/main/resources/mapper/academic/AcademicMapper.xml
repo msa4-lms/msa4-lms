@@ -69,6 +69,12 @@
             LEFT JOIN attendances a ON a.enrollment_id = e.id
             JOIN students st ON e.student_id = st.id
             WHERE st.user_id = #{studentId}
+            <if test="year != null">
+                AND s.academic_year = #{year}
+            </if>
+            <if test="semester != null">
+                AND s.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
+            </if>
             GROUP BY e.id, s.academic_year, s.term, c.name, c.code, c.credits, e.status, e.letter_grade, e.total_score
         ) base
         ORDER BY base.year DESC, base.semester DESC
