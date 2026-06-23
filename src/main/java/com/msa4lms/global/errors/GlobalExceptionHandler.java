@@ -63,6 +63,45 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<GlobalRes<String>> passwordMismatchHandle(
+            PasswordMismatchException e
+    ) {
+        return ResponseEntity.status(400).body(
+                GlobalRes.<String>builder()
+                        .code("E05")
+                        .message("비밀번호 확인 실패")
+                        .data(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(PasswordChangeFailedException.class)
+    public ResponseEntity<GlobalRes<String>> passwordChangeFailedHandle(
+            PasswordChangeFailedException e
+    ) {
+        return ResponseEntity.status(400).body(
+                GlobalRes.<String>builder()
+                        .code("E06")
+                        .message("비밀번호 변경 실패")
+                        .data(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(PasswordSameException.class)
+    public ResponseEntity<GlobalRes<String>> passwordSameHandle(
+            PasswordSameException e
+    ) {
+        return ResponseEntity.status(400).body(
+                GlobalRes.<String>builder()
+                        .code("E07")
+                        .message("동일한 비밀번호는 사용할 수 없습니다.")
+                        .data(e.getMessage())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(DeletedRecordException.class)
     public ResponseEntity<GlobalRes<String>> deletedRecordHandle(DeletedRecordException e) {
         return ResponseEntity.status(404).body(
@@ -71,19 +110,6 @@ public class GlobalExceptionHandler {
                 .message("삭제된 데이터입니다.")
                 .data(e.getMessage())
                 .build()
-        );
-    }
-
-    @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<GlobalRes<String>> passwordMismatchHandle(
-            PasswordMismatchException e
-    ) {
-        return ResponseEntity.status(400).body(
-                GlobalRes.<String>builder()
-                        .code("E10")
-                        .message("비밀번호 확인 실패")
-                        .data(e.getMessage())
-                        .build()
         );
     }
 
@@ -117,32 +143,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(PasswordChangeFailedException.class)
-    public ResponseEntity<GlobalRes<String>> passwordChangeFailedHandle(
-            PasswordChangeFailedException e
-    ) {
-        return ResponseEntity.status(400).body(
-                GlobalRes.<String>builder()
-                        .code("E11")
-                        .message("비밀번호 변경 실패")
-                        .data(e.getMessage())
-                        .build()
-        );
-    }
-
-    @ExceptionHandler(PasswordSameException.class)
-    public ResponseEntity<GlobalRes<String>> passwordSameHandle(
-            PasswordSameException e
-    ) {
-        return ResponseEntity.status(400).body(
-                GlobalRes.<String>builder()
-                        .code("E12")
-                        .message("동일한 비밀번호는 사용할 수 없습니다.")
-                        .data(e.getMessage())
-                        .build()
-        );
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GlobalRes<Map<String, String>>> methodArgumentNotValidHandle(MethodArgumentNotValidException e) {
         Map<String, String> errors = e.getBindingResult()
@@ -159,6 +159,18 @@ public class GlobalExceptionHandler {
                 .code("E21")
                 .message("요청 파라미터에 이상이 있습니다.")
                 .data(errors)
+                .build()
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<GlobalRes<String>> illegalArgumentHandle(IllegalArgumentException e) {
+        log.warn("잘못된 파라미터 예외: {}", e.getMessage());
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E22")
+                .message("잘못된 요청 파라미터입니다.")
+                .data(e.getMessage())
                 .build()
         );
     }
@@ -183,18 +195,6 @@ public class GlobalExceptionHandler {
                 .code("E80")
                 .message("DB 에러")
                 .data("현재 서비스 이용이 불가합니다. 잠시후 다시 시도해 주십시오.")
-                .build()
-        );
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<GlobalRes<String>> illegalArgumentHandle(IllegalArgumentException e) {
-        log.warn("잘못된 파라미터 예외: {}", e.getMessage());
-        return ResponseEntity.status(400).body(
-            GlobalRes.<String>builder()
-                .code("E22")
-                .message("잘못된 요청 파라미터입니다.")
-                .data(e.getMessage())
                 .build()
         );
     }
