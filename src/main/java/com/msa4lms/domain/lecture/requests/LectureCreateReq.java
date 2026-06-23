@@ -12,8 +12,13 @@ public record LectureCreateReq(
     @NotNull(message = "학기 ID는 필수입니다.")
     Long semesterId,
 
-    @NotNull(message = "과목 ID는 필수입니다.")
     Long courseId,
+
+    Boolean isNewCourse,
+    String newCourseName,
+    Integer newCourseCredits,
+    Integer newCourseTargetGrade,
+    String newCourseCompletionType,
 
     @NotBlank(message = "분반 번호는 필수입니다.")
     String sectionNo,
@@ -40,6 +45,9 @@ public record LectureCreateReq(
     @NotNull(message = "출결 성적 비율은 필수입니다.")
     @Min(value = 0) @Max(value = 100)
     Integer attendanceRatio,
+
+    @NotBlank(message = "강의계획서는 필수입니다.")
+    String syllabus,
 
     @NotEmpty(message = "강의 시간표를 최소 1개 이상 등록해 주세요.")
     List<@Valid ScheduleInput> schedules

@@ -29,29 +29,14 @@ public class MigrationRunner implements CommandLineRunner {
             log.info("lectures 테이블 컬럼 추가 스킵 (이미 컬럼이 존재할 수 있음): {}", e.getMessage());
         }
 
-        // 2. grades 테이블 확장
-        try {
-            jdbcTemplate.execute("ALTER TABLE `grades` " +
-                    "ADD COLUMN `midterm_score` DECIMAL(5,2) NOT NULL DEFAULT 0.00, " +
-                    "ADD COLUMN `final_score` DECIMAL(5,2) NOT NULL DEFAULT 0.00, " +
-                    "ADD COLUMN `assignment_score` DECIMAL(5,2) NOT NULL DEFAULT 0.00, " +
-                    "ADD COLUMN `attendance_score` DECIMAL(5,2) NOT NULL DEFAULT 0.00, " +
-                    "ADD COLUMN `status` VARCHAR(20) NOT NULL DEFAULT 'DRAFT', " +
-                    "ADD COLUMN `objection_reason` TEXT DEFAULT NULL, " +
-                    "ADD COLUMN `objection_reply` TEXT DEFAULT NULL");
-            log.info("grades 테이블 컬럼 추가 성공 (midterm_score, final_score, assignment_score, attendance_score, status, objection_reason, objection_reply)");
-        } catch (Exception e) {
-            log.info("grades 테이블 컬럼 추가 스킵 (이미 컬럼이 존재할 수 있음): {}", e.getMessage());
-        }
 
-        // 3. 기존 데이터 보정 (과거 학기 성적은 FINAL로 처리)
+
+        // 2. lectures 테이블 강의계획서(syllabus) 컬럼 추가
         try {
-            int updatedRows = jdbcTemplate.update("UPDATE `grades` SET status = 'FINAL' WHERE letter_grade IS NOT NULL AND status = 'DRAFT'");
-            if (updatedRows > 0) {
-                log.info("과거 성적 데이터 {}건을 'FINAL' 상태로 보정했습니다.", updatedRows);
-            }
+            jdbcTemplate.execute("ALTER TABLE `lectures` ADD COLUMN `syllabus` TEXT DEFAULT NULL");
+            log.info("lectures 테이블 컬럼 추가 성공 (syllabus)");
         } catch (Exception e) {
-            log.info("과거 성적 데이터 보정 스킵: {}", e.getMessage());
+            log.info("lectures 테이블 컬럼 추가 스킵 (이미 컬럼이 존재할 수 있음): {}", e.getMessage());
         }
 
         log.info("=== DB Migration End ===");
