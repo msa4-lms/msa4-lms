@@ -30,7 +30,15 @@ public interface LectureMapper {
 
     List<LectureRes> findLecturesByProfessorId(@Param("professorId") Long professorId);
 
+    List<LectureRes> findPastLecturesByProfessorId(@Param("professorId") Long professorId);
+
+    List<com.msa4lms.domain.lecture.responses.CourseRes> findAvailableCoursesForProfessor(@Param("professorId") Long professorId);
+
     Lecture findLectureById(@Param("id") Long id);
+
+    Long findDepartmentIdByProfessorId(@Param("professorId") Long professorId);
+
+    void insertCourse(com.msa4lms.domain.lecture.entities.Course course);
 
     void insertLectureSchedule(@Param("lectureId") Long lectureId, @Param("schedule") ScheduleInput schedule);
 }

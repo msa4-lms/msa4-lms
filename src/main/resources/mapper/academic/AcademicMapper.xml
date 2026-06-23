@@ -45,6 +45,7 @@
                 c.code AS course_code,
                 c.credits,
                 e.status AS status,
+                e.grade_status AS grade_status,
                 e.letter_grade AS grade,
                 CASE
                     WHEN e.letter_grade = 'A+' THEN 4.5
@@ -69,7 +70,7 @@
             LEFT JOIN attendances a ON a.enrollment_id = e.id
             JOIN students st ON e.student_id = st.id
             WHERE st.user_id = #{studentId}
-            GROUP BY e.id, s.academic_year, s.term, c.name, c.code, c.credits, e.status, e.letter_grade, e.total_score
+            GROUP BY e.id, s.academic_year, s.term, c.name, c.code, c.credits, e.status, e.grade_status, e.letter_grade, e.total_score
         ) base
         ORDER BY base.year DESC, base.semester DESC
     </select>

@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record LectureRes(
     Long id,
+    Long courseId,
     String courseCode,
     String courseName,
     Integer credits,
@@ -20,5 +21,6 @@ public record LectureRes(
     Integer midtermRatio,
     Integer finalRatio,
     Integer assignmentRatio,
-    Integer attendanceRatio
+    Integer attendanceRatio,
+    String syllabus
 ) {}

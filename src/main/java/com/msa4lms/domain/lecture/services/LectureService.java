@@ -38,9 +38,28 @@ public class LectureService {
             throw new IllegalArgumentException("성적 비율의 합은 100이어야 합니다.");
         }
 
+        Long courseId = req.courseId();
+        
+        if (Boolean.TRUE.equals(req.isNewCourse())) {
+            Long departmentId = lectureMapper.findDepartmentIdByProfessorId(professorId);
+            String newCode = String.format("%05d", new java.util.Random().nextInt(90000) + 10000); // 10000~99999 랜덤 5자리
+            
+            com.msa4lms.domain.lecture.entities.Course newCourse = com.msa4lms.domain.lecture.entities.Course.builder()
+                .code(newCode)
+                .name(req.newCourseName())
+                .credits(req.newCourseCredits())
+                .departmentId(departmentId)
+                .targetGrade(req.newCourseTargetGrade())
+                .completionType(req.newCourseCompletionType() != null ? req.newCourseCompletionType() : "GENERAL_ELECTIVE")
+                .build();
+                
+            lectureMapper.insertCourse(newCourse);
+            courseId = newCourse.getId();
+        }
+
         com.msa4lms.domain.lecture.entities.Lecture lecture = new com.msa4lms.domain.lecture.entities.Lecture();
         lecture.setSemesterId(req.semesterId());
-        lecture.setCourseId(req.courseId());
+        lecture.setCourseId(courseId);
         lecture.setProfessorId(professorId);
         lecture.setSectionNo(req.sectionNo());
         lecture.setCapacity(req.capacity());
@@ -49,6 +68,7 @@ public class LectureService {
         lecture.setFinalRatio(req.finalRatio());
         lecture.setAssignmentRatio(req.assignmentRatio());
         lecture.setAttendanceRatio(req.attendanceRatio());
+        lecture.setSyllabus(req.syllabus());
 
         lectureMapper.insertLecture(lecture);
 
@@ -96,5 +116,13 @@ public class LectureService {
 
     public List<LectureRes> getLecturesByProfessorId(Long professorId) {
         return lectureMapper.findLecturesByProfessorId(professorId);
+    }
+
+    public List<LectureRes> getPastLecturesByProfessorId(Long professorId) {
+        return lectureMapper.findPastLecturesByProfessorId(professorId);
+    }
+
+    public List<com.msa4lms.domain.lecture.responses.CourseRes> getAvailableCoursesForProfessor(Long professorId) {
+        return lectureMapper.findAvailableCoursesForProfessor(professorId);
     }
 }

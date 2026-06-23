@@ -23,4 +23,6 @@ public class Lecture {
     private Integer finalRatio;
     private Integer assignmentRatio;
     private Integer attendanceRatio;
+
+    private String syllabus;
 }

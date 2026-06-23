@@ -41,6 +41,7 @@
 
     <sql id="lectureSelectFields">
         lectures.id,
+        courses.id AS course_id,
         courses.code AS course_code,
         courses.name AS course_name,
         courses.credits,
@@ -56,7 +57,8 @@
         lectures.midterm_ratio,
         lectures.final_ratio,
         lectures.assignment_ratio,
-        lectures.attendance_ratio
+        lectures.attendance_ratio,
+        lectures.syllabus
     </sql>
 
     <sql id="lectureJoins">
@@ -115,16 +117,17 @@
     <insert id="insertLecture" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO lectures (
             semester_id, course_id, professor_id, section_no, capacity, classroom, status,
-            midterm_ratio, final_ratio, assignment_ratio, attendance_ratio
+            midterm_ratio, final_ratio, assignment_ratio, attendance_ratio, syllabus
         ) VALUES (
             #{semesterId}, #{courseId}, (SELECT id FROM professors WHERE user_id = #{professorId}), #{sectionNo}, #{capacity}, #{classroom}, 'OPEN',
-            #{midtermRatio}, #{finalRatio}, #{assignmentRatio}, #{attendanceRatio}
+            #{midtermRatio}, #{finalRatio}, #{assignmentRatio}, #{attendanceRatio}, #{syllabus}
         )
     </insert>
 
     <select id="findLecturesByProfessor" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
         SELECT
             lectures.id,
+            courses.id AS course_id,
             courses.code AS course_code,
             courses.name AS course_name,
             courses.credits,
@@ -201,7 +204,32 @@
         SELECT <include refid="lectureSelectFields" />
         FROM lectures
         <include refid="lectureJoins" />
-        WHERE lectures.professor_id = #{professorId}
+        WHERE lectures.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
         ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
     </select>
+
+    <select id="findPastLecturesByProfessorId" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
+        SELECT <include refid="lectureSelectFields" />
+        FROM lectures
+        <include refid="lectureJoins" />
+        WHERE lectures.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+        ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
+    </select>
+
+    <select id="findAvailableCoursesForProfessor" resultType="com.msa4lms.domain.lecture.responses.CourseRes">
+        SELECT c.id, c.code, c.name, c.credits, c.target_grade AS targetGrade, c.completion_type AS completionType
+        FROM courses c
+        JOIN professors p ON c.department_id = p.department_id
+        WHERE p.user_id = #{professorId}
+        ORDER BY c.target_grade ASC, c.name ASC
+    </select>
+
+    <select id="findDepartmentIdByProfessorId" resultType="java.lang.Long">
+        SELECT department_id FROM professors WHERE user_id = #{professorId}
+    </select>
+
+    <insert id="insertCourse" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO courses (code, name, credits, department_id, target_grade, completion_type)
+        VALUES (#{code}, #{name}, #{credits}, #{departmentId}, #{targetGrade}, #{completionType})
+    </insert>
 </mapper>
