@@ -1,7 +1,7 @@
 package com.msa4lms.domain.lecture.controllers;
 
 import com.msa4lms.domain.lecture.responses.LectureRes;
-import com.msa4lms.domain.lecture.services.LectureService;
+import com.msa4lms.domain.lecture.services.ProfessorLectureService;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/professor/lectures")
 public class ProfessorLectureController {
 
-    private final LectureService lectureService;
+    private final ProfessorLectureService lectureService;
 
     @GetMapping
     public ResponseEntity<GlobalRes<List<LectureRes>>> getMyLectures(

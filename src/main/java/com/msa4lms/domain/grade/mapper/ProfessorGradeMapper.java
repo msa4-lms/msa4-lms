@@ -18,9 +18,4 @@ public interface ProfessorGradeMapper {
 
     void updateGradesStatusByLectureId(@Param("lectureId") Long lectureId, @Param("status") String status);
 
-    Long findLectureIdByGradeId(@Param("gradeId") Long gradeId);
-
-    void updateGradeStatus(@Param("gradeId") Long gradeId, @Param("status") String status, @Param("objectionReply") String objectionReply);
-
-    List<ProfessorLectureRes> findLecturesByProfessor(@Param("userId") Long userId);
 }

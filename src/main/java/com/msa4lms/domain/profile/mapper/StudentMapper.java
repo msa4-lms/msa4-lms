@@ -1,6 +1,6 @@
-package com.msa4lms.domain.student.mapper;
+package com.msa4lms.domain.profile.mapper;
 
-import com.msa4lms.domain.student.responses.StudentProfileRes;
+import com.msa4lms.domain.profile.responses.StudentProfileRes;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
