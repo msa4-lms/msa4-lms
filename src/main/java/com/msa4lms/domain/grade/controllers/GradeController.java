@@ -36,4 +36,23 @@ public class GradeController {
         );
     }
 
+    /**
+     * 학생의 성적 이의신청 작성
+     */
+    @PostMapping("/student/grades/{gradeId}/objection")
+    public ResponseEntity<GlobalRes<String>> applyObjection(
+            @AuthenticationPrincipal Claims claims,
+            @PathVariable("gradeId") Long gradeId,
+            @RequestBody String objectionReason
+    ) {
+        Long userId = Long.parseLong(claims.getSubject());
+        gradeService.applyObjection(userId, gradeId, objectionReason);
+
+        return ResponseEntity.ok(
+            GlobalRes.<String>builder()
+                .code("00")
+                .message("이의신청이 접수되었습니다.")
+                .build()
+        );
+    }
 }

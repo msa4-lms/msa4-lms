@@ -1,9 +1,6 @@
 package com.msa4lms.domain.lecture.controllers;
-
-import com.msa4lms.domain.lecture.requests.LectureCreateReq;
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LecturePagedRes;
-import com.msa4lms.domain.lecture.responses.LectureRes;
 import com.msa4lms.domain.lecture.responses.CollegeWithDepartmentsRes;
 import com.msa4lms.domain.lecture.services.LectureService;
 import com.msa4lms.global.responses.GlobalRes;
@@ -49,4 +46,5 @@ public class LectureController {
         );
     }
 }
+
 

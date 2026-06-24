@@ -1,4 +1,4 @@
-package com.msa4lms.domain.profile.entities;
+package com.msa4lms.domain.student.entities;
 
 import lombok.Getter;
 import lombok.Setter;

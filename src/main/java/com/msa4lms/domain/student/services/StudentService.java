@@ -1,7 +1,7 @@
-package com.msa4lms.domain.profile.services;
+package com.msa4lms.domain.student.services;
 
-import com.msa4lms.domain.profile.mapper.StudentMapper;
-import com.msa4lms.domain.profile.responses.StudentProfileRes;
+import com.msa4lms.domain.student.mapper.StudentMapper;
+import com.msa4lms.domain.student.responses.StudentProfileRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

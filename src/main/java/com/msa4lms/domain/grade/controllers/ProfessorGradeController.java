@@ -1,5 +1,6 @@
 package com.msa4lms.domain.grade.controllers;
 
+import com.msa4lms.domain.grade.requests.ReplyObjectionReq;
 import com.msa4lms.domain.grade.requests.SaveGradesReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.services.ProfessorGradeService;
@@ -67,4 +68,24 @@ public class ProfessorGradeController {
         );
     }
 
+    @PatchMapping("/{gradeId}/objection")
+    public ResponseEntity<GlobalRes<Void>> replyObjection(
+            @AuthenticationPrincipal Claims claims,
+            @PathVariable Long gradeId,
+            @RequestParam Boolean approve,
+            @RequestParam String reply,
+            @RequestBody(required = false) ReplyObjectionReq newScoresBody) {
+        Long professorId = Long.parseLong(claims.getSubject());
+        
+        ReplyObjectionReq req = new ReplyObjectionReq(approve, reply, newScoresBody != null ? newScoresBody.newScores() : null);
+        
+        professorGradeService.replyObjection(professorId, gradeId, req);
+
+        return ResponseEntity.ok(
+                GlobalRes.<Void>builder()
+                        .code("00")
+                        .message("이의신청 처리가 완료되었습니다.")
+                        .build()
+        );
+    }
 }

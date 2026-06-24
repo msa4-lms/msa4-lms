@@ -22,13 +22,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.msa4lms.domain.attendance.services.ProfessorAttendanceService;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/professor/attendances")
 public class ProfessorAttendanceController {
-    private final ProfessorAttendanceService attendanceService;
+    private final AttendanceService attendanceService;
 
     /**
      * 출결 정보 등록

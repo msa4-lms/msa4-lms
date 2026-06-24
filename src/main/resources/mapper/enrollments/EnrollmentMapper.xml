@@ -27,9 +27,7 @@
                 ) SEPARATOR ', '
              ) FROM lecture_schedules WHERE lecture_id = lectures.id) AS schedule,
             courses.credits,
-            enrollments.status,
-            enrollments.total_score,
-            enrollments.letter_grade
+            enrollments.status
         FROM enrollments
         JOIN lectures ON enrollments.lecture_id = lectures.id
         JOIN courses ON lectures.course_id = courses.id

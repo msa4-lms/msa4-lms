@@ -2,6 +2,7 @@ package com.msa4lms.domain.attendance.services;
 
 import com.msa4lms.domain.attendance.entities.Attendance;
 import com.msa4lms.domain.attendance.mapper.AttendanceMapper;
+import com.msa4lms.domain.attendance.requests.PostAttendanceReq;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import com.msa4lms.domain.attendance.responses.ExcuseRequestRes;
 import com.msa4lms.domain.attendance.responses.AttendanceRateRes;
 import com.msa4lms.domain.attendance.responses.AcademicAttendanceRes;
 import com.msa4lms.domain.attendance.requests.ExcuseRequestReq;
+import com.msa4lms.domain.attendance.requests.ExcuseDecisionReq;
 
 @Service
 @RequiredArgsConstructor
@@ -45,13 +47,35 @@ public class AttendanceService {
     private static final long MAX_ATTACHMENT_SIZE = 10L * 1024 * 1024;
     private static final Set<String> ALLOWED_ATTACHMENT_EXTENSIONS = Set.of("pdf", "jpg", "jpeg", "png", "hwp", "hwpx");
 
+    @Transactional
+    public void saveAttendance(PostAttendanceReq req) {
+        Attendance attendance = new Attendance();
+        attendance.setEnrollmentId(req.enrollmentId());
+        attendance.setLectureDate(req.lectureDate());
+        attendance.setPeriod(req.period());
+        attendance.setStatus(req.status());
+        attendance.setRemarks(req.remarks());
+        
+        attendanceMapper.insertAttendance(attendance);
+    }
 
+    @Transactional
+    public void updateAttendance(Long id, String status, String remarks) {
+        Attendance attendance = attendanceMapper.findById(id);
+        if (attendance != null) {
+            attendance.setStatus(status);
+            attendance.setRemarks(remarks);
+            attendanceMapper.updateAttendance(attendance);
+        }
+    }
 
     public List<AttendanceRes> getMyAttendances(Long enrollmentId) {
         return attendanceMapper.findByEnrollmentId(enrollmentId);
     }
 
-
+    public List<AttendanceRes> getLectureAttendances(Long lectureId, LocalDate date) {
+        return attendanceMapper.findByLectureIdAndDate(lectureId, date);
+    }
     /**
      * 학생의 출결 현황 조회
      */
@@ -135,7 +159,43 @@ public class AttendanceService {
         }
     }
 
+    public ExcuseAttachmentFile getExcuseAttachment(long professorId, long requestId) {
+        List<Map<String, Object>> files = jdbcTemplate.queryForList(
+                """
+                SELECT
+                    er.attachment_original_name,
+                    er.attachment_stored_name,
+                    er.attachment_content_type
+                FROM excuse_requests er
+                JOIN enrollments e ON er.enrollment_id = e.id
+                JOIN lectures l ON e.lecture_id = l.id
+                WHERE er.id = ?
+                  AND l.professor_id = (SELECT id FROM professors WHERE user_id = ?)
+                  AND er.attachment_stored_name IS NOT NULL
+                """,
+                requestId,
+                professorId);
 
+        if (files.isEmpty()) {
+            throw new NotRegisteredException("열람할 수 있는 첨부파일이 없습니다.");
+        }
+
+        Map<String, Object> file = files.get(0);
+        String storedName = String.valueOf(file.get("attachment_stored_name"));
+        Path storageRoot = getAttachmentStorageRoot();
+        Path filePath = storageRoot.resolve(storedName).normalize();
+        if (!filePath.startsWith(storageRoot) || !Files.isRegularFile(filePath)) {
+            throw new FileManagedException("첨부파일을 찾을 수 없습니다.");
+        }
+
+        String originalName = String.valueOf(file.get("attachment_original_name"));
+        Object contentTypeValue = file.get("attachment_content_type");
+        String contentType = contentTypeValue == null
+                ? "application/octet-stream"
+                : String.valueOf(contentTypeValue);
+
+        return new ExcuseAttachmentFile(new FileSystemResource(filePath), originalName, contentType);
+    }
 
     public ExcuseAttachmentFile getStudentExcuseAttachment(long studentId, long requestId) {
         List<Map<String, Object>> files = jdbcTemplate.queryForList(
@@ -251,4 +311,45 @@ public class AttendanceService {
         }
     }
 
+    /**
+     * 교수 공결 승인 대기 목록 조회
+     */
+    public List<ExcuseRequestRes> getPendingExcuseRequests(long professorId) {
+        try {
+            return attendanceMapper.findPendingExcuseRequestsByProfessorId(professorId);
+        } catch (BadSqlGrammarException e) {
+            return List.of();
+        }
+    }
+
+    public List<ExcuseRequestRes> getProfessorExcuseRequests(long professorId) {
+        try {
+            return attendanceMapper.findExcuseRequestsByProfessorId(professorId);
+        } catch (BadSqlGrammarException e) {
+            return List.of();
+        }
+    }
+
+    /**
+     * 교수 공결 승인/반려 처리
+     */
+    public void decideExcuseRequest(long professorId, long requestId, ExcuseDecisionReq req) {
+        String status = req.status().toUpperCase();
+        if (!status.equals("APPROVED") && !status.equals("REJECTED")) {
+            throw new NotRegisteredException("승인 상태는 APPROVED 또는 REJECTED만 가능합니다.");
+        }
+
+        int updatedCount = attendanceMapper.updateExcuseRequestStatus(
+                professorId,
+                requestId,
+                status,
+                req.rejectReason());
+        if (updatedCount == 0) {
+            throw new NotRegisteredException("처리할 공결 신청을 찾을 수 없습니다.");
+        }
+
+        if (status.equals("APPROVED")) {
+            attendanceMapper.applyApprovedExcuse(requestId);
+        }
+    }
 }

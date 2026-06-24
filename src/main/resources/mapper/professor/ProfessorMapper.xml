@@ -3,9 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.msa4lms.domain.profile.mapper.ProfessorMapper">
+<mapper namespace="com.msa4lms.domain.professor.mapper.ProfessorMapper">
     <select id="findProfileByUserId"
-            resultType="com.msa4lms.domain.profile.responses.ProfessorProfileRes">
+            resultType="com.msa4lms.domain.professor.responses.ProfessorProfileRes">
         SELECT
             u.name AS name,
             u.status AS status,

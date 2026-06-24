@@ -1,7 +1,7 @@
-package com.msa4lms.domain.profile.controllers;
+package com.msa4lms.domain.professor.controllers;
 
-import com.msa4lms.domain.profile.responses.StudentProfileRes;
-import com.msa4lms.domain.profile.services.StudentService;
+import com.msa4lms.domain.professor.responses.ProfessorProfileRes;
+import com.msa4lms.domain.professor.services.ProfessorService;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -11,23 +11,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/student")
-public class StudentController {
-    private final StudentService studentService;
+@RequestMapping("/api/professor")
+@RequiredArgsConstructor
+public class ProfessorController {
+    private final ProfessorService professorService;
 
     @GetMapping("/profile")
-    public ResponseEntity<GlobalRes<StudentProfileRes>> getProfile(
+    public ResponseEntity<GlobalRes<ProfessorProfileRes>> getProfile(
             @AuthenticationPrincipal Claims claims
             ){
-        StudentProfileRes profile =
-                studentService.getProfile(
-                        Long.parseLong(claims.getSubject())
-                );
+        ProfessorProfileRes profile = professorService.getProfile(Long.parseLong(claims.getSubject()));
 
         return ResponseEntity.ok(
-                GlobalRes.<StudentProfileRes>builder()
+                GlobalRes.<ProfessorProfileRes>builder()
                         .code("00")
                         .message("프로필 조회 성공")
                         .data(profile)
