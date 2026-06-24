@@ -84,17 +84,4 @@
         WHERE lecture_id = #{lectureId}
     </update>
 
-    <select id="findLectureIdByGradeId" resultType="Long">
-        SELECT lecture_id
-        FROM enrollments
-        WHERE id = #{gradeId}
-    </select>
-
-    <update id="updateGradeStatus">
-        UPDATE enrollments
-        SET grade_status = #{status},
-            objection_reply = #{objectionReply}
-        WHERE id = #{gradeId}
-    </update>
-
 </mapper>

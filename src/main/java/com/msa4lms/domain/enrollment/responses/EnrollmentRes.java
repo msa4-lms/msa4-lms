@@ -22,6 +22,8 @@ public record EnrollmentRes(
         String classroom,      // 강의실
         String schedule,       // 강의 시간 (예: 월1)
         int credits,           // 학점
-        String status          // 수강 상태 (ENROLLED, DROPPED 등)
+        String status,         // 수강 상태 (ACTIVE, DROPPED 등)
+        java.math.BigDecimal totalScore, // 총점
+        String letterGrade     // 알파벳 등급
     ) {}
 }
