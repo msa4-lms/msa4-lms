@@ -1,19 +1,13 @@
 package com.msa4lms.domain.grade.controllers;
 
-import com.msa4lms.domain.grade.entities.Grade;
-import com.msa4lms.domain.grade.entities.GradeStatus;
-import com.msa4lms.domain.grade.requests.GradeBatchInputReq;
-import com.msa4lms.domain.grade.requests.GradeInputReq;
 import com.msa4lms.domain.grade.services.GradeService;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +26,7 @@ public class GradeController {
             @RequestParam(required = false) Integer semester) {
         Long userId = Long.parseLong(claims.getSubject());
         com.msa4lms.domain.grade.responses.GradeSummaryRes data = gradeService.getGradeSummary(userId, year, semester);
-        
+
         return ResponseEntity.ok(
             GlobalRes.<com.msa4lms.domain.grade.responses.GradeSummaryRes>builder()
                 .code("00")

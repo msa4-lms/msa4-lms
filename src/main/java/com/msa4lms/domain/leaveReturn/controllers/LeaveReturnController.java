@@ -1,6 +1,5 @@
 package com.msa4lms.domain.leaveReturn.controllers;
 
-import com.msa4lms.domain.leaveReturn.requests.LeaveReturnProcessReq;
 import com.msa4lms.domain.leaveReturn.requests.LeaveReturnReq;
 import com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes;
 import com.msa4lms.domain.leaveReturn.services.LeaveReturnService;
