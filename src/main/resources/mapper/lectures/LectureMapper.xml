@@ -205,6 +205,12 @@
         FROM lectures
         <include refid="lectureJoins" />
         WHERE lectures.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+        <if test="year != null">
+            AND semesters.academic_year = #{year}
+        </if>
+        <if test="semester != null">
+            AND semesters.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
+        </if>
         ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
     </select>
 

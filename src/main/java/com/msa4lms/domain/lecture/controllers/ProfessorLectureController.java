@@ -21,9 +21,12 @@ public class ProfessorLectureController {
     private final LectureService lectureService;
 
     @GetMapping
-    public ResponseEntity<GlobalRes<List<LectureRes>>> getMyLectures(@AuthenticationPrincipal Claims claims) {
+    public ResponseEntity<GlobalRes<List<LectureRes>>> getMyLectures(
+            @AuthenticationPrincipal Claims claims,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer semester) {
         Long professorId = Long.parseLong(claims.getSubject());
-        List<LectureRes> result = lectureService.getLecturesByProfessorId(professorId);
+        List<LectureRes> result = lectureService.getLecturesByProfessorId(professorId, year, semester);
 
         return ResponseEntity.status(200).body(
                 GlobalRes.<List<LectureRes>>builder()

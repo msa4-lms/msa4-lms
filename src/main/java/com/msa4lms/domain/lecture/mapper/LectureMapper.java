@@ -28,7 +28,11 @@ public interface LectureMapper {
 
     List<FlatCollegeDeptDto> findFlatCollegesAndDepartments();
 
-    List<LectureRes> findLecturesByProfessorId(@Param("professorId") Long professorId);
+    List<LectureRes> findLecturesByProfessorId(
+        @Param("professorId") Long professorId,
+        @Param("year") Integer year,
+        @Param("semester") Integer semester
+    );
 
     List<LectureRes> findPastLecturesByProfessorId(@Param("professorId") Long professorId);
 
