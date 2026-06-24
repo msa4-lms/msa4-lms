@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.grade.mapper.GradeMapper">
+
+    <resultMap id="GradeResultMap" type="com.msa4lms.domain.grade.entities.Grade">
+        <id column="id" property="id"/>
+        <result column="enrollment_id" property="enrollmentId"/>
+        <result column="score" property="score"/>
+        <result column="letter_grade" property="letterGrade"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="midterm_score" property="midtermScore"/>
+        <result column="final_score" property="finalScore"/>
+        <result column="assignment_score" property="assignmentScore"/>
+        <result column="attendance_score" property="attendanceScore"/>
+        <result column="status" property="status"/>
+        <result column="objection_reason" property="objectionReason"/>
+        <result column="objection_reply" property="objectionReply"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_login_id" property="studentLoginId"/>
+    </resultMap>
+
+    <resultMap id="SemesterGradeMap" type="com.msa4lms.domain.grade.responses.SemesterGradeRes">
+        <result column="id" property="id"/>
+        <result column="year" property="year"/>
+        <result column="semester" property="semester"/>
+        <result column="course_name" property="courseName"/>
+        <result column="course_code" property="courseCode"/>
+        <result column="credits" property="credits"/>
+        <result column="grade" property="grade"/>
+        <result column="grade_point" property="gradePoint"/>
+        <result column="status" property="status"/>
+        <result column="attendance_rate" property="attendanceRate"/>
+    </resultMap>
+
+    <select id="findGradesByStudentId" resultMap="SemesterGradeMap">
+        SELECT
+            base.id,
+            base.year,
+            base.semester,
+            base.course_name,
+            base.course_code,
+            base.credits,
+            base.status,
+            base.attendance_rate,
+            CASE
+                WHEN base.attendance_rate &lt; 75 THEN 'F'
+                ELSE IFNULL(base.grade, '미입력')
+            END AS grade,
+            CASE
+                WHEN base.attendance_rate &lt; 75 THEN 0.0
+                ELSE IFNULL(base.grade_point, 0.0)
+            END AS grade_point
+        FROM (
+            SELECT
+                e.id AS id,
+                s.academic_year AS year,
+                IF(s.term = 'FIRST', 1, 2) AS semester,
+                c.name AS course_name,
+                c.code AS course_code,
+                c.credits,
+                e.status AS status,
+                e.grade_status AS grade_status,
+                e.letter_grade AS grade,
+                CASE
+                    WHEN e.letter_grade = 'A+' THEN 4.5
+                    WHEN e.letter_grade = 'A' THEN 4.0
+                    WHEN e.letter_grade = 'B+' THEN 3.5
+                    WHEN e.letter_grade = 'B' THEN 3.0
+                    WHEN e.letter_grade = 'C+' THEN 2.5
+                    WHEN e.letter_grade = 'C' THEN 2.0
+                    WHEN e.letter_grade = 'D+' THEN 1.5
+                    WHEN e.letter_grade = 'D' THEN 1.0
+                    WHEN e.letter_grade = 'F' THEN 0.0
+                    ELSE 0.0
+                END AS grade_point,
+                CASE
+                    WHEN COUNT(a.id) = 0 THEN 100.0
+                    ELSE ROUND(SUM(CASE WHEN a.status IN ('PRESENT', 'EXCUSED') THEN 1 ELSE 0 END) / COUNT(a.id) * 100, 2)
+                END AS attendance_rate
+            FROM enrollments e
+            JOIN lectures l ON e.lecture_id = l.id
+            JOIN courses c ON l.course_id = c.id
+            JOIN semesters s ON l.semester_id = s.id
+            LEFT JOIN attendances a ON a.enrollment_id = e.id
+            JOIN students st ON e.student_id = st.id
+            WHERE st.user_id = #{studentId}
+            GROUP BY e.id, s.academic_year, s.term, c.name, c.code, c.credits, e.status, e.grade_status, e.letter_grade, e.total_score
+        ) base
+        ORDER BY base.year DESC, base.semester DESC
+    </select>
+
+    <!-- 성적 최초 생성 (수강신청 시 생성 가능) -->
+    <insert id="insertGrade" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO grades (
+            enrollment_id, score, letter_grade, midterm_score, final_score, 
+            assignment_score, attendance_score, status, updated_at
+        ) VALUES (
+            #{enrollmentId}, 0.00, 'F', 0.00, 0.00, 
+            0.00, 0.00, 'DRAFT', CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- 성적 점수 및 결과 업데이트 -->
+    <update id="updateGradeScores">
+        UPDATE grades
+        SET score = #{score},
+            letter_grade = #{letterGrade},
+            midterm_score = #{midtermScore},
+            final_score = #{finalScore},
+            assignment_score = #{assignmentScore},
+            attendance_score = #{attendanceScore},
+            status = #{status},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 성적 상태 변경 -->
+    <update id="updateGradeStatus">
+        UPDATE grades
+        SET status = #{status},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 이의신청 작성 (학생용) -->
+    <update id="updateObjection">
+        UPDATE grades
+        SET objection_reason = #{objectionReason},
+            status = 'OBJECTION',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 이의신청 답변 및 상태 변경 (교수용) -->
+    <update id="updateObjectionReply">
+        UPDATE grades
+        SET objection_reply = #{objectionReply},
+            status = #{status},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 단 건 ID 조회 -->
+    <select id="findGradeById" resultMap="GradeResultMap">
+        SELECT * FROM grades WHERE id = #{id}
+    </select>
+
+    <!-- 수강신청 ID로 조회 -->
+    <select id="findGradeByEnrollmentId" resultMap="GradeResultMap">
+        SELECT * FROM grades WHERE enrollment_id = #{enrollmentId}
+    </select>
+
+    <!-- 특정 개설강좌 내 전체 성적 조회 -->
+    <select id="findGradesByLectureId" resultMap="GradeResultMap">
+        SELECT 
+            IFNULL(g.id, 0) AS id,
+            e.id AS enrollment_id,
+            IFNULL(g.score, 0.00) AS score,
+            IFNULL(g.letter_grade, 'F') AS letter_grade,
+            g.updated_at,
+            IFNULL(g.midterm_score, 0.00) AS midterm_score,
+            IFNULL(g.final_score, 0.00) AS final_score,
+            IFNULL(g.assignment_score, 0.00) AS assignment_score,
+            IFNULL(g.attendance_score, 0.00) AS attendance_score,
+            IFNULL(g.status, 'DRAFT') AS status,
+            g.objection_reason,
+            g.objection_reply,
+            u.name AS student_name,
+            u.login_id AS student_login_id
+        FROM enrollments e
+        LEFT JOIN grades g ON g.enrollment_id = e.id
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
+        WHERE e.lecture_id = #{lectureId}
+          AND e.status = 'ACTIVE'
+        ORDER BY u.name ASC
+    </select>
+
+</mapper>
