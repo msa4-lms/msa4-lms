@@ -59,4 +59,201 @@
         SELECT * FROM attendances WHERE id = #{id}
     </select>
 
+<resultMap id="AttendanceMap" type="com.msa4lms.domain.attendance.responses.AcademicAttendanceRes">
+        <result column="course_name" property="courseName"/>
+        <result column="lecture_date" property="lectureDate"/>
+        <result column="period" property="period"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="findAttendanceByStudentId" resultMap="AttendanceMap">
+        SELECT
+            c.name AS course_name,
+            a.lecture_date,
+            a.period,
+            a.status
+        FROM attendances a
+        JOIN enrollments e ON a.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN students st ON e.student_id = st.id
+        WHERE st.user_id = #{studentId}
+        ORDER BY a.lecture_date DESC, a.period ASC
+    </select>
+
+    <resultMap id="AttendanceRateMap" type="com.msa4lms.domain.attendance.responses.AttendanceRateRes">
+        <result column="enrollment_id" property="enrollmentId"/>
+        <result column="course_name" property="courseName"/>
+        <result column="total_count" property="totalCount"/>
+        <result column="attended_count" property="attendedCount"/>
+        <result column="attendance_rate" property="attendanceRate"/>
+        <result column="fail_target" property="failTarget"/>
+    </resultMap>
+
+    <select id="findAttendanceRatesByStudentId" resultMap="AttendanceRateMap">
+        SELECT
+            e.id AS enrollment_id,
+            c.name AS course_name,
+            COUNT(a.id) AS total_count,
+            SUM(CASE WHEN a.status IN ('PRESENT', 'EXCUSED') THEN 1 ELSE 0 END) AS attended_count,
+            CASE
+                WHEN COUNT(a.id) = 0 THEN 100.0
+                ELSE ROUND(SUM(CASE WHEN a.status IN ('PRESENT', 'EXCUSED') THEN 1 ELSE 0 END) / COUNT(a.id) * 100, 2)
+            END AS attendance_rate,
+            CASE
+                WHEN COUNT(a.id) = 0 THEN FALSE
+                ELSE ROUND(SUM(CASE WHEN a.status IN ('PRESENT', 'EXCUSED') THEN 1 ELSE 0 END) / COUNT(a.id) * 100, 2) &lt; 80
+            END AS fail_target
+        FROM enrollments e
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN semesters s ON l.semester_id = s.id
+        LEFT JOIN attendances a ON a.enrollment_id = e.id
+        JOIN students st ON e.student_id = st.id
+        WHERE st.user_id = #{studentId}
+        <if test="year != null">
+            AND s.academic_year = #{year}
+        </if>
+        <if test="semester != null">
+            AND s.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
+        </if>
+          AND e.status != 'DROPPED'
+        GROUP BY e.id, c.name
+        ORDER BY c.name ASC
+    </select>
+
+    <select id="countOwnedEnrollment" resultType="int">
+        SELECT COUNT(*)
+        FROM enrollments
+        JOIN students st ON enrollments.student_id = st.id
+        WHERE enrollments.id = #{enrollmentId}
+          AND st.user_id = #{studentId}
+    </select>
+
+    <insert id="insertExcuseRequest">
+        INSERT INTO excuse_requests (
+            student_id, enrollment_id, lecture_date, period, reason, status,
+            attachment_original_name, attachment_stored_name, attachment_content_type, attachment_size
+        )
+        VALUES (
+            #{studentId}, #{enrollmentId}, #{lectureDate}, #{period}, #{reason}, 'PENDING',
+            #{attachmentOriginalName}, #{attachmentStoredName}, #{attachmentContentType}, #{attachmentSize}
+        )
+    </insert>
+
+    <resultMap id="ExcuseRequestMap" type="com.msa4lms.domain.attendance.responses.ExcuseRequestRes">
+        <result column="id" property="id"/>
+        <result column="enrollment_id" property="enrollmentId"/>
+        <result column="course_name" property="courseName"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_no" property="studentNo"/>
+        <result column="lecture_date" property="lectureDate"/>
+        <result column="period" property="period"/>
+        <result column="reason" property="reason"/>
+        <result column="status" property="status"/>
+        <result column="reject_reason" property="rejectReason"/>
+        <result column="attachment_original_name" property="attachmentOriginalName"/>
+        <result column="attachment_content_type" property="attachmentContentType"/>
+        <result column="attachment_size" property="attachmentSize"/>
+    </resultMap>
+
+    <select id="findExcuseRequestsByStudentId" resultMap="ExcuseRequestMap">
+        SELECT
+            er.id,
+            er.enrollment_id,
+            c.name AS course_name,
+            u.name AS student_name,
+            u.login_id AS student_no,
+            er.lecture_date,
+            er.period,
+            er.reason,
+            er.status,
+            er.reject_reason,
+            er.attachment_original_name,
+            er.attachment_content_type,
+            er.attachment_size
+        FROM excuse_requests er
+        JOIN enrollments e ON er.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN users u ON er.student_id = u.id
+        WHERE er.student_id = #{studentId}
+        ORDER BY er.created_at DESC
+    </select>
+
+    <select id="findPendingExcuseRequestsByProfessorId" resultMap="ExcuseRequestMap">
+        SELECT
+            er.id,
+            er.enrollment_id,
+            c.name AS course_name,
+            u.name AS student_name,
+            u.login_id AS student_no,
+            er.lecture_date,
+            er.period,
+            er.reason,
+            er.status,
+            er.reject_reason,
+            er.attachment_original_name,
+            er.attachment_content_type,
+            er.attachment_size
+        FROM excuse_requests er
+        JOIN enrollments e ON er.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN users u ON er.student_id = u.id
+        WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+          AND er.status = 'PENDING'
+        ORDER BY er.created_at ASC
+    </select>
+
+    <select id="findExcuseRequestsByProfessorId" resultMap="ExcuseRequestMap">
+        SELECT
+            er.id,
+            er.enrollment_id,
+            c.name AS course_name,
+            u.name AS student_name,
+            u.login_id AS student_no,
+            er.lecture_date,
+            er.period,
+            er.reason,
+            er.status,
+            er.reject_reason,
+            er.attachment_original_name,
+            er.attachment_content_type,
+            er.attachment_size
+        FROM excuse_requests er
+        JOIN enrollments e ON er.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN users u ON er.student_id = u.id
+        WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+        ORDER BY
+            CASE WHEN er.status = 'PENDING' THEN 0 ELSE 1 END,
+            er.updated_at DESC,
+            er.created_at DESC
+    </select>
+
+    <update id="updateExcuseRequestStatus">
+        UPDATE excuse_requests er
+        JOIN enrollments e ON er.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        SET er.status = #{status},
+            er.reject_reason = #{rejectReason},
+            er.updated_at = NOW()
+        WHERE er.id = #{requestId}
+          AND l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+    </update>
+
+    <insert id="applyApprovedExcuse">
+        INSERT INTO attendances (enrollment_id, lecture_date, period, status, remarks)
+        SELECT enrollment_id, lecture_date, period, 'EXCUSED', reason
+        FROM excuse_requests
+        WHERE id = #{requestId}
+          AND status = 'APPROVED'
+        ON DUPLICATE KEY UPDATE
+            status = 'EXCUSED',
+            remarks = VALUES(remarks),
+            updated_at = NOW()
+    </insert>
+
 </mapper>
