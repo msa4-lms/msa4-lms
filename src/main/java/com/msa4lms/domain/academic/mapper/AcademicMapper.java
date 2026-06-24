@@ -32,11 +32,17 @@ public interface AcademicMapper {
             @Param("enrollmentId") long enrollmentId,
             @Param("lectureDate") String lectureDate,
             @Param("period") Integer period,
-            @Param("reason") String reason);
+            @Param("reason") String reason,
+            @Param("attachmentOriginalName") String attachmentOriginalName,
+            @Param("attachmentStoredName") String attachmentStoredName,
+            @Param("attachmentContentType") String attachmentContentType,
+            @Param("attachmentSize") Long attachmentSize);
 
     List<ExcuseRequestRes> findExcuseRequestsByStudentId(@Param("studentId") long studentId);
 
     List<ExcuseRequestRes> findPendingExcuseRequestsByProfessorId(@Param("professorId") long professorId);
+
+    List<ExcuseRequestRes> findExcuseRequestsByProfessorId(@Param("professorId") long professorId);
 
     int updateExcuseRequestStatus(
             @Param("professorId") long professorId,

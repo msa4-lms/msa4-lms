@@ -152,8 +152,14 @@
     </select>
 
     <insert id="insertExcuseRequest">
-        INSERT INTO excuse_requests (student_id, enrollment_id, lecture_date, period, reason, status)
-        VALUES (#{studentId}, #{enrollmentId}, #{lectureDate}, #{period}, #{reason}, 'PENDING')
+        INSERT INTO excuse_requests (
+            student_id, enrollment_id, lecture_date, period, reason, status,
+            attachment_original_name, attachment_stored_name, attachment_content_type, attachment_size
+        )
+        VALUES (
+            #{studentId}, #{enrollmentId}, #{lectureDate}, #{period}, #{reason}, 'PENDING',
+            #{attachmentOriginalName}, #{attachmentStoredName}, #{attachmentContentType}, #{attachmentSize}
+        )
     </insert>
 
     <resultMap id="ExcuseRequestMap" type="com.msa4lms.domain.academic.responses.ExcuseRequestRes">
@@ -161,11 +167,15 @@
         <result column="enrollment_id" property="enrollmentId"/>
         <result column="course_name" property="courseName"/>
         <result column="student_name" property="studentName"/>
+        <result column="student_no" property="studentNo"/>
         <result column="lecture_date" property="lectureDate"/>
         <result column="period" property="period"/>
         <result column="reason" property="reason"/>
         <result column="status" property="status"/>
         <result column="reject_reason" property="rejectReason"/>
+        <result column="attachment_original_name" property="attachmentOriginalName"/>
+        <result column="attachment_content_type" property="attachmentContentType"/>
+        <result column="attachment_size" property="attachmentSize"/>
     </resultMap>
 
     <select id="findExcuseRequestsByStudentId" resultMap="ExcuseRequestMap">
@@ -174,11 +184,15 @@
             er.enrollment_id,
             c.name AS course_name,
             u.name AS student_name,
+            u.login_id AS student_no,
             er.lecture_date,
             er.period,
             er.reason,
             er.status,
-            er.reject_reason
+            er.reject_reason,
+            er.attachment_original_name,
+            er.attachment_content_type,
+            er.attachment_size
         FROM excuse_requests er
         JOIN enrollments e ON er.enrollment_id = e.id
         JOIN lectures l ON e.lecture_id = l.id
@@ -194,19 +208,50 @@
             er.enrollment_id,
             c.name AS course_name,
             u.name AS student_name,
+            u.login_id AS student_no,
             er.lecture_date,
             er.period,
             er.reason,
             er.status,
-            er.reject_reason
+            er.reject_reason,
+            er.attachment_original_name,
+            er.attachment_content_type,
+            er.attachment_size
         FROM excuse_requests er
         JOIN enrollments e ON er.enrollment_id = e.id
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
         JOIN users u ON er.student_id = u.id
-        WHERE l.professor_id = #{professorId}
+        WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
           AND er.status = 'PENDING'
         ORDER BY er.created_at ASC
+    </select>
+
+    <select id="findExcuseRequestsByProfessorId" resultMap="ExcuseRequestMap">
+        SELECT
+            er.id,
+            er.enrollment_id,
+            c.name AS course_name,
+            u.name AS student_name,
+            u.login_id AS student_no,
+            er.lecture_date,
+            er.period,
+            er.reason,
+            er.status,
+            er.reject_reason,
+            er.attachment_original_name,
+            er.attachment_content_type,
+            er.attachment_size
+        FROM excuse_requests er
+        JOIN enrollments e ON er.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        JOIN users u ON er.student_id = u.id
+        WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+        ORDER BY
+            CASE WHEN er.status = 'PENDING' THEN 0 ELSE 1 END,
+            er.updated_at DESC,
+            er.created_at DESC
     </select>
 
     <update id="updateExcuseRequestStatus">
@@ -217,7 +262,7 @@
             er.reject_reason = #{rejectReason},
             er.updated_at = NOW()
         WHERE er.id = #{requestId}
-          AND l.professor_id = #{professorId}
+          AND l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
     </update>
 
     <insert id="applyApprovedExcuse">
