@@ -44,9 +44,9 @@ public class GradeService {
         int totalCredits = 0;
 
         for (com.msa4lms.domain.grade.responses.SemesterGradeRes g : grades) {
-            if (g == null || g.getGradePoint() == null || g.getCredits() == null) continue;
-            totalGradePointSum += (g.getGradePoint() * g.getCredits());
-            totalCredits += g.getCredits();
+            if (g == null || g.gradePoint() == null || g.credits() == null) continue;
+            totalGradePointSum += (g.gradePoint() * g.credits());
+            totalCredits += g.credits();
         }
 
         double totalGpa = totalCredits == 0 ? 0.0 : Math.round((totalGradePointSum / totalCredits) * 100.0) / 100.0;

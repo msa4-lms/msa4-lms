@@ -166,7 +166,8 @@
                      JOIN departments ON courses.department_id = departments.id
                      JOIN professors ON lectures.professor_id = professors.id
                      JOIN users ON professors.user_id = users.id
-            WHERE professors.user_id = #{userId}
+                     JOIN semesters ON lectures.semester_id = semesters.id
+            WHERE professors.user_id = #{userId} AND semesters.is_current = 1
             ORDER BY courses.name ASC
         </select>
 

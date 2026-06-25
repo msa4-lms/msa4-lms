@@ -16,5 +16,6 @@ public record LeaveReturnRes(
     Integer returnSemester,
     String status,
     String rejectReason,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    String attachmentFilePath
 ) {}

@@ -3,12 +3,9 @@ package com.msa4lms.domain.grade.responses;
 import lombok.*;
 import java.util.List;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class GradeSummaryRes {
-    private Double totalGpa;
-    private Integer totalCredits;
-    private List<SemesterGradeRes> semesterGrades;
-}
+public record GradeSummaryRes(
+    Double totalGpa,
+    Integer totalCredits,
+    List<SemesterGradeRes> semesterGrades
+) {}

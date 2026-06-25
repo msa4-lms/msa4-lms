@@ -50,25 +50,6 @@ public class ProfessorGradeService {
     }
 
     @Transactional
-    public void replyObjection(Long professorId, Long gradeId, ReplyObjectionReq req) {
-        Long lectureId = professorGradeMapper.findLectureIdByGradeId(gradeId);
-        int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
-        if (count == 0) {
-            throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
-        }
-
-        if (req.approve()) {
-            GradeSaveDto newScores = req.newScores();
-            if (newScores != null) {
-                professorGradeMapper.upsertGrade(lectureId, newScores);
-            }
-            professorGradeMapper.updateGradeStatus(gradeId, "APPROVED", req.reply());
-        } else {
-            professorGradeMapper.updateGradeStatus(gradeId, "OPENED", req.reply());
-        }
-    }
-
-    @Transactional
     public List<ProfessorLectureRes> getLecture(Long id) {
         return professorGradeMapper.findLecturesByProfessor(id);
     }
