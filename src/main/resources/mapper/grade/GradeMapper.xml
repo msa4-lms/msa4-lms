@@ -34,7 +34,7 @@
         <result column="attendance_rate" property="attendanceRate"/>
     </resultMap>
 
-    <select id="findGradesByStudentId" resultMap="SemesterGradeMap">
+    <select id="findGradesByStudentId" resultType="com.msa4lms.domain.grade.responses.SemesterGradeRes">
         SELECT
             base.id,
             base.year,
@@ -42,8 +42,6 @@
             base.course_name,
             base.course_code,
             base.credits,
-            base.status,
-            base.attendance_rate,
             CASE
                 WHEN base.attendance_rate &lt; 75 THEN 'F'
                 ELSE IFNULL(base.grade, '미입력')
@@ -51,7 +49,9 @@
             CASE
                 WHEN base.attendance_rate &lt; 75 THEN 0.0
                 ELSE IFNULL(base.grade_point, 0.0)
-            END AS grade_point
+            END AS grade_point,
+            base.status,
+            base.attendance_rate
         FROM (
             SELECT
                 e.id AS id,
