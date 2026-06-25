@@ -1,6 +1,9 @@
 package com.msa4lms.domain.grade.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,6 +13,9 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Grade {
     private Long id;
     private Long enrollmentId;
