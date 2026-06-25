@@ -2,7 +2,7 @@ package com.msa4lms.domain.leaveReturn.controllers;
 
 import com.msa4lms.domain.leaveReturn.requests.LeaveReturnProcessReq;
 import com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes;
-import com.msa4lms.domain.leaveReturn.services.LeaveReturnService;
+import com.msa4lms.domain.leaveReturn.services.ProfessorLeaveReturnService;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfessorLeaveReturnController {
 
-    private final LeaveReturnService service;
+    private final ProfessorLeaveReturnService service;
 
     @GetMapping("/pending")
     public ResponseEntity<GlobalRes<List<LeaveReturnRes>>> getPendingRequests(

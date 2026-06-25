@@ -1,4 +1,4 @@
-package com.msa4lms.domain.student.responses;
+package com.msa4lms.domain.profile.responses;
 
 import lombok.Builder;
 

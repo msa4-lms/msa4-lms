@@ -1,10 +1,17 @@
 package com.msa4lms.domain.user.entities;
 
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     private Long id;
     private String loginId;
@@ -24,3 +31,4 @@ public class User {
     private String updatedAt;
     private String deletedAt;
 }
+

@@ -1,6 +1,5 @@
 package com.msa4lms.domain.grade.controllers;
 
-import com.msa4lms.domain.grade.requests.ReplyObjectionReq;
 import com.msa4lms.domain.grade.requests.SaveGradesReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
