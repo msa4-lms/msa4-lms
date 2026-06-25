@@ -1,14 +1,18 @@
 package com.msa4lms.domain.lecture.controllers;
 
+import com.msa4lms.domain.lecture.requests.LectureCreateReq;
 import com.msa4lms.domain.lecture.responses.LectureRes;
 import com.msa4lms.domain.lecture.services.ProfessorLectureService;
 import com.msa4lms.global.responses.GlobalRes;
-import io.jsonwebtoken.Claims;
+import com.msa4lms.global.annotations.LoginUserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -22,10 +26,9 @@ public class ProfessorLectureController {
 
     @GetMapping
     public ResponseEntity<GlobalRes<List<LectureRes>>> getMyLectures(
-            @AuthenticationPrincipal Claims claims,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer semester) {
-        Long professorId = Long.parseLong(claims.getSubject());
+            @LoginUserId Long professorId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer semester) {
         List<LectureRes> result = lectureService.getLecturesByProfessorId(professorId, year, semester);
 
         return ResponseEntity.status(200).body(
@@ -38,8 +41,7 @@ public class ProfessorLectureController {
     }
 
     @GetMapping("/past")
-    public ResponseEntity<GlobalRes<List<LectureRes>>> getPastLectures(@AuthenticationPrincipal Claims claims) {
-        Long professorId = Long.parseLong(claims.getSubject());
+    public ResponseEntity<GlobalRes<List<LectureRes>>> getPastLectures(@LoginUserId Long professorId) {
         List<LectureRes> result = lectureService.getPastLecturesByProfessorId(professorId);
 
         return ResponseEntity.status(200).body(
@@ -52,8 +54,7 @@ public class ProfessorLectureController {
     }
 
     @GetMapping("/courses")
-    public ResponseEntity<GlobalRes<List<com.msa4lms.domain.lecture.responses.CourseRes>>> getAvailableCourses(@AuthenticationPrincipal Claims claims) {
-        Long professorId = Long.parseLong(claims.getSubject());
+    public ResponseEntity<GlobalRes<List<com.msa4lms.domain.lecture.responses.CourseRes>>> getAvailableCourses(@LoginUserId Long professorId) {
         List<com.msa4lms.domain.lecture.responses.CourseRes> result = lectureService.getAvailableCoursesForProfessor(professorId);
 
         return ResponseEntity.ok(
@@ -65,12 +66,11 @@ public class ProfessorLectureController {
         );
     }
 
-    @org.springframework.web.bind.annotation.PostMapping
+    @PostMapping
     public ResponseEntity<GlobalRes<String>> createLecture(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal io.jsonwebtoken.Claims claims,
-            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody com.msa4lms.domain.lecture.requests.LectureCreateReq req
+            @LoginUserId Long professorId,
+            @Valid @RequestBody LectureCreateReq req
     ) {
-        Long professorId = Long.parseLong(claims.getSubject());
         lectureService.createLecture(professorId, req);
         return ResponseEntity.ok(
                 GlobalRes.<String>builder()

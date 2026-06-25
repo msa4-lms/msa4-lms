@@ -1,6 +1,9 @@
 package com.msa4lms.domain.lecture.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
