@@ -2,6 +2,7 @@ package com.msa4lms.domain.grade.services;
 
 import com.msa4lms.domain.grade.mapper.ProfessorGradeMapper;
 import com.msa4lms.domain.grade.requests.GradeSaveDto;
+import com.msa4lms.domain.grade.requests.ReplyObjectionReq;
 import com.msa4lms.domain.grade.requests.SaveGradesReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
@@ -58,7 +59,7 @@ public class ProfessorGradeService {
             throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
         }
 
-        if (req.approve()) {
+        if (Boolean.TRUE.equals(req.approve())) {
             GradeSaveDto newScores = req.newScores();
             if (newScores != null) {
                 calculateAndUpsertGrade(lectureId, newScores);
