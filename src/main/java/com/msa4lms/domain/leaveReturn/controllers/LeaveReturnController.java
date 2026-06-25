@@ -9,8 +9,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,17 +23,18 @@ public class LeaveReturnController {
 
     private final LeaveReturnService service;
 
-    @PostMapping("/student/academic-requests")
+    @PostMapping(value = "/student/academic-requests", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GlobalRes<Void>> submitRequest(
             @AuthenticationPrincipal Claims claims,
-            @RequestBody @Valid LeaveReturnReq req
+            @RequestPart("request") @Valid LeaveReturnReq req,
+            @RequestPart(value = "file", required = false) MultipartFile file
     ) {
         String role = claims.get("role", String.class);
         if (!"STUDENT".equals(role)) {
             throw new IllegalArgumentException("학생만 신청할 수 있습니다.");
         }
         Long userId = Long.parseLong(claims.getSubject());
-        service.submitRequest(userId, req);
+        service.submitRequest(userId, req, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(
             GlobalRes.<Void>builder()
                 .code("00")

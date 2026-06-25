@@ -7,10 +7,10 @@
     <insert id="insertRequest">
         INSERT INTO academic_requests (
             user_id, request_type, reason, target_year, target_semester, 
-            return_year, return_semester, status, created_at, updated_at
+            return_year, return_semester, status, created_at, updated_at, attachment_file_path
         ) VALUES (
             #{userId}, #{req.requestType}, #{req.reason}, #{req.targetYear}, #{req.targetSemester},
-            #{req.returnYear}, #{req.returnSemester}, 'PENDING', NOW(), NOW()
+            #{req.returnYear}, #{req.returnSemester}, 'PENDING', NOW(), NOW(), #{filePath}
         )
     </insert>
 
@@ -29,7 +29,8 @@
             r.return_semester,
             r.status,
             r.reject_reason,
-            r.created_at
+            r.created_at,
+            r.attachment_file_path AS attachmentFilePath
         FROM academic_requests r
         JOIN users u ON r.user_id = u.id
         JOIN students s ON u.id = s.user_id
@@ -53,7 +54,8 @@
             r.return_semester,
             r.status,
             r.reject_reason,
-            r.created_at
+            r.created_at,
+            r.attachment_file_path AS attachmentFilePath
         FROM academic_requests r
         JOIN users u ON r.user_id = u.id
         JOIN students s ON u.id = s.user_id

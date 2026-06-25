@@ -5,15 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AttendanceRateRes {
-    private Long enrollmentId;
-    private String courseName;
-    private Integer totalCount;
-    private Integer attendedCount;
-    private Double attendanceRate;
-    private Boolean failTarget;
-}
+public record AttendanceRateRes(
+    Long enrollmentId,
+    String courseName,
+    Integer totalCount,
+    Integer attendedCount,
+    Double attendanceRate,
+    Boolean failTarget
+) {}

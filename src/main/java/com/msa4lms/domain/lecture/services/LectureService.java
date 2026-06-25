@@ -45,7 +45,7 @@ public class LectureService {
         }
 
         Long courseId = req.courseId();
-        
+
         if (Boolean.TRUE.equals(req.isNewCourse())) {
             Long departmentId = lectureMapper.findDepartmentIdByProfessorId(professorId);
             String newCode = String.format("%05d", ThreadLocalRandom.current().nextInt(10000, 100000)); // 10000~99999 랜덤 5자리
@@ -58,7 +58,7 @@ public class LectureService {
                 .targetGrade(req.newCourseTargetGrade())
                 .completionType(req.newCourseCompletionType() != null ? req.newCourseCompletionType() : "GENERAL_ELECTIVE")
                 .build();
-                
+
             lectureMapper.insertCourse(newCourse);
             courseId = newCourse.getId();
         }

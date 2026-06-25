@@ -1,10 +1,17 @@
-package com.msa4lms.domain.student.entities;
+
+
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student {
     private Long id;
     private Long userId;
@@ -15,3 +22,4 @@ public class Student {
     private String academicStatus;
     private Long advisorId;
 }
+

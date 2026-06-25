@@ -39,19 +39,20 @@
     <select id="findByLectureIdAndDate" resultType="com.msa4lms.domain.attendance.responses.AttendanceRes">
         SELECT 
             a.id,
-            a.enrollment_id,
+            e.id as enrollment_id,
             u.name as student_name,
             c.name as course_name,
-            a.lecture_date,
-            a.period,
+            COALESCE(a.lecture_date, #{date}) as lecture_date,
+            COALESCE(a.period, 1) as period,
             a.status,
             a.remarks
-        FROM attendances a
-        JOIN enrollments e ON a.enrollment_id = e.id
-        JOIN users u ON e.student_id = u.id
+        FROM enrollments e
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
-        WHERE l.id = #{lectureId} AND a.lecture_date = #{date}
+        LEFT JOIN attendances a ON e.id = a.enrollment_id AND a.lecture_date = #{date}
+        WHERE l.id = #{lectureId}
         ORDER BY u.name ASC, a.period ASC
     </select>
 

@@ -1,6 +1,6 @@
-package com.msa4lms.domain.professor.mapper;
+package com.msa4lms.domain.profile.mapper;
 
-import com.msa4lms.domain.professor.responses.ProfessorProfileRes;
+import com.msa4lms.domain.profile.responses.ProfessorProfileRes;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

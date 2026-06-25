@@ -2,7 +2,6 @@ package com.msa4lms.domain.grade.services;
 
 import com.msa4lms.domain.grade.mapper.ProfessorGradeMapper;
 import com.msa4lms.domain.grade.requests.GradeSaveDto;
-import com.msa4lms.domain.grade.requests.ReplyObjectionReq;
 import com.msa4lms.domain.grade.requests.SaveGradesReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;

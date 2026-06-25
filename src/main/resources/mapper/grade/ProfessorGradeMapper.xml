@@ -70,46 +70,55 @@
 
 
 
-        <select id="findLecturesByProfessor"
-                resultType="com.msa4lms.domain.grade.responses.ProfessorLectureRes">
-            SELECT
-                lectures.id AS lectureId,
-                courses.code AS courseCode,
-                departments.name AS departmentName,
-                courses.name AS courseName,
-                courses.credits AS credit,
-                courses.target_grade AS targetGrade,
-                users.name AS professorName,
-                lectures.classroom AS classroom,
-                (
-                    SELECT GROUP_CONCAT(
-                                   CONCAT(
-                                           CASE day_of_week
-                                               WHEN 'MON' THEN '월요일'
-                                               WHEN 'TUE' THEN '화요일'
-                                               WHEN 'WED' THEN '수요일'
-                                               WHEN 'THU' THEN '목요일'
-                                               WHEN 'FRI' THEN '금요일'
-                                               ELSE day_of_week
-                                               END,
-                                           ' ',
-                                           LPAD(start_period + 8, 2, '0'), ':00 ~ ',
-                                           LPAD(end_period + 8, 2, '0'), ':50'
-                                   )
-                                   SEPARATOR ', '
-                           )
-                    FROM lecture_schedules
-                    WHERE lecture_id = lectures.id
-                ) AS schedule,
-                lectures.capacity AS capacity
-            FROM lectures
-                     JOIN courses ON lectures.course_id = courses.id
-                     JOIN departments ON courses.department_id = departments.id
-                     JOIN professors ON lectures.professor_id = professors.id
-                     JOIN users ON professors.user_id = users.id
-            WHERE professors.user_id = #{userId}
-            ORDER BY courses.name ASC
-        </select>
+    <select id="findLecturesByProfessor"
+            resultType="com.msa4lms.domain.grade.responses.ProfessorLectureRes">
+        SELECT
+            lectures.id AS lectureId,
+            courses.code AS courseCode,
+            departments.name AS departmentName,
+            courses.name AS courseName,
+            courses.credits AS credit,
+            courses.target_grade AS targetGrade,
+            users.name AS professorName,
+            lectures.classroom AS classroom,
+            (
+                SELECT GROUP_CONCAT(
+                               CONCAT(
+                                       CASE day_of_week
+                                           WHEN 'MON' THEN '월요일'
+                                           WHEN 'TUE' THEN '화요일'
+                                           WHEN 'WED' THEN '수요일'
+                                           WHEN 'THU' THEN '목요일'
+                                           WHEN 'FRI' THEN '금요일'
+                                           ELSE day_of_week
+                                           END,
+                                       ' ',
+                                       LPAD(start_period + 8, 2, '0'), ':00 ~ ',
+                                       LPAD(end_period + 8, 2, '0'), ':50'
+                               )
+                               SEPARATOR ', '
+                       )
+                FROM lecture_schedules
+                WHERE lecture_id = lectures.id
+            ) AS schedule,
+            semesters.academic_year AS academicYear,
+            semesters.term AS term,
+            lectures.capacity AS capacity
+        FROM lectures
+                 JOIN courses ON lectures.course_id = courses.id
+                 JOIN departments ON courses.department_id = departments.id
+                 JOIN professors ON lectures.professor_id = professors.id
+                 JOIN users ON professors.user_id = users.id
+                 JOIN semesters ON lectures.semester_id = semesters.id
+        WHERE professors.user_id = #{userId}
+          AND semesters.academic_year = YEAR(CURDATE())
+          AND semesters.term =
+              CASE
+                  WHEN MONTH(CURDATE()) BETWEEN 1 AND 6 THEN 'FIRST'
+                  ELSE 'SECOND'
+                  END
+        ORDER BY courses.name ASC
+    </select>
 
 
 

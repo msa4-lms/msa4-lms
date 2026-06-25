@@ -1,7 +1,9 @@
 package com.msa4lms.domain.attendance.entities;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,3 +25,4 @@ public class Attendance {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
+

@@ -13,6 +13,9 @@ public record ProfessorLectureRes(
         String professorName,
         String classroom,
         String schedule,
+        Integer academicYear,
+        String term,
         Integer capacity
+
 ) {
 }
