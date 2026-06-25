@@ -13,5 +13,6 @@ public record GradeDetailRes(
     Double assignmentScore,
     Double attendanceScore,
     String status,
-    String objectionReply
+    String objectionReply,
+    String grade
 ) {}
