@@ -49,12 +49,13 @@ public class AttendanceService {
 
     @Transactional
     public void saveAttendance(PostAttendanceReq req) {
-        Attendance attendance = new Attendance();
-        attendance.setEnrollmentId(req.enrollmentId());
-        attendance.setLectureDate(req.lectureDate());
-        attendance.setPeriod(req.period());
-        attendance.setStatus(req.status());
-        attendance.setRemarks(req.remarks());
+        Attendance attendance = Attendance.builder()
+                .enrollmentId(req.enrollmentId())
+                .lectureDate(req.lectureDate())
+                .period(req.period())
+                .status(req.status())
+                .remarks(req.remarks())
+                .build();
         
         attendanceMapper.insertAttendance(attendance);
     }

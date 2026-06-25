@@ -74,7 +74,8 @@
                       (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
                       (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 60 THEN 'D'
                 ELSE 'F'
-            END
+            END,
+            e.grade_status = IFNULL(e.grade_status, 'DRAFT')
         WHERE e.id = #{dto.enrollmentId}
     </update>
 

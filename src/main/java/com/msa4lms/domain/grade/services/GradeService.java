@@ -74,8 +74,9 @@ public class GradeService {
             Grade grade = gradeMapper.findGradeByEnrollmentId(input.enrollmentId());
             if (grade == null) {
                 // 최초 생성인 경우 생성
-                grade = new Grade();
-                grade.setEnrollmentId(input.enrollmentId());
+                grade = Grade.builder()
+                        .enrollmentId(input.enrollmentId())
+                        .build();
                 gradeMapper.insertGrade(grade);
                 grade = gradeMapper.findGradeByEnrollmentId(input.enrollmentId());
             }

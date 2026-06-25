@@ -5,14 +5,20 @@ import com.msa4lms.domain.lecture.requests.LectureCreateReq;
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LecturePagedRes;
 import com.msa4lms.domain.lecture.responses.LectureRes;
+import com.msa4lms.domain.lecture.entities.Course;
+import com.msa4lms.domain.lecture.entities.Lecture;
+import com.msa4lms.domain.lecture.requests.ScheduleInput;
 import com.msa4lms.domain.lecture.responses.CollegeWithDepartmentsRes;
+import com.msa4lms.domain.lecture.responses.CourseRes;
 import com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,9 +48,9 @@ public class LectureService {
         
         if (Boolean.TRUE.equals(req.isNewCourse())) {
             Long departmentId = lectureMapper.findDepartmentIdByProfessorId(professorId);
-            String newCode = String.format("%05d", new java.util.Random().nextInt(90000) + 10000); // 10000~99999 랜덤 5자리
+            String newCode = String.format("%05d", ThreadLocalRandom.current().nextInt(10000, 100000)); // 10000~99999 랜덤 5자리
             
-            com.msa4lms.domain.lecture.entities.Course newCourse = com.msa4lms.domain.lecture.entities.Course.builder()
+            Course newCourse = Course.builder()
                 .code(newCode)
                 .name(req.newCourseName())
                 .credits(req.newCourseCredits())
@@ -57,24 +63,25 @@ public class LectureService {
             courseId = newCourse.getId();
         }
 
-        com.msa4lms.domain.lecture.entities.Lecture lecture = new com.msa4lms.domain.lecture.entities.Lecture();
-        lecture.setSemesterId(req.semesterId());
-        lecture.setCourseId(courseId);
-        lecture.setProfessorId(professorId);
-        lecture.setSectionNo(req.sectionNo());
-        lecture.setCapacity(req.capacity());
-        lecture.setClassroom(req.classroom());
-        lecture.setMidtermRatio(req.midtermRatio());
-        lecture.setFinalRatio(req.finalRatio());
-        lecture.setAssignmentRatio(req.assignmentRatio());
-        lecture.setAttendanceRatio(req.attendanceRatio());
-        lecture.setSyllabus(req.syllabus());
+        Lecture lecture = Lecture.builder()
+                .semesterId(req.semesterId())
+                .courseId(courseId)
+                .professorId(professorId)
+                .sectionNo(req.sectionNo())
+                .capacity(req.capacity())
+                .classroom(req.classroom())
+                .midtermRatio(req.midtermRatio())
+                .finalRatio(req.finalRatio())
+                .assignmentRatio(req.assignmentRatio())
+                .attendanceRatio(req.attendanceRatio())
+                .syllabus(req.syllabus())
+                .build();
 
         lectureMapper.insertLecture(lecture);
 
         // 시간표 저장
         if (req.schedules() != null) {
-            for (com.msa4lms.domain.lecture.requests.ScheduleInput schedule : req.schedules()) {
+            for (ScheduleInput schedule : req.schedules()) {
                 if (schedule.startPeriod() > schedule.endPeriod()) {
                     throw new IllegalArgumentException("시작 교시는 종료 교시보다 클 수 없습니다.");
                 }
@@ -91,10 +98,10 @@ public class LectureService {
         List<FlatCollegeDeptDto> flatDepts = lectureMapper.findFlatCollegesAndDepartments();
 
         return flatDepts.stream()
-                .collect(java.util.stream.Collectors.groupingBy(
+                .collect(Collectors.groupingBy(
                         FlatCollegeDeptDto::collegeId,
-                        java.util.LinkedHashMap::new,
-                        java.util.stream.Collectors.toList()
+                        LinkedHashMap::new,
+                        Collectors.toList()
                 ))
                 .values().stream()
                 .map(list -> {
@@ -112,8 +119,6 @@ public class LectureService {
                 .toList();
     }
 
-    private record CollegeKey(Long id, String code, String name) {}
-
     public List<LectureRes> getLecturesByProfessorId(Long professorId, Integer year, Integer semester) {
         return lectureMapper.findLecturesByProfessorId(professorId, year, semester);
     }
@@ -122,7 +127,7 @@ public class LectureService {
         return lectureMapper.findPastLecturesByProfessorId(professorId);
     }
 
-    public List<com.msa4lms.domain.lecture.responses.CourseRes> getAvailableCoursesForProfessor(Long professorId) {
+    public List<CourseRes> getAvailableCoursesForProfessor(Long professorId) {
         return lectureMapper.findAvailableCoursesForProfessor(professorId);
     }
 }
