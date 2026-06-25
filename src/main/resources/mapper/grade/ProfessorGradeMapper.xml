@@ -31,80 +31,15 @@
     </select>
 
     <update id="upsertGrade">
-        UPDATE enrollments e
-            JOIN lectures l ON e.lecture_id = l.id
-        SET e.midterm_score = #{dto.midtermScore},
-            e.final_score = #{dto.finalScore},
-            e.assignment_score = #{dto.assignmentScore},
-            e.attendance_score = #{dto.attendanceScore},
-            e.total_score =
-                (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0),
-            e.letter_grade = CASE
-                                 WHEN #{dto.grade} IS NOT NULL AND #{dto.grade} != ''
-                                     THEN #{dto.grade}
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 95 THEN 'A+'
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 90 THEN 'A'
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 85 THEN 'B+'
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 80 THEN 'B'
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 75 THEN 'C+'
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 70 THEN 'C'
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 65 THEN 'D+'
-
-                                 WHEN (
-                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
-                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
-                                          ) >= 60 THEN 'D'
-
-                                 ELSE 'F'
-                END
-        WHERE e.id = #{dto.enrollmentId}
+        UPDATE enrollments
+        SET midterm_score = #{dto.midtermScore},
+            final_score = #{dto.finalScore},
+            assignment_score = #{dto.assignmentScore},
+            attendance_score = #{dto.attendanceScore},
+            total_score = #{totalScore},
+            letter_grade = #{letterGrade},
+            grade_status = IFNULL(grade_status, 'DRAFT')
+        WHERE id = #{dto.enrollmentId}
     </update>
 
     <update id="updateGradesStatusByLectureId">
@@ -112,6 +47,12 @@
         SET grade_status = #{status}
         WHERE lecture_id = #{lectureId}
     </update>
+
+    <select id="findLectureById" resultType="com.msa4lms.domain.lecture.entities.Lecture">
+        SELECT *
+        FROM lectures
+        WHERE id = #{lectureId}
+    </select>
 
     <select id="findLectureIdByGradeId" resultType="Long">
         SELECT lecture_id

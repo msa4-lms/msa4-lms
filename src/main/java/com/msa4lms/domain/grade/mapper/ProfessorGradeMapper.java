@@ -3,6 +3,7 @@ package com.msa4lms.domain.grade.mapper;
 import com.msa4lms.domain.grade.requests.GradeSaveDto;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
+import com.msa4lms.domain.lecture.entities.Lecture;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,7 +15,9 @@ public interface ProfessorGradeMapper {
 
     List<GradeDetailRes> findGradesByLectureId(@Param("lectureId") Long lectureId);
 
-    void upsertGrade(@Param("lectureId") Long lectureId, @Param("dto") GradeSaveDto dto);
+    void upsertGrade(@Param("dto") GradeSaveDto dto, @Param("totalScore") double totalScore, @Param("letterGrade") String letterGrade);
+
+    Lecture findLectureById(@Param("lectureId") Long lectureId);
 
     void updateGradesStatusByLectureId(@Param("lectureId") Long lectureId, @Param("status") String status);
 
