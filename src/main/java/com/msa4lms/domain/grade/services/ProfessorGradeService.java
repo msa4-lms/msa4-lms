@@ -5,6 +5,7 @@ import com.msa4lms.domain.grade.requests.GradeSaveDto;
 import com.msa4lms.domain.grade.requests.ReplyObjectionReq;
 import com.msa4lms.domain.grade.requests.SaveGradesReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
+import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,5 +67,10 @@ public class ProfessorGradeService {
         } else {
             professorGradeMapper.updateGradeStatus(gradeId, "OPENED", req.reply());
         }
+    }
+
+    @Transactional
+    public List<ProfessorLectureRes> getLecture(Long id) {
+        return professorGradeMapper.findLecturesByProfessor(id);
     }
 }

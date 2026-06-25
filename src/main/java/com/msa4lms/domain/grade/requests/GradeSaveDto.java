@@ -5,5 +5,6 @@ public record GradeSaveDto(
     Double midtermScore,
     Double finalScore,
     Double assignmentScore,
-    Double attendanceScore
+    Double attendanceScore,
+    String grade
 ) {}

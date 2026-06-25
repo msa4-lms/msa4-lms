@@ -3,6 +3,7 @@ package com.msa4lms.domain.grade.controllers;
 import com.msa4lms.domain.grade.requests.ReplyObjectionReq;
 import com.msa4lms.domain.grade.requests.SaveGradesReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
+import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
 import com.msa4lms.domain.grade.services.ProfessorGradeService;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
@@ -68,24 +69,22 @@ public class ProfessorGradeController {
         );
     }
 
-    @PatchMapping("/{gradeId}/objection")
-    public ResponseEntity<GlobalRes<Void>> replyObjection(
-            @AuthenticationPrincipal Claims claims,
-            @PathVariable Long gradeId,
-            @RequestParam Boolean approve,
-            @RequestParam String reply,
-            @RequestBody(required = false) ReplyObjectionReq newScoresBody) {
+    @GetMapping("/lectures")
+    public ResponseEntity<GlobalRes<List<ProfessorLectureRes>>> getLecures(
+            @AuthenticationPrincipal Claims claims
+    ) {
         Long professorId = Long.parseLong(claims.getSubject());
-        
-        ReplyObjectionReq req = new ReplyObjectionReq(approve, reply, newScoresBody != null ? newScoresBody.newScores() : null);
-        
-        professorGradeService.replyObjection(professorId, gradeId, req);
+        List<ProfessorLectureRes> data =
+                professorGradeService.getLecture(professorId);
 
         return ResponseEntity.ok(
-                GlobalRes.<Void>builder()
+                GlobalRes.<List<ProfessorLectureRes>>builder()
                         .code("00")
-                        .message("이의신청 처리가 완료되었습니다.")
+                        .message("강의 조회 완료")
+                        .data(data)
                         .build()
         );
     }
+
+
 }
