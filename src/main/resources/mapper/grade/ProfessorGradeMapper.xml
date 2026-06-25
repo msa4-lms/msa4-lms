@@ -21,7 +21,8 @@
             e.assignment_score AS assignmentScore,
             e.attendance_score AS attendanceScore,
             e.grade_status AS status,
-            e.objection_reply AS objectionReply
+            e.objection_reply AS objectionReply,
+            e.letter_grade AS grade
         FROM enrollments e
         JOIN students s ON e.student_id = s.id
         JOIN users u ON s.user_id = u.id
@@ -31,50 +32,78 @@
 
     <update id="upsertGrade">
         UPDATE enrollments e
-        JOIN lectures l ON e.lecture_id = l.id
+            JOIN lectures l ON e.lecture_id = l.id
         SET e.midterm_score = #{dto.midtermScore},
             e.final_score = #{dto.finalScore},
             e.assignment_score = #{dto.assignmentScore},
             e.attendance_score = #{dto.attendanceScore},
-            e.total_score = (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                            (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                            (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                            (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0),
+            e.total_score =
+                (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0),
             e.letter_grade = CASE
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 95 THEN 'A+'
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 90 THEN 'A'
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 85 THEN 'B+'
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 80 THEN 'B'
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 75 THEN 'C+'
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 70 THEN 'C'
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 65 THEN 'D+'
-                WHEN ((IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) + 
-                      (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)) >= 60 THEN 'D'
-                ELSE 'F'
-            END
+                                 WHEN #{dto.grade} IS NOT NULL AND #{dto.grade} != ''
+                                     THEN #{dto.grade}
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 95 THEN 'A+'
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 90 THEN 'A'
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 85 THEN 'B+'
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 80 THEN 'B'
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 75 THEN 'C+'
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 70 THEN 'C'
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 65 THEN 'D+'
+
+                                 WHEN (
+                                          (IFNULL(#{dto.midtermScore}, 0) * IFNULL(l.midterm_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.finalScore}, 0) * IFNULL(l.final_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.assignmentScore}, 0) * IFNULL(l.assignment_ratio, 30) / 100.0) +
+                                          (IFNULL(#{dto.attendanceScore}, 0) * IFNULL(l.attendance_ratio, 10) / 100.0)
+                                          ) >= 60 THEN 'D'
+
+                                 ELSE 'F'
+                END
         WHERE e.id = #{dto.enrollmentId}
     </update>
 
@@ -96,5 +125,51 @@
             objection_reply = #{objectionReply}
         WHERE id = #{gradeId}
     </update>
+
+
+
+
+        <select id="findLecturesByProfessor"
+                resultType="com.msa4lms.domain.grade.responses.ProfessorLectureRes">
+            SELECT
+                lectures.id AS lectureId,
+                courses.code AS courseCode,
+                departments.name AS departmentName,
+                courses.name AS courseName,
+                courses.credits AS credit,
+                courses.target_grade AS targetGrade,
+                users.name AS professorName,
+                lectures.classroom AS classroom,
+                (
+                    SELECT GROUP_CONCAT(
+                                   CONCAT(
+                                           CASE day_of_week
+                                               WHEN 'MON' THEN '월요일'
+                                               WHEN 'TUE' THEN '화요일'
+                                               WHEN 'WED' THEN '수요일'
+                                               WHEN 'THU' THEN '목요일'
+                                               WHEN 'FRI' THEN '금요일'
+                                               ELSE day_of_week
+                                               END,
+                                           ' ',
+                                           LPAD(start_period + 8, 2, '0'), ':00 ~ ',
+                                           LPAD(end_period + 8, 2, '0'), ':50'
+                                   )
+                                   SEPARATOR ', '
+                           )
+                    FROM lecture_schedules
+                    WHERE lecture_id = lectures.id
+                ) AS schedule,
+                lectures.capacity AS capacity
+            FROM lectures
+                     JOIN courses ON lectures.course_id = courses.id
+                     JOIN departments ON courses.department_id = departments.id
+                     JOIN professors ON lectures.professor_id = professors.id
+                     JOIN users ON professors.user_id = users.id
+            WHERE professors.user_id = #{userId}
+            ORDER BY courses.name ASC
+        </select>
+
+
 
 </mapper>
