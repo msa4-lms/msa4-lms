@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
-public interface EnrollmentMapper {
+public interface StudentEnrollmentMapper {
 
     /**
      * 특정 학생의 특정 년도/학기 수강 내역 목록 조회

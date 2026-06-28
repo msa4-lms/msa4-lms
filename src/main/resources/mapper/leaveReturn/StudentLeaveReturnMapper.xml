@@ -2,14 +2,14 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.msa4lms.domain.leaveReturn.mapper.LeaveReturnMapper">
+<mapper namespace="com.msa4lms.domain.leaveReturn.mapper.StudentLeaveReturnMapper">
 
     <insert id="insertRequest">
         INSERT INTO academic_requests (
-            user_id, request_type, reason, target_year, target_semester, 
+            student_id, request_type, reason, target_year, target_semester, 
             return_year, return_semester, status, created_at, updated_at, attachment_file_path
         ) VALUES (
-            #{userId}, #{req.requestType}, #{req.reason}, #{req.targetYear}, #{req.targetSemester},
+            (SELECT id FROM students WHERE user_id = #{userId}), #{req.requestType}, #{req.reason}, #{req.targetYear}, #{req.targetSemester},
             #{req.returnYear}, #{req.returnSemester}, 'PENDING', NOW(), NOW(), #{filePath}
         )
     </insert>
@@ -17,7 +17,7 @@
     <select id="findRequestsByUserId" resultType="com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes">
         SELECT 
             r.id,
-            r.user_id,
+            s.user_id AS userId,
             u.name AS studentName,
             u.login_id AS studentLoginId,
             d.name AS departmentName,
@@ -32,17 +32,17 @@
             r.created_at,
             r.attachment_file_path AS attachmentFilePath
         FROM academic_requests r
-        JOIN users u ON r.user_id = u.id
-        JOIN students s ON u.id = s.user_id
+        JOIN students s ON r.student_id = s.id
+        JOIN users u ON s.user_id = u.id
         JOIN departments d ON s.department_id = d.id
-        WHERE r.user_id = #{userId}
+        WHERE s.user_id = #{userId}
         ORDER BY r.created_at DESC
     </select>
 
     <select id="findAllPendingRequests" resultType="com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes">
         SELECT 
             r.id,
-            r.user_id,
+            s.user_id AS userId,
             u.name AS studentName,
             u.login_id AS studentLoginId,
             d.name AS departmentName,
@@ -57,8 +57,8 @@
             r.created_at,
             r.attachment_file_path AS attachmentFilePath
         FROM academic_requests r
-        JOIN users u ON r.user_id = u.id
-        JOIN students s ON u.id = s.user_id
+        JOIN students s ON r.student_id = s.id
+        JOIN users u ON s.user_id = u.id
         JOIN departments d ON s.department_id = d.id
         WHERE r.status = 'PENDING'
         ORDER BY r.created_at ASC
@@ -79,7 +79,20 @@
     </update>
 
     <select id="findUserIdByRequestId" resultType="Long">
-        SELECT user_id
+        SELECT s.user_id
+        FROM academic_requests r
+        JOIN students s ON r.student_id = s.id
+        WHERE r.id = #{id}
+    </select>
+
+    <select id="findAcademicStatusByUserId" resultType="String">
+        SELECT academic_status
+        FROM students
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="findAttachmentPathByRequestId" resultType="String">
+        SELECT attachment_file_path
         FROM academic_requests
         WHERE id = #{id}
     </select>

@@ -11,7 +11,7 @@ import java.util.List;
 import com.msa4lms.domain.lecture.entities.Lecture;
 
 @Mapper
-public interface LectureMapper {
+public interface StudentLectureMapper {
     List<LectureRes> findAllLectures();
     
     List<LectureRes> findLecturesBySearch(

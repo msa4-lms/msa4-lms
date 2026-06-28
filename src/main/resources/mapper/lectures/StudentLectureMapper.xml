@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.msa4lms.domain.lecture.mapper.LectureMapper">
+<mapper namespace="com.msa4lms.domain.lecture.mapper.StudentLectureMapper">
 
     <sql id="searchConditions">
         FROM lectures

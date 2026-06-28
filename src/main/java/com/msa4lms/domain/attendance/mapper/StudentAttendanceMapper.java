@@ -12,7 +12,7 @@ import com.msa4lms.domain.attendance.responses.AttendanceRateRes;
 import com.msa4lms.domain.attendance.responses.AcademicAttendanceRes;
 
 @Mapper
-public interface AttendanceMapper {
+public interface StudentAttendanceMapper {
     void insertAttendance(Attendance attendance);
     void updateAttendance(Attendance attendance);
     List<AttendanceRes> findByEnrollmentId(@Param("enrollmentId") Long enrollmentId);

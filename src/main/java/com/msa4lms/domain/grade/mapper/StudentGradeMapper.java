@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
-public interface GradeMapper {
+public interface StudentGradeMapper {
     List<SemesterGradeRes> findGradesByStudentId(
             @Param("studentId") long studentId,
             @Param("year") Integer year,
