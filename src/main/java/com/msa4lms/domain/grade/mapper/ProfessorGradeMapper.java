@@ -23,11 +23,6 @@ public interface ProfessorGradeMapper {
 
     Long findLectureIdByGradeId(@Param("gradeId") Long gradeId);
 
-    void updateGradeStatus(
-            @Param("gradeId") Long gradeId,
-            @Param("status") String status,
-            @Param("objectionReply") String objectionReply
-    );
 
     List<ProfessorLectureRes> findLecturesByProfessor(@Param("userId") Long professorId);
 }

@@ -21,7 +21,6 @@
             e.assignment_score AS assignmentScore,
             e.attendance_score AS attendanceScore,
             e.grade_status AS status,
-            e.objection_reply AS objectionReply,
             e.letter_grade AS grade
         FROM enrollments e
         JOIN students s ON e.student_id = s.id
@@ -49,7 +48,8 @@
     </update>
 
     <select id="findLectureById" resultType="com.msa4lms.domain.lecture.entities.Lecture">
-        SELECT *
+        SELECT id, semester_id, course_id, professor_id, section_no, capacity, classroom, status,
+               midterm_ratio, final_ratio, assignment_ratio, attendance_ratio, syllabus
         FROM lectures
         WHERE id = #{lectureId}
     </select>
@@ -60,12 +60,6 @@
         WHERE id = #{gradeId}
     </select>
 
-    <update id="updateGradeStatus">
-        UPDATE enrollments
-        SET grade_status = #{status},
-            objection_reply = #{objectionReply}
-        WHERE id = #{gradeId}
-    </update>
 
 
 

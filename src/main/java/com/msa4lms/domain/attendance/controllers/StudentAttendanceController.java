@@ -3,18 +3,17 @@ package com.msa4lms.domain.attendance.controllers;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;
 import com.msa4lms.domain.attendance.responses.AcademicAttendanceRes;
 import com.msa4lms.domain.attendance.responses.AttendanceRateRes;
-import com.msa4lms.domain.attendance.requests.ExcuseRequestReq;
+import com.msa4lms.domain.attendance.requests.ExcuseApplyReq;
 import com.msa4lms.domain.attendance.responses.ExcuseRequestRes;
 import com.msa4lms.domain.attendance.responses.ExcuseAttachmentFile;
-import com.msa4lms.domain.attendance.services.AttendanceService;
+import com.msa4lms.domain.attendance.services.StudentAttendanceService;
+import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
-import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ContentDisposition;
 import org.springframework.core.io.Resource;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +29,7 @@ import java.util.List;
 @RequestMapping("/api/student/attendances")
 @RequiredArgsConstructor
 public class StudentAttendanceController {
-    private final AttendanceService attendanceService;
+    private final StudentAttendanceService attendanceService;
 
     /**
      * 특정 수강신청의 출결 내역 조회 (학생용)
@@ -48,8 +47,7 @@ public class StudentAttendanceController {
     }
 
     @GetMapping("/attendance")
-    public ResponseEntity<GlobalRes<List<AcademicAttendanceRes>>> getAttendance(@AuthenticationPrincipal Claims claims) {
-        Long userId = Long.parseLong(claims.getSubject());
+    public ResponseEntity<GlobalRes<List<AcademicAttendanceRes>>> getAttendance(@LoginUserId Long userId) {
         List<AcademicAttendanceRes> data = attendanceService.getAttendance(userId);
 
         return ResponseEntity.ok(
@@ -63,10 +61,9 @@ public class StudentAttendanceController {
 
     @GetMapping("/attendance-rates")
     public ResponseEntity<GlobalRes<List<AttendanceRateRes>>> getAttendanceRates(
-            @AuthenticationPrincipal Claims claims,
+            @LoginUserId Long userId,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer semester) {
-        Long userId = Long.parseLong(claims.getSubject());
         List<AttendanceRateRes> data = attendanceService.getAttendanceRates(userId, year, semester);
 
         return ResponseEntity.ok(
@@ -79,8 +76,7 @@ public class StudentAttendanceController {
     }
 
     @GetMapping("/excuses/my")
-    public ResponseEntity<GlobalRes<List<ExcuseRequestRes>>> getMyExcuseRequests(@AuthenticationPrincipal Claims claims) {
-        Long userId = Long.parseLong(claims.getSubject());
+    public ResponseEntity<GlobalRes<List<ExcuseRequestRes>>> getMyExcuseRequests(@LoginUserId Long userId) {
         List<ExcuseRequestRes> data = attendanceService.getMyExcuseRequests(userId);
 
         return ResponseEntity.ok(
@@ -94,9 +90,8 @@ public class StudentAttendanceController {
 
     @PostMapping(value = "/excuses", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GlobalRes<String>> requestExcuse(
-            @AuthenticationPrincipal Claims claims,
-            @Valid @RequestBody ExcuseRequestReq req) {
-        Long userId = Long.parseLong(claims.getSubject());
+            @LoginUserId Long userId,
+            @Valid @RequestBody ExcuseApplyReq req) {
         attendanceService.requestExcuse(userId, req);
 
         return ResponseEntity.ok(
@@ -109,10 +104,9 @@ public class StudentAttendanceController {
 
     @PostMapping(value = "/excuses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GlobalRes<String>> requestExcuseWithAttachment(
-            @AuthenticationPrincipal Claims claims,
-            @Valid @ModelAttribute ExcuseRequestReq req,
+            @LoginUserId Long userId,
+            @Valid @ModelAttribute ExcuseApplyReq req,
             @RequestPart(name = "attachment", required = false) MultipartFile attachment) {
-        Long userId = Long.parseLong(claims.getSubject());
         attendanceService.requestExcuse(userId, req, attachment);
 
         return ResponseEntity.ok(
@@ -125,9 +119,8 @@ public class StudentAttendanceController {
 
     @GetMapping("/excuses/{requestId}/attachment")
     public ResponseEntity<Resource> getExcuseAttachment(
-            @AuthenticationPrincipal Claims claims,
+            @LoginUserId Long studentId,
             @PathVariable long requestId) {
-        Long studentId = Long.parseLong(claims.getSubject());
         ExcuseAttachmentFile file = attendanceService.getStudentExcuseAttachment(studentId, requestId);
         MediaType mediaType;
         try {

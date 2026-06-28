@@ -4,14 +4,13 @@ import com.msa4lms.domain.auth.requests.LoginReq;
 import com.msa4lms.domain.auth.requests.PasswordChangeReq;
 import com.msa4lms.domain.auth.responses.AuthRes;
 import com.msa4lms.domain.auth.services.AuthService;
+import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,9 +55,9 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<GlobalRes<String>> logout(
             HttpServletResponse response
-            , @AuthenticationPrincipal Claims claims
+            , @LoginUserId Long userId
     ) {
-        authService.logout(response, Long.parseLong(claims.getSubject()));
+        authService.logout(response, userId);
 
         return ResponseEntity.ok(
                 GlobalRes.<String>builder()
@@ -71,12 +70,10 @@ public class AuthController {
     // 비밀번호 변경
     @PostMapping("/password")
     public ResponseEntity<GlobalRes<String>> changePassword(
-            @AuthenticationPrincipal Claims claims,
+            @LoginUserId Long userId,
             @Valid @RequestBody PasswordChangeReq req
     ) {
-        long id = Long.parseLong(claims.getSubject());
-
-        authService.changePassword(id, req);
+        authService.changePassword(userId, req);
 
         return ResponseEntity.ok(
                 GlobalRes.<String>builder()

@@ -2,8 +2,7 @@ package com.msa4lms.domain.grade.services;
 
 import com.msa4lms.domain.grade.mapper.ProfessorGradeMapper;
 import com.msa4lms.domain.grade.requests.GradeSaveDto;
-import com.msa4lms.domain.grade.requests.ReplyObjectionReq;
-import com.msa4lms.domain.grade.requests.SaveGradesReq;
+import com.msa4lms.domain.grade.requests.GradeSaveReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
 import com.msa4lms.domain.lecture.entities.Lecture;
@@ -30,7 +29,7 @@ public class ProfessorGradeService {
     }
 
     @Transactional
-    public void saveGrades(Long professorId, Long lectureId, SaveGradesReq req) {
+    public void saveGrades(Long professorId, Long lectureId, GradeSaveReq req) {
         int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
         if (count == 0) {
             throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
@@ -51,24 +50,6 @@ public class ProfessorGradeService {
         professorGradeMapper.updateGradesStatusByLectureId(lectureId, status);
     }
 
-    @Transactional
-    public void replyObjection(Long professorId, Long gradeId, ReplyObjectionReq req) {
-        Long lectureId = professorGradeMapper.findLectureIdByGradeId(gradeId);
-        int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
-        if (count == 0) {
-            throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
-        }
-
-        if (Boolean.TRUE.equals(req.approve())) {
-            GradeSaveDto newScores = req.newScores();
-            if (newScores != null) {
-                calculateAndUpsertGrade(lectureId, newScores);
-            }
-            professorGradeMapper.updateGradeStatus(gradeId, "APPROVED", req.reply());
-        } else {
-            professorGradeMapper.updateGradeStatus(gradeId, "OPENED", req.reply());
-        }
-    }
 
     @Transactional
     public List<ProfessorLectureRes> getLecture(Long id) {
@@ -96,15 +77,21 @@ public class ProfessorGradeService {
                             (assignment * assignmentRatio / 100.0) +
                             (attendance * attendanceRatio / 100.0);
 
-        String letterGrade = "F";
-        if (totalScore >= 95) letterGrade = "A+";
-        else if (totalScore >= 90) letterGrade = "A";
-        else if (totalScore >= 85) letterGrade = "B+";
-        else if (totalScore >= 80) letterGrade = "B";
-        else if (totalScore >= 75) letterGrade = "C+";
-        else if (totalScore >= 70) letterGrade = "C";
-        else if (totalScore >= 65) letterGrade = "D+";
-        else if (totalScore >= 60) letterGrade = "D";
+        // 프론트엔드에서 명시적으로 등급을 전달한 경우 해당 값을 우선 사용 (성적 정정 시 + 부여 등)
+        String letterGrade;
+        if (dto.grade() != null && !dto.grade().isBlank()) {
+            letterGrade = dto.grade();
+        } else {
+            letterGrade = "F";
+            if (totalScore >= 95) letterGrade = "A+";
+            else if (totalScore >= 90) letterGrade = "A";
+            else if (totalScore >= 85) letterGrade = "B+";
+            else if (totalScore >= 80) letterGrade = "B";
+            else if (totalScore >= 75) letterGrade = "C+";
+            else if (totalScore >= 70) letterGrade = "C";
+            else if (totalScore >= 65) letterGrade = "D+";
+            else if (totalScore >= 60) letterGrade = "D";
+        }
 
         professorGradeMapper.upsertGrade(dto, totalScore, letterGrade);
     }

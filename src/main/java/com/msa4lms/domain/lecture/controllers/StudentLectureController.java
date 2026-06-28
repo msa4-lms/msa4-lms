@@ -2,7 +2,7 @@ package com.msa4lms.domain.lecture.controllers;
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LecturePagedRes;
 import com.msa4lms.domain.lecture.responses.CollegeWithDepartmentsRes;
-import com.msa4lms.domain.lecture.services.LectureService;
+import com.msa4lms.domain.lecture.services.StudentLectureService;
 import com.msa4lms.global.responses.GlobalRes;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
-public class LectureController {
+@RequestMapping("/api/lectures")
+public class StudentLectureController {
 
-    private final LectureService lectureService;
+    private final StudentLectureService lectureService;
 
-    @GetMapping("/lectures")
+    @GetMapping
     public ResponseEntity<GlobalRes<LecturePagedRes>> getLectures(@ModelAttribute LectureSearchReq searchReq) {
         LecturePagedRes result = lectureService.searchLectures(searchReq);
         return ResponseEntity.status(200).body(
@@ -34,7 +34,7 @@ public class LectureController {
 
 
 
-    @GetMapping("/lectures/colleges")
+    @GetMapping("/colleges")
     public ResponseEntity<GlobalRes<List<CollegeWithDepartmentsRes>>> getCollegesWithDepartments() {
         List<CollegeWithDepartmentsRes> result = lectureService.getCollegesWithDepartments();
         return ResponseEntity.status(200).body(

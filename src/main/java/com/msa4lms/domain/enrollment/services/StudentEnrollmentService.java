@@ -1,7 +1,7 @@
 package com.msa4lms.domain.enrollment.services;
 
 import com.msa4lms.domain.enrollment.responses.EnrollmentRes;
-import com.msa4lms.domain.enrollment.mapper.EnrollmentMapper;
+import com.msa4lms.domain.enrollment.mapper.StudentEnrollmentMapper;
 import com.msa4lms.global.errors.custom.CapacityExceededException;
 import com.msa4lms.global.errors.custom.DuplicatedRecordException;
 import com.msa4lms.global.errors.custom.ScheduleOverlapException;
@@ -14,9 +14,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class EnrollmentService {
+public class StudentEnrollmentService {
 
-    private final EnrollmentMapper enrollmentMapper;
+    private final StudentEnrollmentMapper enrollmentMapper;
 
     /**
      * 학생의 수강 내역 목록과 총 신청 학점 조회

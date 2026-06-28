@@ -29,8 +29,6 @@ public class Grade {
    
     private String status;
 
-    private String objectionReason;
-    private String objectionReply;
 
     private String studentName;
     private String studentLoginId;

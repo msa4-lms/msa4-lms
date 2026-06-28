@@ -1,8 +1,8 @@
 package com.msa4lms.domain.attendance.services;
 
 import com.msa4lms.domain.attendance.entities.Attendance;
-import com.msa4lms.domain.attendance.mapper.AttendanceMapper;
-import com.msa4lms.domain.attendance.requests.PostAttendanceReq;
+import com.msa4lms.domain.attendance.mapper.StudentAttendanceMapper;
+import com.msa4lms.domain.attendance.requests.AttendanceUpdateReq;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,14 +29,14 @@ import com.msa4lms.domain.attendance.requests.ExcuseDecisionReq;
 @Transactional(readOnly = true)
 public class ProfessorAttendanceService {
 
-    private final AttendanceMapper attendanceMapper;
+    private final StudentAttendanceMapper attendanceMapper;
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${storage.excuse-attachments}")
     private String excuseAttachmentPath;
 
     @Transactional
-    public void saveAttendance(PostAttendanceReq req) {
+    public void saveAttendance(AttendanceUpdateReq req) {
         Attendance attendance = new Attendance();
         attendance.setEnrollmentId(req.enrollmentId());
         attendance.setLectureDate(req.lectureDate());

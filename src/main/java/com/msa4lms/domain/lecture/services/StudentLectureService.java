@@ -1,6 +1,6 @@
 package com.msa4lms.domain.lecture.services;
 
-import com.msa4lms.domain.lecture.mapper.LectureMapper;
+import com.msa4lms.domain.lecture.mapper.StudentLectureMapper;
 import com.msa4lms.domain.lecture.requests.LectureCreateReq;
 import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LecturePagedRes;
@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class LectureService {
+public class StudentLectureService {
 
-    private final LectureMapper lectureMapper;
+    private final StudentLectureMapper lectureMapper;
 
     public List<LectureRes> getAllLectures() {
         return lectureMapper.findAllLectures();
