@@ -9,7 +9,8 @@
         JOIN courses ON lectures.course_id = courses.id
         JOIN departments ON courses.department_id = departments.id
         LEFT JOIN colleges ON departments.college_id = colleges.id
-        JOIN users ON lectures.professor_id = users.id
+        JOIN professors ON lectures.professor_id = professors.id
+        JOIN users ON professors.user_id = users.id
         JOIN semesters ON lectures.semester_id = semesters.id
         <where>
             <if test="searchReq.courseName != null and searchReq.courseName != ''">
@@ -64,7 +65,8 @@
     <sql id="lectureJoins">
         JOIN courses ON lectures.course_id = courses.id
         JOIN departments ON courses.department_id = departments.id
-        JOIN users ON lectures.professor_id = users.id
+        JOIN professors ON lectures.professor_id = professors.id
+        JOIN users ON professors.user_id = users.id
         JOIN semesters ON lectures.semester_id = semesters.id
         LEFT JOIN (
             SELECT lecture_id, GROUP_CONCAT(

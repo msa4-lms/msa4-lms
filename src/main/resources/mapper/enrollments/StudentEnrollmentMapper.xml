@@ -33,7 +33,8 @@
         FROM enrollments
         JOIN lectures ON enrollments.lecture_id = lectures.id
         JOIN courses ON lectures.course_id = courses.id
-        JOIN users ON lectures.professor_id = users.id
+        JOIN professors ON lectures.professor_id = professors.id
+        JOIN users ON professors.user_id = users.id
         JOIN semesters ON lectures.semester_id = semesters.id
         WHERE enrollments.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
           AND semesters.academic_year = #{year}

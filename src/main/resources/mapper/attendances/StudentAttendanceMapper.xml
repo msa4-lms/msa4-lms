@@ -29,7 +29,8 @@
             a.remarks
         FROM attendances a
         JOIN enrollments e ON a.enrollment_id = e.id
-        JOIN users u ON e.student_id = u.id
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
         WHERE a.enrollment_id = #{enrollmentId}

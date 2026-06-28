@@ -23,7 +23,8 @@
                  JOIN users u ON s.user_id = u.id
                  JOIN departments d ON s.department_id = d.id
                  JOIN colleges c ON d.college_id = c.id
-                 JOIN users au ON s.advisor_id = au.id
+                 JOIN professors adv ON s.advisor_id = adv.id
+                 JOIN users au ON adv.user_id = au.id
         WHERE s.user_id = #{userId}
     </select>
 </mapper>
