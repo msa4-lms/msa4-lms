@@ -14,6 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Department {
     private Long id;
+    private Long collegeId;
     private String code;
     private String name;
     private Integer active;

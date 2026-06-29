@@ -24,9 +24,9 @@ public interface ProfessorGradeMapper {
 
     Long findLectureIdByGradeId(@Param("gradeId") Long gradeId);
 
-    List<ProfessorLectureRes> findLecturesByProfessor(@Param("userId") Long professorId);
+    List<ProfessorLectureRes> findLecturesByProfessor(@Param("professorId") Long professorId);
 
     String findGradeStatusByLectureId(@Param("lectureId") Long lectureId);
 
-    void correctGrade(@Param("dto") GradeCorrectionItemReq dto);
+    void correctGrade(@Param("dto") GradeCorrectionItemReq dto, @Param("totalScore") double totalScore, @Param("letterGrade") String letterGrade);
 }

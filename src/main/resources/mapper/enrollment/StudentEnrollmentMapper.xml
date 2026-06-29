@@ -39,7 +39,7 @@
         WHERE enrollments.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
           AND semesters.academic_year = #{year}
           AND semesters.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
-          AND enrollments.status != 'DROPPED'
+          AND enrollments.status = 'ACTIVE'
         </select>
 
         <!-- 이번 학기 신청한 총 학점을 계산하는 쿼리 -->
@@ -52,7 +52,7 @@
         WHERE enrollments.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
           AND semesters.academic_year = #{year}
           AND semesters.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
-          AND enrollments.status != 'DROPPED'
+          AND enrollments.status = 'ACTIVE'
         </select>
 
         <!-- 수강 신청 정보 등록 -->
@@ -75,7 +75,7 @@
             SELECT 1 FROM enrollments
             WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId}) 
               AND lecture_id = #{lectureId}
-              AND status != 'DROPPED'
+              AND status = 'ACTIVE'
         )
         </select>
 
@@ -113,7 +113,7 @@
         JOIN courses c ON l.course_id = c.id
         WHERE e.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
           AND l.semester_id = (SELECT semester_id FROM lectures WHERE id = #{lectureId})
-          AND e.status != 'DROPPED'
+          AND e.status = 'ACTIVE'
     </select>
 
     <!-- 시간표 중복 여부 확인 -->

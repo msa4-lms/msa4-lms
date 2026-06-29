@@ -1,7 +1,7 @@
 package com.msa4lms.domain.profile.controllers;
 
 import com.msa4lms.domain.profile.responses.ProfessorProfileRes;
-import com.msa4lms.domain.profile.services.ProfessorService;
+import com.msa4lms.domain.profile.services.ProfessorProfileService;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/professor")
 @RequiredArgsConstructor
-public class ProfessorController {
-    private final ProfessorService professorService;
+public class ProfessorProfileController {
+    private final ProfessorProfileService professorProfileService;
 
     @GetMapping("/profile")
     public ResponseEntity<GlobalRes<ProfessorProfileRes>> getProfile(
             @AuthenticationPrincipal Claims claims
             ){
         Long userId = Long.parseLong(claims.getSubject());
-        ProfessorProfileRes profile = professorService.getProfile(userId);
+        ProfessorProfileRes profile = professorProfileService.getProfile(userId);
 
         return ResponseEntity.ok(
                 GlobalRes.<ProfessorProfileRes>builder()

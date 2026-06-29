@@ -1,7 +1,6 @@
 package com.msa4lms.domain.leaveReturn.services;
 
 import com.msa4lms.domain.leaveReturn.mapper.StudentLeaveReturnMapper;
-import com.msa4lms.domain.leaveReturn.requests.LeaveReturnProcessReq;
 import com.msa4lms.domain.leaveReturn.requests.LeaveReturnReq;
 import com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes;
 import com.msa4lms.global.errors.custom.DuplicatedRecordException;
@@ -11,9 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.util.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -127,34 +124,5 @@ public class StudentLeaveReturnService {
 
     public List<LeaveReturnRes> getMyRequests(Long userId) {
         return mapper.findRequestsByUserId(userId);
-    }
-
-    public List<LeaveReturnRes> getPendingRequests() {
-        return mapper.findAllPendingRequests();
-    }
-
-    @Transactional
-    public void processRequest(Long requestId, LeaveReturnProcessReq req) {
-        Long userId = mapper.findUserIdByRequestId(requestId);
-        if (userId == null) {
-            throw new IllegalArgumentException("해당 신청 내역을 찾을 수 없습니다.");
-        }
-
-        if (!"APPROVED".equals(req.status()) && !"REJECTED".equals(req.status())) {
-            throw new IllegalArgumentException("올바른 처리 상태가 아닙니다.");
-        }
-
-        mapper.updateRequestStatus(requestId, req.status(), req.rejectReason());
-
-        if ("APPROVED".equals(req.status())) {
-            // Retrieve the request to know if it's LEAVE or RETURN
-            List<LeaveReturnRes> reqs = mapper.findRequestsByUserId(userId);
-            LeaveReturnRes request = reqs.stream().filter(r -> r.id().equals(requestId)).findFirst().orElse(null);
-
-            if (request != null) {
-                String academicStatus = request.requestType().contains("LEAVE") ? "ON_LEAVE" : "ENROLLED";
-                mapper.updateStudentAcademicStatus(userId, academicStatus);
-            }
-        }
     }
 }

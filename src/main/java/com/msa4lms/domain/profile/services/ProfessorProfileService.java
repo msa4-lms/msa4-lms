@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ProfessorService {
+public class ProfessorProfileService {
     private final ProfessorMapper professorMapper;
 
     public ProfessorProfileRes getProfile(Long userId) {

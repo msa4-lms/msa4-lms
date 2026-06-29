@@ -142,6 +142,11 @@ public class AuthService {
             throw new NotRegisteredException("사용자를 찾을 수 없습니다.");
         }
 
+        // 현재 비밀번호 일치 여부 검증
+        if (!passwordEncoder.matches(req.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
         // 같은 비밀번호 작성 제한
         if (passwordEncoder.matches(
                 req.newPassword(),
