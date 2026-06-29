@@ -42,7 +42,11 @@ public class ProfessorLectureService {
         }
 
         com.msa4lms.domain.lecture.entities.Lecture lecture = new com.msa4lms.domain.lecture.entities.Lecture();
-        lecture.setSemesterId(req.semesterId());
+        Long currentSemesterId = lectureMapper.findCurrentSemesterId();
+        if (currentSemesterId == null) {
+            throw new IllegalStateException("현재 학기 정보가 설정되지 않았습니다.");
+        }
+        lecture.setSemesterId(currentSemesterId);
         lecture.setCourseId(courseId);
         lecture.setProfessorId(professorId);
         lecture.setSectionNo(req.sectionNo());

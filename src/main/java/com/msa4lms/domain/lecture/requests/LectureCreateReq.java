@@ -9,9 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record LectureCreateReq(
-    @NotNull(message = "학기 ID는 필수입니다.")
-    Long semesterId,
-
     Long courseId,
 
     Boolean isNewCourse,
