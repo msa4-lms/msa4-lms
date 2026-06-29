@@ -1,7 +1,7 @@
 package com.msa4lms.domain.attendance.services;
 
 import com.msa4lms.domain.attendance.entities.Attendance;
-import com.msa4lms.domain.attendance.mapper.AttendanceMapper;
+import com.msa4lms.domain.attendance.mapper.StudentAttendanceMapper;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,14 +29,14 @@ import com.msa4lms.domain.attendance.responses.ExcuseAttachmentFile;
 import com.msa4lms.domain.attendance.responses.ExcuseRequestRes;
 import com.msa4lms.domain.attendance.responses.AttendanceRateRes;
 import com.msa4lms.domain.attendance.responses.AcademicAttendanceRes;
-import com.msa4lms.domain.attendance.requests.ExcuseRequestReq;
+import com.msa4lms.domain.attendance.requests.ExcuseApplyReq;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AttendanceService {
+public class StudentAttendanceService {
 
-    private final AttendanceMapper attendanceMapper;
+    private final StudentAttendanceMapper attendanceMapper;
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${storage.excuse-attachments}")
@@ -78,12 +78,12 @@ public class AttendanceService {
      * 학생 공결 신청
      */
     @Transactional
-    public void requestExcuse(long studentId, ExcuseRequestReq req) {
+    public void requestExcuse(long studentId, ExcuseApplyReq req) {
         requestExcuse(studentId, req, null);
     }
 
     @Transactional
-    public void requestExcuse(long studentId, ExcuseRequestReq req, MultipartFile attachment) {
+    public void requestExcuse(long studentId, ExcuseApplyReq req, MultipartFile attachment) {
         Integer ownedCount = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
@@ -103,13 +103,11 @@ public class AttendanceService {
                 """
                 SELECT COUNT(*)
                 FROM excuse_requests
-                WHERE student_id = ?
-                  AND enrollment_id = ?
+                WHERE enrollment_id = ?
                   AND lecture_date = ?
                   AND period = ?
                 """,
                 Integer.class,
-                studentId,
                 req.enrollmentId(),
                 req.lectureDate(),
                 req.period());
@@ -141,13 +139,15 @@ public class AttendanceService {
         List<Map<String, Object>> files = jdbcTemplate.queryForList(
                 """
                 SELECT
-                    attachment_original_name,
-                    attachment_stored_name,
-                    attachment_content_type
-                FROM excuse_requests
-                WHERE id = ?
-                  AND student_id = ?
-                  AND attachment_stored_name IS NOT NULL
+                    e.attachment_original_name,
+                    e.attachment_stored_name,
+                    e.attachment_content_type
+                FROM excuse_requests e
+                JOIN enrollments en ON e.enrollment_id = en.id
+                JOIN students s ON en.student_id = s.id
+                WHERE e.id = ?
+                  AND s.user_id = ?
+                  AND e.attachment_stored_name IS NOT NULL
                 """,
                 requestId,
                 studentId);

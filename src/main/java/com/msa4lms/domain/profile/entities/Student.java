@@ -1,4 +1,4 @@
-
+package com.msa4lms.domain.profile.entities;
 
 import lombok.Builder;
 import lombok.NoArgsConstructor;

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.msa4lms.domain.enrollment.mapper.EnrollmentMapper">
+<mapper namespace="com.msa4lms.domain.enrollment.mapper.StudentEnrollmentMapper">
 
     <!-- Record 사용 시에는 resultType과 map-underscore-to-camel-case 조합이 더 안정적입니다. -->
 
@@ -33,11 +33,13 @@
         FROM enrollments
         JOIN lectures ON enrollments.lecture_id = lectures.id
         JOIN courses ON lectures.course_id = courses.id
-        JOIN users ON lectures.professor_id = users.id
+        JOIN professors ON lectures.professor_id = professors.id
+        JOIN users ON professors.user_id = users.id
         JOIN semesters ON lectures.semester_id = semesters.id
         WHERE enrollments.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
           AND semesters.academic_year = #{year}
           AND semesters.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
+          AND enrollments.status != 'DROPPED'
         </select>
 
         <!-- 이번 학기 신청한 총 학점을 계산하는 쿼리 -->
@@ -57,19 +59,23 @@
         <insert id="insertEnrollment">
         INSERT INTO enrollments (student_id, lecture_id, status, enrolled_at)
         VALUES ((SELECT id FROM students WHERE user_id = #{studentId}), #{lectureId}, 'ACTIVE', CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE status = 'ACTIVE', enrolled_at = CURRENT_TIMESTAMP
         </insert>
 
-        <!-- 수강 신청 정보 삭제 -->
-        <delete id="deleteEnrollment">
-        DELETE FROM enrollments
+    <!-- 수강 신청 정보 삭제 (소프트 딜리트) -->
+    <update id="deleteEnrollment">
+        UPDATE enrollments
+        SET status = 'DROPPED'
         WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId}) AND lecture_id = #{lectureId}
-        </delete>
+    </update>
 
-        <!-- 중복 신청 확인 -->
+        <!-- 중복 신청 확인 (드롭된 수강은 제외) -->
         <select id="existsEnrollment" resultType="boolean">
         SELECT EXISTS(
             SELECT 1 FROM enrollments
-            WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId}) AND lecture_id = #{lectureId}
+            WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId}) 
+              AND lecture_id = #{lectureId}
+              AND status != 'DROPPED'
         )
         </select>
 

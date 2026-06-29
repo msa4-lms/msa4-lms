@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.msa4lms.domain.grade.mapper.GradeMapper">
+<mapper namespace="com.msa4lms.domain.grade.mapper.StudentGradeMapper">
 
     <resultMap id="GradeResultMap" type="com.msa4lms.domain.grade.entities.Grade">
         <id column="id" property="id"/>
@@ -15,8 +15,7 @@
         <result column="assignment_score" property="assignmentScore"/>
         <result column="attendance_score" property="attendanceScore"/>
         <result column="status" property="status"/>
-        <result column="objection_reason" property="objectionReason"/>
-        <result column="objection_reply" property="objectionReply"/>
+
         <result column="student_name" property="studentName"/>
         <result column="student_login_id" property="studentLoginId"/>
     </resultMap>

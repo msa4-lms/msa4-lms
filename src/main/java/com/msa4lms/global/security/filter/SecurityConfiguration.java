@@ -110,14 +110,6 @@ public class SecurityConfiguration {
                     // 관리자 권한
                     req.requestMatchers("/api/admin/**").hasRole("ADMIN");
 
-                    // GET 요청 권한 설정
-                    if (SecurityUrlRegistry.AUTH_REQUIRED_GET_URLS.length > 0) {
-                        req.requestMatchers(HttpMethod.GET, SecurityUrlRegistry.AUTH_REQUIRED_GET_URLS).authenticated();
-                    }
-                    // POST 요청 권한 설정
-                    if (SecurityUrlRegistry.AUTH_REQUIRED_POST_URLS.length > 0) {
-                        req.requestMatchers(HttpMethod.POST, SecurityUrlRegistry.AUTH_REQUIRED_POST_URLS).authenticated();
-                    }
                     // 그 외 모든 요청은 허용 (로그인 등)
                     req.anyRequest().permitAll();
                 })

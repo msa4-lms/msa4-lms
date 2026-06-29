@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.msa4lms.domain.attendance.mapper.AttendanceMapper">
+<mapper namespace="com.msa4lms.domain.attendance.mapper.StudentAttendanceMapper">
 
     <insert id="insertAttendance" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO attendances (enrollment_id, lecture_date, period, status, remarks)
@@ -29,7 +29,8 @@
             a.remarks
         FROM attendances a
         JOIN enrollments e ON a.enrollment_id = e.id
-        JOIN users u ON e.student_id = u.id
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
         WHERE a.enrollment_id = #{enrollmentId}
@@ -57,17 +58,14 @@
     </select>
 
     <select id="findById" resultType="com.msa4lms.domain.attendance.entities.Attendance">
-        SELECT * FROM attendances WHERE id = #{id}
+        SELECT id, enrollment_id, lecture_date, period, status, remarks, created_at, updated_at
+        FROM attendances
+        WHERE id = #{id}
     </select>
 
-<resultMap id="AttendanceMap" type="com.msa4lms.domain.attendance.responses.AcademicAttendanceRes">
-        <result column="course_name" property="courseName"/>
-        <result column="lecture_date" property="lectureDate"/>
-        <result column="period" property="period"/>
-        <result column="status" property="status"/>
-    </resultMap>
 
-    <select id="findAttendanceByStudentId" resultMap="AttendanceMap">
+
+    <select id="findAttendanceByStudentId" resultType="com.msa4lms.domain.attendance.responses.AcademicAttendanceRes">
         SELECT
             c.name AS course_name,
             a.lecture_date,
@@ -82,16 +80,9 @@
         ORDER BY a.lecture_date DESC, a.period ASC
     </select>
 
-    <resultMap id="AttendanceRateMap" type="com.msa4lms.domain.attendance.responses.AttendanceRateRes">
-        <result column="enrollment_id" property="enrollmentId"/>
-        <result column="course_name" property="courseName"/>
-        <result column="total_count" property="totalCount"/>
-        <result column="attended_count" property="attendedCount"/>
-        <result column="attendance_rate" property="attendanceRate"/>
-        <result column="fail_target" property="failTarget"/>
-    </resultMap>
 
-    <select id="findAttendanceRatesByStudentId" resultMap="AttendanceRateMap">
+
+    <select id="findAttendanceRatesByStudentId" resultType="com.msa4lms.domain.attendance.responses.AttendanceRateRes">
         SELECT
             e.id AS enrollment_id,
             c.name AS course_name,
@@ -133,32 +124,18 @@
 
     <insert id="insertExcuseRequest">
         INSERT INTO excuse_requests (
-            student_id, enrollment_id, lecture_date, period, reason, status,
+            enrollment_id, lecture_date, period, reason, status,
             attachment_original_name, attachment_stored_name, attachment_content_type, attachment_size
         )
         VALUES (
-            #{studentId}, #{enrollmentId}, #{lectureDate}, #{period}, #{reason}, 'PENDING',
+            #{enrollmentId}, #{lectureDate}, #{period}, #{reason}, 'PENDING',
             #{attachmentOriginalName}, #{attachmentStoredName}, #{attachmentContentType}, #{attachmentSize}
         )
     </insert>
 
-    <resultMap id="ExcuseRequestMap" type="com.msa4lms.domain.attendance.responses.ExcuseRequestRes">
-        <result column="id" property="id"/>
-        <result column="enrollment_id" property="enrollmentId"/>
-        <result column="course_name" property="courseName"/>
-        <result column="student_name" property="studentName"/>
-        <result column="student_no" property="studentNo"/>
-        <result column="lecture_date" property="lectureDate"/>
-        <result column="period" property="period"/>
-        <result column="reason" property="reason"/>
-        <result column="status" property="status"/>
-        <result column="reject_reason" property="rejectReason"/>
-        <result column="attachment_original_name" property="attachmentOriginalName"/>
-        <result column="attachment_content_type" property="attachmentContentType"/>
-        <result column="attachment_size" property="attachmentSize"/>
-    </resultMap>
 
-    <select id="findExcuseRequestsByStudentId" resultMap="ExcuseRequestMap">
+
+    <select id="findExcuseRequestsByStudentId" resultType="com.msa4lms.domain.attendance.responses.ExcuseRequestRes">
         SELECT
             er.id,
             er.enrollment_id,
@@ -177,12 +154,13 @@
         JOIN enrollments e ON er.enrollment_id = e.id
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
-        JOIN users u ON er.student_id = u.id
-        WHERE er.student_id = #{studentId}
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
+        WHERE s.user_id = #{studentId}
         ORDER BY er.created_at DESC
     </select>
 
-    <select id="findPendingExcuseRequestsByProfessorId" resultMap="ExcuseRequestMap">
+    <select id="findPendingExcuseRequestsByProfessorId" resultType="com.msa4lms.domain.attendance.responses.ExcuseRequestRes">
         SELECT
             er.id,
             er.enrollment_id,
@@ -201,13 +179,14 @@
         JOIN enrollments e ON er.enrollment_id = e.id
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
-        JOIN users u ON er.student_id = u.id
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
         WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
           AND er.status = 'PENDING'
         ORDER BY er.created_at ASC
     </select>
 
-    <select id="findExcuseRequestsByProfessorId" resultMap="ExcuseRequestMap">
+    <select id="findExcuseRequestsByProfessorId" resultType="com.msa4lms.domain.attendance.responses.ExcuseRequestRes">
         SELECT
             er.id,
             er.enrollment_id,
@@ -226,7 +205,8 @@
         JOIN enrollments e ON er.enrollment_id = e.id
         JOIN lectures l ON e.lecture_id = l.id
         JOIN courses c ON l.course_id = c.id
-        JOIN users u ON er.student_id = u.id
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
         WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
         ORDER BY
             CASE WHEN er.status = 'PENDING' THEN 0 ELSE 1 END,

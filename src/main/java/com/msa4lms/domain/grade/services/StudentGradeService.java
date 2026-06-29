@@ -1,6 +1,6 @@
 package com.msa4lms.domain.grade.services;
 
-import com.msa4lms.domain.grade.mapper.GradeMapper;
+import com.msa4lms.domain.grade.mapper.StudentGradeMapper;
 import com.msa4lms.domain.grade.responses.GradeSummaryRes;
 import com.msa4lms.domain.grade.responses.SemesterGradeRes;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +12,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class GradeService {
+public class StudentGradeService {
 
-    private final GradeMapper gradeMapper;
+    private final StudentGradeMapper gradeMapper;
 
     /**
      * 학생의 전체 성적 요약 및 평점 계산
