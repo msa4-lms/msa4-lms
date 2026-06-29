@@ -4,19 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.msa4lms.domain.attendance.mapper.StudentAttendanceMapper">
 
-    <insert id="insertAttendance" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO attendances (enrollment_id, lecture_date, period, status, remarks)
-        VALUES (#{enrollmentId}, #{lectureDate}, #{period}, #{status}, #{remarks})
-    </insert>
-
-    <update id="updateAttendance">
-        UPDATE attendances
-        SET status = #{status},
-            remarks = #{remarks},
-            updated_at = NOW()
-        WHERE id = #{id}
-    </update>
-
     <select id="findByEnrollmentId" resultType="com.msa4lms.domain.attendance.responses.AttendanceRes">
         SELECT 
             a.id,
@@ -36,34 +23,6 @@
         WHERE a.enrollment_id = #{enrollmentId}
         ORDER BY a.lecture_date DESC, a.period ASC
     </select>
-
-    <select id="findByLectureIdAndDate" resultType="com.msa4lms.domain.attendance.responses.AttendanceRes">
-        SELECT 
-            a.id,
-            e.id as enrollment_id,
-            u.name as student_name,
-            c.name as course_name,
-            COALESCE(a.lecture_date, #{date}) as lecture_date,
-            COALESCE(a.period, 1) as period,
-            a.status,
-            a.remarks
-        FROM enrollments e
-        JOIN students s ON e.student_id = s.id
-        JOIN users u ON s.user_id = u.id
-        JOIN lectures l ON e.lecture_id = l.id
-        JOIN courses c ON l.course_id = c.id
-        LEFT JOIN attendances a ON e.id = a.enrollment_id AND a.lecture_date = #{date}
-        WHERE l.id = #{lectureId}
-        ORDER BY u.name ASC, a.period ASC
-    </select>
-
-    <select id="findById" resultType="com.msa4lms.domain.attendance.entities.Attendance">
-        SELECT id, enrollment_id, lecture_date, period, status, remarks, created_at, updated_at
-        FROM attendances
-        WHERE id = #{id}
-    </select>
-
-
 
     <select id="findAttendanceByStudentId" resultType="com.msa4lms.domain.attendance.responses.AcademicAttendanceRes">
         SELECT
@@ -160,81 +119,5 @@
         ORDER BY er.created_at DESC
     </select>
 
-    <select id="findPendingExcuseRequestsByProfessorId" resultType="com.msa4lms.domain.attendance.responses.ExcuseRequestRes">
-        SELECT
-            er.id,
-            er.enrollment_id,
-            c.name AS course_name,
-            u.name AS student_name,
-            u.login_id AS student_no,
-            er.lecture_date,
-            er.period,
-            er.reason,
-            er.status,
-            er.reject_reason,
-            er.attachment_original_name,
-            er.attachment_content_type,
-            er.attachment_size
-        FROM excuse_requests er
-        JOIN enrollments e ON er.enrollment_id = e.id
-        JOIN lectures l ON e.lecture_id = l.id
-        JOIN courses c ON l.course_id = c.id
-        JOIN students s ON e.student_id = s.id
-        JOIN users u ON s.user_id = u.id
-        WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
-          AND er.status = 'PENDING'
-        ORDER BY er.created_at ASC
-    </select>
-
-    <select id="findExcuseRequestsByProfessorId" resultType="com.msa4lms.domain.attendance.responses.ExcuseRequestRes">
-        SELECT
-            er.id,
-            er.enrollment_id,
-            c.name AS course_name,
-            u.name AS student_name,
-            u.login_id AS student_no,
-            er.lecture_date,
-            er.period,
-            er.reason,
-            er.status,
-            er.reject_reason,
-            er.attachment_original_name,
-            er.attachment_content_type,
-            er.attachment_size
-        FROM excuse_requests er
-        JOIN enrollments e ON er.enrollment_id = e.id
-        JOIN lectures l ON e.lecture_id = l.id
-        JOIN courses c ON l.course_id = c.id
-        JOIN students s ON e.student_id = s.id
-        JOIN users u ON s.user_id = u.id
-        WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
-        ORDER BY
-            CASE WHEN er.status = 'PENDING' THEN 0 ELSE 1 END,
-            er.updated_at DESC,
-            er.created_at DESC
-    </select>
-
-    <update id="updateExcuseRequestStatus">
-        UPDATE excuse_requests er
-        JOIN enrollments e ON er.enrollment_id = e.id
-        JOIN lectures l ON e.lecture_id = l.id
-        SET er.status = #{status},
-            er.reject_reason = #{rejectReason},
-            er.updated_at = NOW()
-        WHERE er.id = #{requestId}
-          AND l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
-    </update>
-
-    <insert id="applyApprovedExcuse">
-        INSERT INTO attendances (enrollment_id, lecture_date, period, status, remarks)
-        SELECT enrollment_id, lecture_date, period, 'EXCUSED', reason
-        FROM excuse_requests
-        WHERE id = #{requestId}
-          AND status = 'APPROVED'
-        ON DUPLICATE KEY UPDATE
-            status = 'EXCUSED',
-            remarks = VALUES(remarks),
-            updated_at = NOW()
-    </insert>
 
 </mapper>

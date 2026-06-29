@@ -2,10 +2,11 @@ package com.msa4lms.domain.profile.controllers;
 
 import com.msa4lms.domain.profile.responses.StudentProfileRes;
 import com.msa4lms.domain.profile.services.StudentService;
-import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,8 +19,9 @@ public class StudentController {
 
     @GetMapping("/profile")
     public ResponseEntity<GlobalRes<StudentProfileRes>> getProfile(
-            @LoginUserId Long userId
+            @AuthenticationPrincipal Claims claims
             ){
+        Long userId = Long.parseLong(claims.getSubject());
         StudentProfileRes profile =
                 studentService.getProfile(userId);
 

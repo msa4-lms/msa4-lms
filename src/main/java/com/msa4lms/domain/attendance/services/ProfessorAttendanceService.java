@@ -1,7 +1,7 @@
 package com.msa4lms.domain.attendance.services;
 
 import com.msa4lms.domain.attendance.entities.Attendance;
-import com.msa4lms.domain.attendance.mapper.StudentAttendanceMapper;
+import com.msa4lms.domain.attendance.mapper.ProfessorAttendanceMapper;
 import com.msa4lms.domain.attendance.requests.AttendanceUpdateReq;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ import com.msa4lms.domain.attendance.requests.ExcuseDecisionReq;
 @Transactional(readOnly = true)
 public class ProfessorAttendanceService {
 
-    private final StudentAttendanceMapper attendanceMapper;
+    private final ProfessorAttendanceMapper attendanceMapper;
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${storage.excuse-attachments}")

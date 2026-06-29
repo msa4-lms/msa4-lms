@@ -1,10 +1,11 @@
 package com.msa4lms.domain.grade.controllers;
 
 import com.msa4lms.domain.grade.services.StudentGradeService;
-import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,9 +21,10 @@ public class StudentGradeController {
      */
     @GetMapping
     public ResponseEntity<GlobalRes<com.msa4lms.domain.grade.responses.GradeSummaryRes>> getGrades(
-            @LoginUserId Long userId,
+            @AuthenticationPrincipal Claims claims,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer semester) {
+        Long userId = Long.parseLong(claims.getSubject());
         com.msa4lms.domain.grade.responses.GradeSummaryRes data = gradeService.getGradeSummary(userId, year, semester);
 
         return ResponseEntity.ok(

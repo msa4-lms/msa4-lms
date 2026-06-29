@@ -68,6 +68,19 @@
         WHERE id = #{gradeId}
     </select>
 
+    <select id="findGradeStatusByLectureId" resultType="String">
+        SELECT grade_status
+        FROM enrollments
+        WHERE lecture_id = #{lectureId} AND status = 'ACTIVE'
+        LIMIT 1
+    </select>
+
+    <update id="correctGrade">
+        UPDATE enrollments
+        SET letter_grade = #{dto.grade}
+        WHERE id = #{dto.enrollmentId}
+    </update>
+
 
 
 

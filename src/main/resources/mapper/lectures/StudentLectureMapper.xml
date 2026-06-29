@@ -183,7 +183,12 @@
         WHERE id = #{id}
     </select>
 
-    <select id="findFlatCollegesAndDepartments" resultType="com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto">
+    <insert id="insertLectureSchedule">
+        INSERT INTO lecture_schedules (lecture_id, day_of_week, start_period, end_period)
+        VALUES (#{lectureId}, #{schedule.dayOfWeek}, #{schedule.startPeriod}, #{schedule.endPeriod})
+    </insert>
+
+    <select id="findFlatCollegesAndDepartments" resultType="com.msa4lms.domain.lecture.dto.CollegeDeptDto">
         SELECT
             c.id AS college_id,
             c.code AS college_code,
@@ -219,7 +224,6 @@
         ORDER BY semesters.academic_year DESC, semesters.term DESC, courses.name ASC
     </select>
 
-
     <select id="findAvailableCoursesForProfessor" resultType="com.msa4lms.domain.lecture.responses.CourseRes">
         SELECT c.id, c.code, c.name, c.credits, c.target_grade AS targetGrade, c.completion_type AS completionType
         FROM courses c
@@ -236,10 +240,4 @@
         INSERT INTO courses (code, name, credits, department_id, target_grade, completion_type)
         VALUES (#{code}, #{name}, #{credits}, #{departmentId}, #{targetGrade}, #{completionType})
     </insert>
-
-    <insert id="insertLectureSchedule">
-        INSERT INTO lecture_schedules (lecture_id, day_of_week, start_period, end_period)
-        VALUES (#{lectureId}, #{schedule.dayOfWeek}, #{schedule.startPeriod}, #{schedule.endPeriod})
-    </insert>
-
 </mapper>

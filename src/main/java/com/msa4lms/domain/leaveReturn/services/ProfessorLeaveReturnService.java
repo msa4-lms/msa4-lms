@@ -1,6 +1,6 @@
 package com.msa4lms.domain.leaveReturn.services;
 
-import com.msa4lms.domain.leaveReturn.mapper.StudentLeaveReturnMapper;
+import com.msa4lms.domain.leaveReturn.mapper.ProfessorLeaveReturnMapper;
 import com.msa4lms.domain.leaveReturn.requests.LeaveReturnProcessReq;
 import com.msa4lms.domain.leaveReturn.responses.LeaveAttachmentFile;
 import com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfessorLeaveReturnService {
 
-    private final StudentLeaveReturnMapper mapper;
+    private final ProfessorLeaveReturnMapper mapper;
 
     public List<LeaveReturnRes> getPendingRequests() {
         return mapper.findAllPendingRequests();

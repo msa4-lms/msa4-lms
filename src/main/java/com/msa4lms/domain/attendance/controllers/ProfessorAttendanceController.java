@@ -6,8 +6,8 @@ import com.msa4lms.domain.attendance.services.StudentAttendanceService;
 import com.msa4lms.domain.attendance.requests.ExcuseDecisionReq;
 import com.msa4lms.domain.attendance.responses.ExcuseRequestRes;
 import com.msa4lms.domain.attendance.responses.ExcuseAttachmentFile;
-import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,6 +16,7 @@ import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -79,7 +80,8 @@ public class ProfessorAttendanceController {
 
     @GetMapping("/excuses/pending")
     public ResponseEntity<GlobalRes<List<ExcuseRequestRes>>> getPendingExcuseRequests(
-            @LoginUserId Long professorId) {
+            @AuthenticationPrincipal Claims claims) {
+        Long professorId = Long.parseLong(claims.getSubject());
         List<ExcuseRequestRes> data = attendanceService.getPendingExcuseRequests(professorId);
 
         return ResponseEntity.ok(
@@ -93,7 +95,8 @@ public class ProfessorAttendanceController {
 
     @GetMapping("/excuses")
     public ResponseEntity<GlobalRes<List<ExcuseRequestRes>>> getExcuseRequests(
-            @LoginUserId Long professorId) {
+            @AuthenticationPrincipal Claims claims) {
+        Long professorId = Long.parseLong(claims.getSubject());
         List<ExcuseRequestRes> data = attendanceService.getProfessorExcuseRequests(professorId);
 
         return ResponseEntity.ok(
@@ -107,9 +110,10 @@ public class ProfessorAttendanceController {
 
     @PatchMapping("/excuses/{requestId}")
     public ResponseEntity<GlobalRes<String>> decideExcuseRequest(
-            @LoginUserId Long professorId,
+            @AuthenticationPrincipal Claims claims,
             @PathVariable long requestId,
             @Valid @RequestBody ExcuseDecisionReq req) {
+        Long professorId = Long.parseLong(claims.getSubject());
         attendanceService.decideExcuseRequest(professorId, requestId, req);
 
         return ResponseEntity.ok(
@@ -122,8 +126,9 @@ public class ProfessorAttendanceController {
 
     @GetMapping("/excuses/{requestId}/attachment")
     public ResponseEntity<Resource> getExcuseAttachment(
-            @LoginUserId Long professorId,
+            @AuthenticationPrincipal Claims claims,
             @PathVariable long requestId) {
+        Long professorId = Long.parseLong(claims.getSubject());
         ExcuseAttachmentFile file = attendanceService.getExcuseAttachment(professorId, requestId);
         MediaType mediaType;
         try {

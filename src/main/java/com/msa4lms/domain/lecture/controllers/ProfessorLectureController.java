@@ -5,10 +5,10 @@ import com.msa4lms.domain.lecture.responses.LectureRes;
 import com.msa4lms.domain.lecture.services.ProfessorLectureService;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,9 +23,7 @@ import java.util.List;
 @RequestMapping("/api/professor/lectures")
 public class ProfessorLectureController {
 
-    // ProfessorLectureController는 서비스를 호출하여 각각의 원하는 명령을 수행시킨다.
-    private final ProfessorLectureService lectureService;  // lectureService 호출
-
+    private final ProfessorLectureService lectureService;
 
     @GetMapping
     public ResponseEntity<GlobalRes<List<LectureRes>>> getMyLectures(
