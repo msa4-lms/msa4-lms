@@ -18,5 +18,7 @@ public record UserRes(
         , Long advisorId
         , String advisorName
         , String createdAt
+        , Integer endYear
+        , Integer startYear
 ) {
 }

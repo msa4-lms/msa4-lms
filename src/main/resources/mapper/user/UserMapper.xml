@@ -22,6 +22,8 @@
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
         <result column="deleted_at" property="deletedAt"/>
+        <result column="end_year" property="endYear"/>
+        <result column="start_year" property="startYear"/>
     </resultMap>
 
 
@@ -43,7 +45,24 @@
             d.name AS department_name,
             s.grade_level,
             s.advisor_id,
-            pu.name AS advisor_name
+            pu.name AS advisor_name,
+            COALESCE(s.admission_year, p.hire_year) AS start_year,
+            CASE 
+                WHEN u.role = 'STUDENT' AND s.academic_status = 'GRADUATED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM enrollments e
+                    JOIN lectures l ON e.lecture_id = l.id
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE e.student_id = s.id
+                )
+                WHEN u.role = 'PROFESSOR' AND u.status = 'RETIRED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM lectures l
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE l.professor_id = p.id
+                )
+                ELSE NULL
+            END AS end_year
         FROM users u
         LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
         LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
@@ -61,7 +80,24 @@
             d.name AS department_name,
             s.grade_level,
             s.advisor_id,
-            pu.name AS advisor_name
+            pu.name AS advisor_name,
+            COALESCE(s.admission_year, p.hire_year) AS start_year,
+            CASE 
+                WHEN u.role = 'STUDENT' AND s.academic_status = 'GRADUATED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM enrollments e
+                    JOIN lectures l ON e.lecture_id = l.id
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE e.student_id = s.id
+                )
+                WHEN u.role = 'PROFESSOR' AND u.status = 'RETIRED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM lectures l
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE l.professor_id = p.id
+                )
+                ELSE NULL
+            END AS end_year
         FROM users u
         LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
         LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
