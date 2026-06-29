@@ -59,6 +59,10 @@
         SELECT department_id FROM professors WHERE user_id = #{professorId}
     </select>
 
+    <select id="findCurrentSemesterId" resultType="java.lang.Long">
+        SELECT id FROM semesters WHERE is_current = 1 LIMIT 1
+    </select>
+
     <insert id="insertCourse" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO courses (code, name, credits, department_id, target_grade, completion_type)
         VALUES (#{code}, #{name}, #{credits}, #{departmentId}, #{targetGrade}, #{completionType})

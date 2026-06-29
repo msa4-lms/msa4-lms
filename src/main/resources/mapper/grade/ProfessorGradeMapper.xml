@@ -10,6 +10,14 @@
         WHERE id = #{lectureId} AND professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
     </select>
 
+<!-- 강의(lectures) 테이블이 공통 users.id를 직접 참조하게 되면,
+논리적 오류로 인해 'student' 계정이 강의의 담당 교수로 배정되는 데이터 꼬임 현상이 발생할 위험이 있기에
+토큰에서 꺼낸 인증용 userId를 기반으로,
+제 비즈니스 도메인인 professors 테이블을 거쳐 검증된 교수 ID만 강의 테이블에 들어가도록 함(데이터 무결성과 도메인 분리)-->
+
+<!--자바 코드에서 파라미터 변수명을  professorId 로 넘겼지만, 토큰에서 꺼낸 값이기 때문에 실제 DB에선 user_id임 -->
+<!--  추후 팀원들과 직접 참조할지 한 테이블을 거칠지 토론 필요-->
+
     <select id="findGradesByLectureId" resultType="com.msa4lms.domain.grade.responses.GradeDetailRes">
         SELECT
             e.id AS id,

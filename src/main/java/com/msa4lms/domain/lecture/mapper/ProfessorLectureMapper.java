@@ -13,6 +13,7 @@ import java.util.List;
 @Mapper
 public interface ProfessorLectureMapper {
     Long findDepartmentIdByProfessorId(@Param("professorId") Long professorId);
+    Long findCurrentSemesterId();
     void insertCourse(Course course);
     void insertLecture(Lecture lecture);
     void insertLectureSchedule(@Param("lectureId") Long lectureId, @Param("schedule") ScheduleInput schedule);
