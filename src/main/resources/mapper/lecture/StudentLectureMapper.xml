@@ -188,7 +188,7 @@
         VALUES (#{lectureId}, #{schedule.dayOfWeek}, #{schedule.startPeriod}, #{schedule.endPeriod})
     </insert>
 
-    <select id="findFlatCollegesAndDepartments" resultType="com.msa4lms.domain.lecture.dto.CollegeDeptDto">
+    <select id="findFlatCollegesAndDepartments" resultType="com.msa4lms.domain.lecture.responses.CollegeDeptRes">
         SELECT
             c.id AS college_id,
             c.code AS college_code,

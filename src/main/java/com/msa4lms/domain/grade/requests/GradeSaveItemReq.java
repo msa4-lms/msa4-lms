@@ -1,6 +1,6 @@
-package com.msa4lms.domain.grade.dto;
+package com.msa4lms.domain.grade.requests;
 
-public record GradeSaveDto(
+public record GradeSaveItemReq(
         Long enrollmentId,
         Double midtermScore,
         Double finalScore,

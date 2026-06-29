@@ -1,7 +1,7 @@
 package com.msa4lms.domain.grade.mapper;
 
-import com.msa4lms.domain.grade.dto.GradeCorrectionDto;
-import com.msa4lms.domain.grade.dto.GradeSaveDto;
+import com.msa4lms.domain.grade.requests.GradeCorrectionItemReq;
+import com.msa4lms.domain.grade.requests.GradeSaveItemReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
 import com.msa4lms.domain.lecture.entities.Lecture;
@@ -16,7 +16,7 @@ public interface ProfessorGradeMapper {
 
     List<GradeDetailRes> findGradesByLectureId(@Param("lectureId") Long lectureId);
 
-    void upsertGrade(@Param("dto") GradeSaveDto dto, @Param("totalScore") double totalScore, @Param("letterGrade") String letterGrade);
+    void upsertGrade(@Param("dto") GradeSaveItemReq dto, @Param("totalScore") double totalScore, @Param("letterGrade") String letterGrade);
 
     Lecture findLectureById(@Param("lectureId") Long lectureId);
 
@@ -28,5 +28,5 @@ public interface ProfessorGradeMapper {
 
     String findGradeStatusByLectureId(@Param("lectureId") Long lectureId);
 
-    void correctGrade(@Param("dto") GradeCorrectionDto dto);
+    void correctGrade(@Param("dto") GradeCorrectionItemReq dto);
 }

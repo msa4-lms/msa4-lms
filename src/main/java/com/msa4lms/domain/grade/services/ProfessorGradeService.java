@@ -1,8 +1,8 @@
 package com.msa4lms.domain.grade.services;
 
 import com.msa4lms.domain.grade.mapper.ProfessorGradeMapper;
-import com.msa4lms.domain.grade.dto.GradeCorrectionDto;
-import com.msa4lms.domain.grade.dto.GradeSaveDto;
+import com.msa4lms.domain.grade.requests.GradeCorrectionItemReq;
+import com.msa4lms.domain.grade.requests.GradeSaveItemReq;
 import com.msa4lms.domain.grade.requests.GradeCorrectionReq;
 import com.msa4lms.domain.grade.requests.GradeSaveReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
@@ -42,7 +42,7 @@ public class ProfessorGradeService {
             throw new IllegalStateException("이미 제출된 성적은 성적 정정 절차를 이용해주세요.");
         }
 
-        for (GradeSaveDto dto : req.gradeList()) {
+        for (GradeSaveItemReq dto : req.gradeList()) {
             calculateAndUpsertGrade(lectureId, dto);
         }
     }
@@ -62,7 +62,7 @@ public class ProfessorGradeService {
             throw new IllegalStateException("최종 확정된 성적은 정정할 수 없습니다.");
         }
 
-        for (GradeCorrectionDto dto : req.correctionList()) {
+        for (GradeCorrectionItemReq dto : req.correctionList()) {
             professorGradeMapper.correctGrade(dto);
         }
     }
@@ -83,7 +83,7 @@ public class ProfessorGradeService {
         return professorGradeMapper.findLecturesByProfessor(id);
     }
 
-    private void calculateAndUpsertGrade(Long lectureId, GradeSaveDto dto) {
+    private void calculateAndUpsertGrade(Long lectureId, GradeSaveItemReq dto) {
         Lecture lecture = professorGradeMapper.findLectureById(lectureId);
         if (lecture == null) {
             throw new IllegalArgumentException("해당 강의를 찾을 수 없습니다.");
