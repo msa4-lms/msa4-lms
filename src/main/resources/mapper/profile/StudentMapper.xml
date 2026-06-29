@@ -18,7 +18,13 @@
             c.name AS collegeName,
             au.name AS advisorName,
             s.admission_year AS admissionYear,
-            0 AS credits
+            (
+                SELECT sgs.total_credits
+                FROM student_grade_summaries sgs
+                WHERE sgs.student_id = s.id
+                ORDER BY sgs.semester_id DESC
+                LIMIT 1
+            ) AS credits
         FROM students s
                  JOIN users u ON s.user_id = u.id
                  JOIN departments d ON s.department_id = d.id

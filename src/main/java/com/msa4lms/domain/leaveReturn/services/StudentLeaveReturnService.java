@@ -88,9 +88,13 @@ public class StudentLeaveReturnService {
         LeaveReturnReq effectiveReq = req;
         if (req.requestType().contains("RETURN") && onMilitaryLeave) {
             effectiveReq = new LeaveReturnReq(
-                    "MILITARY_RETURN", req.reason(), req.targetYear(), req.targetSemester(),
-                    req.returnYear(), req.returnSemester());
-        }
+                    "MILITARY_RETURN",
+                                req.reason(),
+                                req.targetYear(),
+                                req.targetSemester(),
+                                req.returnYear(),
+                                req.returnSemester());
+                    }
 
         String filePath = null;
         if (file != null && !file.isEmpty()) {
