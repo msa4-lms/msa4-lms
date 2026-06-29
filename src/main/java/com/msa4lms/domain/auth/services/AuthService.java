@@ -125,6 +125,7 @@ public class AuthService {
                                 .departmentName(user.getDepartmentName())
                                 .gradeLevel(user.getGradeLevel())
                                 .createdAt(user.getCreatedAt())
+                                .endYear(user.getEndYear())
                                 .build()
                 )
                 .build();

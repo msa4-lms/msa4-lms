@@ -30,5 +30,6 @@ public class User {
     private String createdAt;
     private String updatedAt;
     private String deletedAt;
+    private Integer endYear;
 }
 
