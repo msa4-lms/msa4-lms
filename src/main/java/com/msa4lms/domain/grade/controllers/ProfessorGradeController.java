@@ -1,13 +1,15 @@
 package com.msa4lms.domain.grade.controllers;
 
+import com.msa4lms.domain.grade.requests.GradeCorrectionReq;
 import com.msa4lms.domain.grade.requests.GradeSaveReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
 import com.msa4lms.domain.grade.services.ProfessorGradeService;
-import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +23,9 @@ public class ProfessorGradeController {
 
     @GetMapping("/lectures/{lectureId}")
     public ResponseEntity<GlobalRes<List<GradeDetailRes>>> getGrades(
-            @LoginUserId Long professorId,
+            @AuthenticationPrincipal Claims claims,
             @PathVariable Long lectureId) {
+        Long professorId = Long.parseLong(claims.getSubject());
         List<GradeDetailRes> data = professorGradeService.getGradesForLecture(professorId, lectureId);
 
         return ResponseEntity.ok(
@@ -36,9 +39,10 @@ public class ProfessorGradeController {
 
     @PutMapping("/lectures/{lectureId}")
     public ResponseEntity<GlobalRes<Void>> saveGrades(
-            @LoginUserId Long professorId,
+            @AuthenticationPrincipal Claims claims,
             @PathVariable Long lectureId,
             @RequestBody GradeSaveReq req) {
+        Long professorId = Long.parseLong(claims.getSubject());
         professorGradeService.saveGrades(professorId, lectureId, req);
 
         return ResponseEntity.ok(
@@ -49,11 +53,28 @@ public class ProfessorGradeController {
         );
     }
 
+    @PatchMapping("/lectures/{lectureId}/correction")
+    public ResponseEntity<GlobalRes<Void>> correctGrades(
+            @AuthenticationPrincipal Claims claims,
+            @PathVariable Long lectureId,
+            @RequestBody GradeCorrectionReq req) {
+        Long professorId = Long.parseLong(claims.getSubject());
+        professorGradeService.correctGrades(professorId, lectureId, req);
+
+        return ResponseEntity.ok(
+                GlobalRes.<Void>builder()
+                        .code("00")
+                        .message("성적 정정이 완료되었습니다.")
+                        .build()
+        );
+    }
+
     @PatchMapping("/lectures/{lectureId}/status")
     public ResponseEntity<GlobalRes<Void>> updateGradesStatus(
-            @LoginUserId Long professorId,
+            @AuthenticationPrincipal Claims claims,
             @PathVariable Long lectureId,
             @RequestParam String status) {
+        Long professorId = Long.parseLong(claims.getSubject());
         professorGradeService.updateGradesStatus(professorId, lectureId, status);
 
         return ResponseEntity.ok(
@@ -66,8 +87,9 @@ public class ProfessorGradeController {
 
     @GetMapping("/lectures")
     public ResponseEntity<GlobalRes<List<ProfessorLectureRes>>> getLecures(
-            @LoginUserId Long professorId
+            @AuthenticationPrincipal Claims claims
     ) {
+        Long professorId = Long.parseLong(claims.getSubject());
         List<ProfessorLectureRes> data =
                 professorGradeService.getLecture(professorId);
 

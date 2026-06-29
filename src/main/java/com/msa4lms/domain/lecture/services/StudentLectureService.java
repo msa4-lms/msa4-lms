@@ -10,7 +10,7 @@ import com.msa4lms.domain.lecture.entities.Lecture;
 import com.msa4lms.domain.lecture.requests.ScheduleInput;
 import com.msa4lms.domain.lecture.responses.CollegeWithDepartmentsRes;
 import com.msa4lms.domain.lecture.responses.CourseRes;
-import com.msa4lms.domain.lecture.responses.FlatCollegeDeptDto;
+import com.msa4lms.domain.lecture.dto.CollegeDeptDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,17 +95,17 @@ public class StudentLectureService {
     }
 
     public List<CollegeWithDepartmentsRes> getCollegesWithDepartments() {
-        List<FlatCollegeDeptDto> flatDepts = lectureMapper.findFlatCollegesAndDepartments();
+        List<CollegeDeptDto> flatDepts = lectureMapper.findFlatCollegesAndDepartments();
 
         return flatDepts.stream()
                 .collect(Collectors.groupingBy(
-                        FlatCollegeDeptDto::collegeId,
+                        CollegeDeptDto::collegeId,
                         LinkedHashMap::new,
                         Collectors.toList()
                 ))
                 .values().stream()
                 .map(list -> {
-                    FlatCollegeDeptDto first = list.get(0);
+                    CollegeDeptDto first = list.get(0);
                     List<CollegeWithDepartmentsRes.DepartmentDetail> depts = list.stream()
                             .filter(dto -> dto.deptId() != null)
                             .map(dto -> new CollegeWithDepartmentsRes.DepartmentDetail(

@@ -1,6 +1,6 @@
 package com.msa4lms.domain.lecture.services;
 
-import com.msa4lms.domain.lecture.mapper.StudentLectureMapper;
+import com.msa4lms.domain.lecture.mapper.ProfessorLectureMapper;
 import com.msa4lms.domain.lecture.requests.LectureCreateReq;
 import com.msa4lms.domain.lecture.responses.LectureRes;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ProfessorLectureService {
 
-    private final StudentLectureMapper lectureMapper;
+    private final ProfessorLectureMapper lectureMapper;
 
     @Transactional
     public void createLecture(Long professorId, LectureCreateReq req) {

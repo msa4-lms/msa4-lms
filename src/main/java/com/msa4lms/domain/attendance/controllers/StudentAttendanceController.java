@@ -7,13 +7,14 @@ import com.msa4lms.domain.attendance.requests.ExcuseApplyReq;
 import com.msa4lms.domain.attendance.responses.ExcuseRequestRes;
 import com.msa4lms.domain.attendance.responses.ExcuseAttachmentFile;
 import com.msa4lms.domain.attendance.services.StudentAttendanceService;
-import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ContentDisposition;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +48,8 @@ public class StudentAttendanceController {
     }
 
     @GetMapping("/attendance")
-    public ResponseEntity<GlobalRes<List<AcademicAttendanceRes>>> getAttendance(@LoginUserId Long userId) {
+    public ResponseEntity<GlobalRes<List<AcademicAttendanceRes>>> getAttendance(@AuthenticationPrincipal Claims claims) {
+        Long userId = Long.parseLong(claims.getSubject());
         List<AcademicAttendanceRes> data = attendanceService.getAttendance(userId);
 
         return ResponseEntity.ok(
@@ -61,9 +63,10 @@ public class StudentAttendanceController {
 
     @GetMapping("/attendance-rates")
     public ResponseEntity<GlobalRes<List<AttendanceRateRes>>> getAttendanceRates(
-            @LoginUserId Long userId,
+            @AuthenticationPrincipal Claims claims,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer semester) {
+        Long userId = Long.parseLong(claims.getSubject());
         List<AttendanceRateRes> data = attendanceService.getAttendanceRates(userId, year, semester);
 
         return ResponseEntity.ok(
@@ -76,7 +79,8 @@ public class StudentAttendanceController {
     }
 
     @GetMapping("/excuses/my")
-    public ResponseEntity<GlobalRes<List<ExcuseRequestRes>>> getMyExcuseRequests(@LoginUserId Long userId) {
+    public ResponseEntity<GlobalRes<List<ExcuseRequestRes>>> getMyExcuseRequests(@AuthenticationPrincipal Claims claims) {
+        Long userId = Long.parseLong(claims.getSubject());
         List<ExcuseRequestRes> data = attendanceService.getMyExcuseRequests(userId);
 
         return ResponseEntity.ok(
@@ -90,8 +94,9 @@ public class StudentAttendanceController {
 
     @PostMapping(value = "/excuses", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GlobalRes<String>> requestExcuse(
-            @LoginUserId Long userId,
+            @AuthenticationPrincipal Claims claims,
             @Valid @RequestBody ExcuseApplyReq req) {
+        Long userId = Long.parseLong(claims.getSubject());
         attendanceService.requestExcuse(userId, req);
 
         return ResponseEntity.ok(
@@ -104,9 +109,10 @@ public class StudentAttendanceController {
 
     @PostMapping(value = "/excuses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GlobalRes<String>> requestExcuseWithAttachment(
-            @LoginUserId Long userId,
+            @AuthenticationPrincipal Claims claims,
             @Valid @ModelAttribute ExcuseApplyReq req,
             @RequestPart(name = "attachment", required = false) MultipartFile attachment) {
+        Long userId = Long.parseLong(claims.getSubject());
         attendanceService.requestExcuse(userId, req, attachment);
 
         return ResponseEntity.ok(
@@ -119,8 +125,9 @@ public class StudentAttendanceController {
 
     @GetMapping("/excuses/{requestId}/attachment")
     public ResponseEntity<Resource> getExcuseAttachment(
-            @LoginUserId Long studentId,
+            @AuthenticationPrincipal Claims claims,
             @PathVariable long requestId) {
+        Long studentId = Long.parseLong(claims.getSubject());
         ExcuseAttachmentFile file = attendanceService.getStudentExcuseAttachment(studentId, requestId);
         MediaType mediaType;
         try {

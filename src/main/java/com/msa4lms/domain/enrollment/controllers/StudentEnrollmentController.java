@@ -3,11 +3,12 @@ package com.msa4lms.domain.enrollment.controllers;
 import com.msa4lms.domain.enrollment.requests.EnrollmentCreateReq;
 import com.msa4lms.domain.enrollment.responses.EnrollmentRes;
 import com.msa4lms.domain.enrollment.services.StudentEnrollmentService;
-import com.msa4lms.global.annotations.LoginUserId;
 import com.msa4lms.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,10 +23,11 @@ public class StudentEnrollmentController {
      */
     @GetMapping("/enrollments/my")
     public ResponseEntity<GlobalRes<EnrollmentRes>> getMyEnrollments(
-            @LoginUserId Long userId,
+            @AuthenticationPrincipal Claims claims,
             @RequestParam(name = "year", defaultValue = "2026") int year,
             @RequestParam(name = "semester", defaultValue = "1") int semester) {
 
+        Long userId = Long.parseLong(claims.getSubject());
         EnrollmentRes result = enrollmentService.getMyEnrollments(userId, year, semester);
 
         return ResponseEntity.status(200).body(
@@ -42,9 +44,10 @@ public class StudentEnrollmentController {
      */
     @PostMapping("/enrollments")
     public ResponseEntity<GlobalRes<Void>> applyEnrollment(
-            @LoginUserId Long userId,
+            @AuthenticationPrincipal Claims claims,
             @RequestBody @Valid EnrollmentCreateReq req) {
-        
+
+        Long userId = Long.parseLong(claims.getSubject());
         enrollmentService.applyEnrollment(userId, req.lectureId());
         return ResponseEntity.status(200).body(
             GlobalRes.<Void>builder()
@@ -59,9 +62,10 @@ public class StudentEnrollmentController {
      */
     @DeleteMapping("/enrollments")
     public ResponseEntity<GlobalRes<Void>> cancelEnrollment(
-            @LoginUserId Long userId,
+            @AuthenticationPrincipal Claims claims,
             @RequestParam(name = "lectureId") Long lectureId) {
-        
+
+        Long userId = Long.parseLong(claims.getSubject());
         enrollmentService.cancelEnrollment(userId, lectureId);
         return ResponseEntity.status(200).body(
             GlobalRes.<Void>builder()

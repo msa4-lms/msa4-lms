@@ -1,56 +1,28 @@
 package com.msa4lms.domain.attendance.mapper;
 
 import com.msa4lms.domain.attendance.entities.Attendance;
+import com.msa4lms.domain.attendance.responses.AcademicAttendanceRes;
+import com.msa4lms.domain.attendance.responses.AttendanceRateRes;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;
+import com.msa4lms.domain.attendance.responses.ExcuseRequestRes;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDate;
 import java.util.List;
-import com.msa4lms.domain.attendance.responses.ExcuseRequestRes;
-import com.msa4lms.domain.attendance.responses.AttendanceRateRes;
-import com.msa4lms.domain.attendance.responses.AcademicAttendanceRes;
 
 @Mapper
 public interface StudentAttendanceMapper {
-    void insertAttendance(Attendance attendance);
-    void updateAttendance(Attendance attendance);
     List<AttendanceRes> findByEnrollmentId(@Param("enrollmentId") Long enrollmentId);
-    List<AttendanceRes> findByLectureIdAndDate(@Param("lectureId") Long lectureId, @Param("date") LocalDate date);
-    Attendance findById(@Param("id") Long id);
     List<AcademicAttendanceRes> findAttendanceByStudentId(@Param("studentId") long studentId);
-
-    List<AttendanceRateRes> findAttendanceRatesByStudentId(
-            @Param("studentId") long studentId,
-            @Param("year") Integer year,
-            @Param("semester") Integer semester);
-
-    int countOwnedEnrollment(
-            @Param("studentId") long studentId,
-            @Param("enrollmentId") long enrollmentId);
-
-    void insertExcuseRequest(
-            @Param("studentId") long studentId,
-            @Param("enrollmentId") long enrollmentId,
-            @Param("lectureDate") String lectureDate,
-            @Param("period") Integer period,
-            @Param("reason") String reason,
-            @Param("attachmentOriginalName") String attachmentOriginalName,
-            @Param("attachmentStoredName") String attachmentStoredName,
-            @Param("attachmentContentType") String attachmentContentType,
-            @Param("attachmentSize") Long attachmentSize);
-
+    List<AttendanceRateRes> findAttendanceRatesByStudentId(@Param("studentId") long studentId,
+                                                           @Param("year") Integer year,
+                                                           @Param("semester") Integer semester);
+    int countOwnedEnrollment(@Param("studentId") long studentId, @Param("enrollmentId") long enrollmentId);
+    void insertExcuseRequest(@Param("studentId") long studentId, @Param("enrollmentId") long enrollmentId,
+                             @Param("lectureDate") String lectureDate, @Param("period") Integer period,
+                             @Param("reason") String reason, @Param("attachmentOriginalName") String attachmentOriginalName,
+                             @Param("attachmentStoredName") String attachmentStoredName,
+                             @Param("attachmentContentType") String attachmentContentType,
+                             @Param("attachmentSize") Long attachmentSize);
     List<ExcuseRequestRes> findExcuseRequestsByStudentId(@Param("studentId") long studentId);
-
-    List<ExcuseRequestRes> findPendingExcuseRequestsByProfessorId(@Param("professorId") long professorId);
-
-    List<ExcuseRequestRes> findExcuseRequestsByProfessorId(@Param("professorId") long professorId);
-
-    int updateExcuseRequestStatus(
-            @Param("professorId") long professorId,
-            @Param("requestId") long requestId,
-            @Param("status") String status,
-            @Param("rejectReason") String rejectReason);
-
-    void applyApprovedExcuse(@Param("requestId") long requestId);
 }

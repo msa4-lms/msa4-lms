@@ -1,7 +1,9 @@
 package com.msa4lms.domain.grade.services;
 
 import com.msa4lms.domain.grade.mapper.ProfessorGradeMapper;
-import com.msa4lms.domain.grade.requests.GradeSaveDto;
+import com.msa4lms.domain.grade.dto.GradeCorrectionDto;
+import com.msa4lms.domain.grade.dto.GradeSaveDto;
+import com.msa4lms.domain.grade.requests.GradeCorrectionReq;
 import com.msa4lms.domain.grade.requests.GradeSaveReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
@@ -35,8 +37,33 @@ public class ProfessorGradeService {
             throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
         }
 
+        String currentStatus = professorGradeMapper.findGradeStatusByLectureId(lectureId);
+        if (currentStatus != null && !"DRAFT".equals(currentStatus)) {
+            throw new IllegalStateException("이미 제출된 성적은 성적 정정 절차를 이용해주세요.");
+        }
+
         for (GradeSaveDto dto : req.gradeList()) {
             calculateAndUpsertGrade(lectureId, dto);
+        }
+    }
+
+    @Transactional
+    public void correctGrades(Long professorId, Long lectureId, GradeCorrectionReq req) {
+        int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
+        if (count == 0) {
+            throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
+        }
+
+        String currentStatus = professorGradeMapper.findGradeStatusByLectureId(lectureId);
+        if (currentStatus == null || "DRAFT".equals(currentStatus)) {
+            throw new IllegalStateException("아직 제출되지 않은 성적입니다. 성적 입력을 이용해주세요.");
+        }
+        if ("FINAL".equals(currentStatus)) {
+            throw new IllegalStateException("최종 확정된 성적은 정정할 수 없습니다.");
+        }
+
+        for (GradeCorrectionDto dto : req.correctionList()) {
+            professorGradeMapper.correctGrade(dto);
         }
     }
 
