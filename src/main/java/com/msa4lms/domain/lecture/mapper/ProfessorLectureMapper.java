@@ -17,6 +17,14 @@ public interface ProfessorLectureMapper {
     void insertCourse(Course course);
     void insertLecture(Lecture lecture);
     void insertLectureSchedule(@Param("lectureId") Long lectureId, @Param("schedule") ScheduleInput schedule);
+    boolean hasProfessorScheduleConflict(@Param("professorId") Long professorId,
+                                         @Param("semesterId") Long semesterId,
+                                         @Param("dayOfWeek") String dayOfWeek,
+                                         @Param("startPeriod") Integer startPeriod,
+                                         @Param("endPeriod") Integer endPeriod);
+    boolean existsLectureSection(@Param("semesterId") Long semesterId,
+                                 @Param("courseId") Long courseId,
+                                 @Param("sectionNo") String sectionNo);
     List<LectureRes> findLecturesByProfessor(@Param("professorId") Long professorId);
     List<LectureRes> findLecturesByProfessorId(@Param("professorId") Long professorId,
                                                @Param("year") Integer year,

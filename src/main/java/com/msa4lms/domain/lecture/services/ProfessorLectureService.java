@@ -58,17 +58,48 @@ public class ProfessorLectureService {
         lecture.setAttendanceRatio(req.attendanceRatio());
         lecture.setSyllabus(req.syllabus());
 
-        lectureMapper.insertLecture(lecture);
+        // 분반 중복 사전 검증: 같은 학기 + 동일 과목 + 동일 분반은 개설 불가 (uk_lecture_section)
+        if (lectureMapper.existsLectureSection(currentSemesterId, courseId, req.sectionNo())) {
+            throw new com.msa4lms.global.errors.custom.DuplicatedRecordException(
+                String.format("이미 같은 학기에 동일 과목의 %s 분반이 개설되어 있습니다. 다른 분반 번호를 선택해주세요.", req.sectionNo()));
+        }
 
-        // 시간표 저장
+        // 시간표 사전 검증 (INSERT 전): 교시 유효성 + 본인 기존 강의와의 시간 충돌
         if (req.schedules() != null) {
             for (com.msa4lms.domain.lecture.requests.ScheduleInput schedule : req.schedules()) {
                 if (schedule.startPeriod() > schedule.endPeriod()) {
                     throw new IllegalArgumentException("시작 교시는 종료 교시보다 클 수 없습니다.");
                 }
+                if (lectureMapper.hasProfessorScheduleConflict(
+                        professorId, currentSemesterId,
+                        schedule.dayOfWeek(), schedule.startPeriod(), schedule.endPeriod())) {
+                    throw new com.msa4lms.global.errors.custom.LectureTimeConflictException(
+                        String.format("이미 같은 학기 %s %d~%d교시에 담당 중인 강의가 있어 시간표가 겹칩니다.",
+                            toKoreanDay(schedule.dayOfWeek()), schedule.startPeriod(), schedule.endPeriod()));
+                }
+            }
+        }
+
+        lectureMapper.insertLecture(lecture);
+
+        // 시간표 저장
+        if (req.schedules() != null) {
+            for (com.msa4lms.domain.lecture.requests.ScheduleInput schedule : req.schedules()) {
                 lectureMapper.insertLectureSchedule(lecture.getId(), schedule);
             }
         }
+    }
+
+    private String toKoreanDay(String dayOfWeek) {
+        if (dayOfWeek == null) return "";
+        return switch (dayOfWeek) {
+            case "MON" -> "월요일";
+            case "TUE" -> "화요일";
+            case "WED" -> "수요일";
+            case "THU" -> "목요일";
+            case "FRI" -> "금요일";
+            default -> dayOfWeek;
+        };
     }
 
     public List<LectureRes> getLecturesByProfessor(Long professorId) {

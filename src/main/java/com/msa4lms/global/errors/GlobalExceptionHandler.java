@@ -143,6 +143,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(LectureTimeConflictException.class)
+    public ResponseEntity<GlobalRes<String>> lectureTimeConflictHandle(LectureTimeConflictException e) {
+        return ResponseEntity.status(409).body(
+            GlobalRes.<String>builder()
+                .code("E14")
+                .message(e.getMessage())
+                .build()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GlobalRes<Map<String, String>>> methodArgumentNotValidHandle(MethodArgumentNotValidException e) {
         Map<String, String> errors = e.getBindingResult()
@@ -171,6 +181,17 @@ public class GlobalExceptionHandler {
                 .code("E22")
                 .message("잘못된 요청 파라미터입니다.")
                 .data(e.getMessage())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<GlobalRes<String>> illegalStateHandle(IllegalStateException e) {
+        log.warn("잘못된 상태 예외: {}", e.getMessage());
+        return ResponseEntity.status(409).body(
+            GlobalRes.<String>builder()
+                .code("E23")
+                .message(e.getMessage())
                 .build()
         );
     }
