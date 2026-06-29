@@ -126,6 +126,7 @@ public class AuthService {
                                 .gradeLevel(user.getGradeLevel())
                                 .createdAt(user.getCreatedAt())
                                 .endYear(user.getEndYear())
+                                .startYear(user.getStartYear())
                                 .build()
                 )
                 .build();

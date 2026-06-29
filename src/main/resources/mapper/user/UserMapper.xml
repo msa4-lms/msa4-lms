@@ -23,6 +23,7 @@
         <result column="updated_at" property="updatedAt"/>
         <result column="deleted_at" property="deletedAt"/>
         <result column="end_year" property="endYear"/>
+        <result column="start_year" property="startYear"/>
     </resultMap>
 
 
@@ -45,6 +46,7 @@
             s.grade_level,
             s.advisor_id,
             pu.name AS advisor_name,
+            COALESCE(s.admission_year, p.hire_year) AS start_year,
             CASE 
                 WHEN u.role = 'STUDENT' AND s.academic_status = 'GRADUATED' THEN (
                     SELECT MAX(sem.academic_year)
@@ -79,6 +81,7 @@
             s.grade_level,
             s.advisor_id,
             pu.name AS advisor_name,
+            COALESCE(s.admission_year, p.hire_year) AS start_year,
             CASE 
                 WHEN u.role = 'STUDENT' AND s.academic_status = 'GRADUATED' THEN (
                     SELECT MAX(sem.academic_year)
