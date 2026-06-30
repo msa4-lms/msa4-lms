@@ -131,12 +131,7 @@
                  JOIN users ON professors.user_id = users.id
                  JOIN semesters ON lectures.semester_id = semesters.id
         WHERE professors.user_id = #{professorId}
-          AND semesters.academic_year = YEAR(CURDATE())
-          AND semesters.term =
-              CASE
-                  WHEN MONTH(CURDATE()) BETWEEN 1 AND 6 THEN 'FIRST'
-                  ELSE 'SECOND'
-                  END
+          AND semesters.is_current = 1
         ORDER BY courses.name ASC
     </select>
 
