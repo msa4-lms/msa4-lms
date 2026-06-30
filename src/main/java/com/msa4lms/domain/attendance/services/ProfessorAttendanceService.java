@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.nio.file.Files;
@@ -49,6 +50,12 @@ public class ProfessorAttendanceService {
 
     @Transactional
     public void updateAttendance(Long id, String status, String remarks) {
+        // 허용된 출결 상태값만 사용 가능
+        Set<String> allowedStatuses = java.util.Set.of("PRESENT", "LATE", "ABSENT", "EXCUSED");
+        if (status == null || !allowedStatuses.contains(status)) {
+            throw new IllegalArgumentException("허용되지 않은 출결 상태값입니다. (허용: PRESENT, LATE, ABSENT, EXCUSED)");
+        }
+
         Attendance attendance = attendanceMapper.findById(id);
         if (attendance != null) {
             attendance.setStatus(status);

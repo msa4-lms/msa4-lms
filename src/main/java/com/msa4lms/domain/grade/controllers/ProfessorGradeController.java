@@ -10,6 +10,7 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class ProfessorGradeController {
     public ResponseEntity<GlobalRes<Void>> saveGrades(
             @AuthenticationPrincipal Claims claims,
             @PathVariable Long lectureId,
-            @RequestBody GradeSaveReq req) {
+            @Valid @RequestBody GradeSaveReq req) {
         Long professorId = Long.parseLong(claims.getSubject());
         professorGradeService.saveGrades(professorId, lectureId, req);
 
@@ -57,7 +58,7 @@ public class ProfessorGradeController {
     public ResponseEntity<GlobalRes<Void>> correctGrades(
             @AuthenticationPrincipal Claims claims,
             @PathVariable Long lectureId,
-            @RequestBody GradeCorrectionReq req) {
+            @Valid @RequestBody GradeCorrectionReq req) {
         Long professorId = Long.parseLong(claims.getSubject());
         professorGradeService.correctGrades(professorId, lectureId, req);
 
