@@ -45,7 +45,7 @@
             attendance_score = #{dto.attendanceScore},
             total_score = #{totalScore},
             letter_grade = #{letterGrade},
-            grade_status = IFNULL(grade_status, 'DRAFT')
+            grade_status = 'OPENED'
         WHERE id = #{dto.enrollmentId}
     </update>
 

@@ -40,7 +40,7 @@ public class ProfessorGradeService {
 
         String currentStatus = professorGradeMapper.findGradeStatusByLectureId(lectureId);
         if (currentStatus != null && !"DRAFT".equals(currentStatus)) {
-            throw new IllegalStateException("이미 제출된 성적은 성적 정정 절차를 이용해주세요.");
+            throw new IllegalStateException("이미 학생에게 공개된 성적입니다. 성적 정정 절차를 이용해주세요.");
         }
 
         for (GradeSaveItemReq dto : req.gradeList()) {
@@ -114,10 +114,10 @@ public class ProfessorGradeService {
             throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
         }
 
-        // 허용된 상태값만 사용 가능 (FINAL은 2차 구현 예정)
-        Set<String> allowedStatuses = Set.of("DRAFT", "OPENED");
+        // 허용된 상태값만 사용 가능 (OPENED: 임시저장 공개, FINAL: 최종 제출 확정)
+        Set<String> allowedStatuses = Set.of("OPENED", "FINAL");
         if (!allowedStatuses.contains(status)) {
-            throw new IllegalArgumentException("허용되지 않은 성적 상태값입니다. (허용: DRAFT, OPENED)");
+            throw new IllegalArgumentException("허용되지 않은 성적 상태값입니다. (허용: OPENED, FINAL)");
         }
 
         professorGradeMapper.updateGradesStatusByLectureId(lectureId, status);
