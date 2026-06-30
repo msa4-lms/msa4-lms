@@ -17,9 +17,6 @@ public record LectureCreateReq(
     Integer newCourseTargetGrade,
     String newCourseCompletionType,
 
-    @NotBlank(message = "분반 번호는 필수입니다.")
-    String sectionNo,
-
     @NotNull(message = "수강 정원은 필수입니다.")
     @Min(value = 1, message = "수강 정원은 최소 1명 이상이어야 합니다.")
     Integer capacity,

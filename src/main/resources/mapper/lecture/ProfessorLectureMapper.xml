@@ -83,14 +83,12 @@
         VALUES (#{lectureId}, #{schedule.dayOfWeek}, #{schedule.startPeriod}, #{schedule.endPeriod})
     </insert>
 
-    <!-- 같은 학기에 동일 과목+분반이 이미 개설되어 있는지 검사 (uk_lecture_section 사전 검증) -->
-    <select id="existsLectureSection" resultType="boolean">
-        SELECT EXISTS (
-            SELECT 1 FROM lectures
-            WHERE semester_id = #{semesterId}
-              AND course_id = #{courseId}
-              AND section_no = #{sectionNo}
-        )
+    <!-- 같은 학기+동일 과목의 다음 분반 번호를 자동 산출 (없으면 01, 있으면 최대값+1) -->
+    <select id="findNextSectionNo" resultType="string">
+        SELECT LPAD(COALESCE(MAX(CAST(section_no AS UNSIGNED)), 0) + 1, 2, '0')
+        FROM lectures
+        WHERE semester_id = #{semesterId}
+          AND course_id = #{courseId}
     </select>
 
     <!-- 해당 교수가 같은 학기에 이미 담당 중인 강의와 요일/교시가 겹치는지 검사 -->

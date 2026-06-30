@@ -49,7 +49,8 @@ public class ProfessorLectureService {
         lecture.setSemesterId(currentSemesterId);
         lecture.setCourseId(courseId);
         lecture.setProfessorId(professorId);
-        lecture.setSectionNo(req.sectionNo());
+        // 분반 번호 자동 부여: 같은 학기+동일 과목에 이미 개설된 분반이 있으면 다음 번호를 채번 (없으면 01)
+        lecture.setSectionNo(lectureMapper.findNextSectionNo(currentSemesterId, courseId));
         lecture.setCapacity(req.capacity());
         lecture.setClassroom(req.classroom());
         lecture.setMidtermRatio(req.midtermRatio());
@@ -57,12 +58,6 @@ public class ProfessorLectureService {
         lecture.setAssignmentRatio(req.assignmentRatio());
         lecture.setAttendanceRatio(req.attendanceRatio());
         lecture.setSyllabus(req.syllabus());
-
-        // 분반 중복 사전 검증: 같은 학기 + 동일 과목 + 동일 분반은 개설 불가 (uk_lecture_section)
-        if (lectureMapper.existsLectureSection(currentSemesterId, courseId, req.sectionNo())) {
-            throw new com.msa4lms.global.errors.custom.DuplicatedRecordException(
-                String.format("이미 같은 학기에 동일 과목의 %s 분반이 개설되어 있습니다. 다른 분반 번호를 선택해주세요.", req.sectionNo()));
-        }
 
         // 시간표 사전 검증 (INSERT 전): 교시 유효성 + 본인 기존 강의와의 시간 충돌
         if (req.schedules() != null) {

@@ -22,9 +22,8 @@ public interface ProfessorLectureMapper {
                                          @Param("dayOfWeek") String dayOfWeek,
                                          @Param("startPeriod") Integer startPeriod,
                                          @Param("endPeriod") Integer endPeriod);
-    boolean existsLectureSection(@Param("semesterId") Long semesterId,
-                                 @Param("courseId") Long courseId,
-                                 @Param("sectionNo") String sectionNo);
+    String findNextSectionNo(@Param("semesterId") Long semesterId,
+                             @Param("courseId") Long courseId);
     List<LectureRes> findLecturesByProfessor(@Param("professorId") Long professorId);
     List<LectureRes> findLecturesByProfessorId(@Param("professorId") Long professorId,
                                                @Param("year") Integer year,
