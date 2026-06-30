@@ -34,15 +34,18 @@ public class AuthService {
         // User 정보 획득
         User user = userMapper.findByLoginId(loginReq.loginId());
 
-        // User 가입 여부 확인
-        if(user == null) {
-            throw new NotRegisteredException("아이디와 비밀번호를 확인해주세요.");
-        }
 
         // 역할 제한
         if (!user.getRole().equals(expectedRole)) {
             throw new NotRegisteredException("로그인 유형이 일치하지 않습니다.");
         }
+
+        // User 가입 여부 확인
+        if(user == null) {
+            throw new NotRegisteredException("아이디와 비밀번호를 확인해주세요.");
+        }
+
+
 
         // 비밀번호 체크
         if(!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
