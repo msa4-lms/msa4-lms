@@ -72,7 +72,7 @@ public class AuthController {
     }
 
     // 비밀번호 변경
-    @PostMapping("/password")
+    @PatchMapping("/password")
     public ResponseEntity<GlobalRes<String>> changePassword(
             @AuthenticationPrincipal Claims claims,
             @Valid @RequestBody PasswordChangeReq req
