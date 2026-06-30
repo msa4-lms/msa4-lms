@@ -4,6 +4,7 @@ import com.msa4lms.domain.auth.requests.LoginReq;
 import com.msa4lms.domain.auth.requests.PasswordChangeReq;
 import com.msa4lms.domain.auth.responses.AuthRes;
 import com.msa4lms.domain.auth.services.AuthService;
+import com.msa4lms.domain.user.entities.Role;
 import com.msa4lms.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,18 +26,44 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<GlobalRes<AuthRes>> login(
-            @Valid @RequestBody LoginReq loginReq
-            , HttpServletResponse response
-    ){
-        AuthRes authRes = authService.login(response, loginReq);
-
-        return ResponseEntity.status(200).body(
+    @PostMapping("/student/login")
+    public ResponseEntity<GlobalRes<AuthRes>> studentLogin(
+            HttpServletResponse response,
+            @RequestBody LoginReq loginReq
+    ) {
+        return ResponseEntity.ok(
                 GlobalRes.<AuthRes>builder()
                         .code("00")
-                        .message("로그인 성공")
-                        .data(authRes)
+                        .message("학생 로그인 성공")
+                        .data(authService.login(response, loginReq, Role.STUDENT))
+                        .build()
+        );
+    }
+
+    @PostMapping("/professor/login")
+    public ResponseEntity<GlobalRes<AuthRes>> professorLogin(
+            HttpServletResponse response,
+            @RequestBody LoginReq loginReq
+    ) {
+        return ResponseEntity.ok(
+                GlobalRes.<AuthRes>builder()
+                        .code("00")
+                        .message("교수 로그인 성공")
+                        .data(authService.login(response, loginReq, Role.PROFESSOR))
+                        .build()
+        );
+    }
+
+    @PostMapping("/admin/login")
+    public ResponseEntity<GlobalRes<AuthRes>> adminLogin(
+            HttpServletResponse response,
+            @RequestBody LoginReq loginReq
+    ) {
+        return ResponseEntity.ok(
+                GlobalRes.<AuthRes>builder()
+                        .code("00")
+                        .message("관리자 로그인 성공")
+                        .data(authService.login(response, loginReq, Role.ADMIN))
                         .build()
         );
     }

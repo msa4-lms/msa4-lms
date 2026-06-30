@@ -15,9 +15,6 @@ public record LoginReq(
         @Pattern(regexp = "^[0-9a-zA-Z!@#$%^&*()]{8,20}$"
                 , message = "허용하지 않는 양식입니다."
         )
-        String password,
-
-        @NotBlank(message = "로그인 유형은 필수입니다.")
-        String role
+        String password
 ) {
 }

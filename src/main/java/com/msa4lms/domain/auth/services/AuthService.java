@@ -4,6 +4,7 @@ import com.msa4lms.domain.auth.mapper.AuthMapper;
 import com.msa4lms.domain.auth.requests.LoginReq;
 import com.msa4lms.domain.auth.requests.PasswordChangeReq;
 import com.msa4lms.domain.auth.responses.AuthRes;
+import com.msa4lms.domain.user.entities.Role;
 import com.msa4lms.domain.user.entities.User;
 import com.msa4lms.domain.user.mapper.UserMapper;
 import com.msa4lms.domain.user.responses.UserRes;
@@ -29,7 +30,7 @@ public class AuthService {
     private final JwtConfig jwtConfig;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthRes login(HttpServletResponse response, LoginReq loginReq){
+    public AuthRes login(HttpServletResponse response, LoginReq loginReq,  Role expectedRole){
         // User 정보 획득
         User user = userMapper.findByLoginId(loginReq.loginId());
 
@@ -39,7 +40,7 @@ public class AuthService {
         }
 
         // 역할 제한
-        if(!user.getRole().name().equals(loginReq.role())){
+        if (!user.getRole().equals(expectedRole)) {
             throw new NotRegisteredException("로그인 유형이 일치하지 않습니다.");
         }
 

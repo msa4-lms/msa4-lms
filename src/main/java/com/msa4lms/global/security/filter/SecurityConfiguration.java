@@ -88,7 +88,9 @@ public class SecurityConfiguration {
 
                     // 누구나 접근 가능
                     req.requestMatchers(
-                            "/api/auth/login",
+                            "/api/auth/student/login",
+                            "/api/auth/professor/login",
+                            "/api/auth/admin/login",
                             "/api/auth/reissue-token"
                     ).permitAll();
 
