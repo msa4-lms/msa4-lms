@@ -35,8 +35,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(401).body(
                 GlobalRes.<String>builder()
                         .code("E01")
-                        .message("로그인 에러")
-                        .data(e.getMessage())
+                        .message(e.getMessage())
                         .build()
         );
     }
