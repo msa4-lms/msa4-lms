@@ -5,7 +5,6 @@ import com.msa4lms.domain.lecture.requests.LectureSearchReq;
 import com.msa4lms.domain.lecture.responses.LecturePagedRes;
 import com.msa4lms.domain.lecture.responses.LectureRes;
 import com.msa4lms.domain.lecture.responses.CollegeWithDepartmentsRes;
-import com.msa4lms.domain.lecture.responses.CourseRes;
 import com.msa4lms.domain.lecture.responses.CollegeDeptRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,10 +32,6 @@ public class StudentLectureService {
         return new LecturePagedRes(lectures, totalCount, searchReq.page(), searchReq.size());
     }
 
-    public List<LectureRes> getLecturesByProfessor(Long professorId) {
-        return lectureMapper.findLecturesByProfessor(professorId);
-    }
-
     public List<CollegeWithDepartmentsRes> getCollegesWithDepartments() {
         List<CollegeDeptRes> flatDepts = lectureMapper.findFlatCollegesAndDepartments();
 
@@ -60,17 +55,5 @@ public class StudentLectureService {
                     );
                 })
                 .toList();
-    }
-
-    public List<LectureRes> getLecturesByProfessorId(Long professorId, Integer year, Integer semester) {
-        return lectureMapper.findLecturesByProfessorId(professorId, year, semester);
-    }
-
-    public List<LectureRes> getPastLecturesByProfessorId(Long professorId) {
-        return lectureMapper.findPastLecturesByProfessorId(professorId);
-    }
-
-    public List<CourseRes> getAvailableCoursesForProfessor(Long professorId) {
-        return lectureMapper.findAvailableCoursesForProfessor(professorId);
     }
 }

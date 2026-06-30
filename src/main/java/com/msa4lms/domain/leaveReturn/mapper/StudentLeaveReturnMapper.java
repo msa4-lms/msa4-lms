@@ -10,10 +10,5 @@ import java.util.List;
 public interface StudentLeaveReturnMapper {
     void insertRequest(@Param("userId") Long userId, @Param("req") LeaveReturnReq req, @Param("filePath") String filePath);
     List<LeaveReturnRes> findRequestsByUserId(@Param("userId") Long userId);
-    List<LeaveReturnRes> findAllPendingRequests();
-    void updateRequestStatus(@Param("id") Long id, @Param("status") String status, @Param("rejectReason") String rejectReason);
-    void updateStudentAcademicStatus(@Param("userId") Long userId, @Param("academicStatus") String academicStatus);
-    Long findUserIdByRequestId(@Param("id") Long id);
     String findAcademicStatusByUserId(@Param("userId") Long userId);
-    String findAttachmentPathByRequestId(@Param("id") Long id);
 }

@@ -39,62 +39,10 @@
         ORDER BY r.created_at DESC
     </select>
 
-    <select id="findAllPendingRequests" resultType="com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes">
-        SELECT 
-            r.id,
-            s.user_id AS userId,
-            u.name AS studentName,
-            u.login_id AS studentLoginId,
-            d.name AS departmentName,
-            r.request_type,
-            r.reason,
-            r.target_year,
-            r.target_semester,
-            r.return_year,
-            r.return_semester,
-            r.status,
-            r.reject_reason,
-            r.created_at,
-            r.attachment_file_path AS attachmentFilePath
-        FROM academic_requests r
-        JOIN students s ON r.student_id = s.id
-        JOIN users u ON s.user_id = u.id
-        JOIN departments d ON s.department_id = d.id
-        WHERE r.status = 'PENDING'
-        ORDER BY r.created_at ASC
-    </select>
-
-    <update id="updateRequestStatus">
-        UPDATE academic_requests
-        SET status = #{status},
-            reject_reason = #{rejectReason},
-            updated_at = NOW()
-        WHERE id = #{id}
-    </update>
-
-    <update id="updateStudentAcademicStatus">
-        UPDATE students
-        SET academic_status = #{academicStatus}
-        WHERE user_id = #{userId}
-    </update>
-
-    <select id="findUserIdByRequestId" resultType="Long">
-        SELECT s.user_id
-        FROM academic_requests r
-        JOIN students s ON r.student_id = s.id
-        WHERE r.id = #{id}
-    </select>
-
     <select id="findAcademicStatusByUserId" resultType="String">
         SELECT academic_status
         FROM students
         WHERE user_id = #{userId}
-    </select>
-
-    <select id="findAttachmentPathByRequestId" resultType="String">
-        SELECT attachment_file_path
-        FROM academic_requests
-        WHERE id = #{id}
     </select>
 
 </mapper>

@@ -83,6 +83,30 @@
         VALUES (#{lectureId}, #{schedule.dayOfWeek}, #{schedule.startPeriod}, #{schedule.endPeriod})
     </insert>
 
+    <!-- 같은 학기에 동일 과목+분반이 이미 개설되어 있는지 검사 (uk_lecture_section 사전 검증) -->
+    <select id="existsLectureSection" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM lectures
+            WHERE semester_id = #{semesterId}
+              AND course_id = #{courseId}
+              AND section_no = #{sectionNo}
+        )
+    </select>
+
+    <!-- 해당 교수가 같은 학기에 이미 담당 중인 강의와 요일/교시가 겹치는지 검사 -->
+    <select id="hasProfessorScheduleConflict" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM lecture_schedules ls
+            JOIN lectures l ON ls.lecture_id = l.id
+            WHERE l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+              AND l.semester_id = #{semesterId}
+              AND ls.day_of_week = #{dayOfWeek}
+              AND ls.start_period &lt;= #{endPeriod}
+              AND ls.end_period &gt;= #{startPeriod}
+        )
+    </select>
+
     <select id="findLecturesByProfessor" resultType="com.msa4lms.domain.lecture.responses.LectureRes">
         SELECT <include refid="lectureSelectFields" />
         FROM lectures

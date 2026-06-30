@@ -45,7 +45,7 @@
             attendance_score = #{dto.attendanceScore},
             total_score = #{totalScore},
             letter_grade = #{letterGrade},
-            grade_status = IFNULL(grade_status, 'DRAFT')
+            grade_status = 'OPENED'
         WHERE id = #{dto.enrollmentId}
     </update>
 
@@ -77,7 +77,12 @@
 
     <update id="correctGrade">
         UPDATE enrollments
-        SET letter_grade = #{dto.grade}
+        SET midterm_score = #{dto.midtermScore},
+            final_score = #{dto.finalScore},
+            assignment_score = #{dto.assignmentScore},
+            attendance_score = #{dto.attendanceScore},
+            total_score = #{totalScore},
+            letter_grade = #{letterGrade}
         WHERE id = #{dto.enrollmentId}
     </update>
 
@@ -125,7 +130,7 @@
                  JOIN professors ON lectures.professor_id = professors.id
                  JOIN users ON professors.user_id = users.id
                  JOIN semesters ON lectures.semester_id = semesters.id
-        WHERE professors.user_id = #{userId}
+        WHERE professors.user_id = #{professorId}
           AND semesters.academic_year = YEAR(CURDATE())
           AND semesters.term =
               CASE

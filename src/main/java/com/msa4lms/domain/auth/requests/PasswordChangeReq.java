@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record PasswordChangeReq(
-
-        @NotBlank(message = "현재 비밀번호 입력은 필수입니다.")
+        @NotBlank(message = "현재 비밀번호는 필수입니다.")
         String currentPassword,
 
         @NotBlank(message = "비밀번호는 필수항목 입니다.")
