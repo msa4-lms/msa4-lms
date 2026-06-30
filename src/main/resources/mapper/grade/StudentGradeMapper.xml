@@ -4,35 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.msa4lms.domain.grade.mapper.StudentGradeMapper">
 
-    <resultMap id="GradeResultMap" type="com.msa4lms.domain.grade.entities.Grade">
-        <id column="id" property="id"/>
-        <result column="enrollment_id" property="enrollmentId"/>
-        <result column="score" property="score"/>
-        <result column="letter_grade" property="letterGrade"/>
-        <result column="updated_at" property="updatedAt"/>
-        <result column="midterm_score" property="midtermScore"/>
-        <result column="final_score" property="finalScore"/>
-        <result column="assignment_score" property="assignmentScore"/>
-        <result column="attendance_score" property="attendanceScore"/>
-        <result column="status" property="status"/>
-
-        <result column="student_name" property="studentName"/>
-        <result column="student_login_id" property="studentLoginId"/>
-    </resultMap>
-
-    <resultMap id="SemesterGradeMap" type="com.msa4lms.domain.grade.responses.SemesterGradeRes">
-        <result column="id" property="id"/>
-        <result column="year" property="year"/>
-        <result column="semester" property="semester"/>
-        <result column="course_name" property="courseName"/>
-        <result column="course_code" property="courseCode"/>
-        <result column="credits" property="credits"/>
-        <result column="grade" property="grade"/>
-        <result column="grade_point" property="gradePoint"/>
-        <result column="status" property="status"/>
-        <result column="attendance_rate" property="attendanceRate"/>
-    </resultMap>
-
     <select id="findGradesByStudentId" resultType="com.msa4lms.domain.grade.responses.SemesterGradeRes">
         SELECT
             base.id,

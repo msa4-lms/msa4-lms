@@ -4,6 +4,8 @@ import com.msa4lms.domain.leaveReturn.mapper.StudentLeaveReturnMapper;
 import com.msa4lms.domain.leaveReturn.requests.LeaveReturnReq;
 import com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes;
 import com.msa4lms.global.errors.custom.DuplicatedRecordException;
+import com.msa4lms.global.errors.custom.FileManagedException;
+import com.msa4lms.global.errors.custom.InvalidFileTypeException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -95,11 +98,14 @@ public class StudentLeaveReturnService {
 
         String filePath = null;
         if (file != null && !file.isEmpty()) {
+            String contentType = file.getContentType();
+            if (contentType == null ||
+                !(contentType.startsWith("image/") || "application/pdf".equals(contentType))) {
+                throw new InvalidFileTypeException("이미지 또는 PDF 파일만 첨부할 수 있습니다.");
+            }
             try {
-                Path uploadPath = Paths.get(academicAttachmentPath);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
+                Path uploadPath = Paths.get(academicAttachmentPath).toAbsolutePath().normalize();
+                Files.createDirectories(uploadPath);
 
                 String originalFileName = file.getOriginalFilename();
                 String extension = "";
@@ -111,11 +117,12 @@ public class StudentLeaveReturnService {
                 String datePrefix = LocalDate.now().format(dateFormatter);
                 String fileName = datePrefix + "_" + UUID.randomUUID().toString() + extension;
 
-                Path destPath = uploadPath.resolve(fileName).toAbsolutePath();
-                file.transferTo(destPath.toFile());
+                Path destPath = uploadPath.resolve(fileName).normalize();
+                // transferTo는 톰캣 멀티파트 임시경로에 의존해 IOException이 잦으므로, 입력 스트림 복사 방식으로 저장 (공결 첨부와 동일 패턴)
+                Files.copy(file.getInputStream(), destPath, StandardCopyOption.REPLACE_EXISTING);
                 filePath = destPath.toString().replace("\\", "/");
             } catch (IOException e) {
-                throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+                throw new FileManagedException("파일 업로드에 실패했습니다.");
             }
         }
 

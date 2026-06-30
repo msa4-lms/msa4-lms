@@ -8,6 +8,8 @@ import com.msa4lms.domain.grade.requests.GradeSaveReq;
 import com.msa4lms.domain.grade.responses.GradeDetailRes;
 import com.msa4lms.domain.grade.responses.ProfessorLectureRes;
 import com.msa4lms.domain.lecture.entities.Lecture;
+import com.msa4lms.global.errors.custom.ForbiddenException;
+import com.msa4lms.global.errors.custom.RecordNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +28,7 @@ public class ProfessorGradeService {
         // 보안 검증: 이 강의가 이 교수의 강의인지 확인 필요.
         int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
         if (count == 0) {
-            throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
+            throw new ForbiddenException("해당 강의에 대한 권한이 없습니다.");
         }
         return professorGradeMapper.findGradesByLectureId(lectureId);
     }
@@ -35,7 +37,7 @@ public class ProfessorGradeService {
     public void saveGrades(Long professorId, Long lectureId, GradeSaveReq req) {
         int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
         if (count == 0) {
-            throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
+            throw new ForbiddenException("해당 강의에 대한 권한이 없습니다.");
         }
 
         String currentStatus = professorGradeMapper.findGradeStatusByLectureId(lectureId);
@@ -52,7 +54,7 @@ public class ProfessorGradeService {
     public void correctGrades(Long professorId, Long lectureId, GradeCorrectionReq req) {
         int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
         if (count == 0) {
-            throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
+            throw new ForbiddenException("해당 강의에 대한 권한이 없습니다.");
         }
 
         String currentStatus = professorGradeMapper.findGradeStatusByLectureId(lectureId);
@@ -71,7 +73,7 @@ public class ProfessorGradeService {
     private void calculateAndCorrectGrade(Long lectureId, GradeCorrectionItemReq dto) {
         Lecture lecture = professorGradeMapper.findLectureById(lectureId);
         if (lecture == null) {
-            throw new IllegalArgumentException("해당 강의를 찾을 수 없습니다.");
+            throw new RecordNotFoundException("해당 강의를 찾을 수 없습니다.");
         }
 
         int midtermRatio = lecture.getMidtermRatio() != null ? lecture.getMidtermRatio() : 30;
@@ -111,7 +113,7 @@ public class ProfessorGradeService {
     public void updateGradesStatus(Long professorId, Long lectureId, String status) {
         int count = professorGradeMapper.checkLectureOwnership(professorId, lectureId);
         if (count == 0) {
-            throw new IllegalArgumentException("해당 강의에 대한 권한이 없습니다.");
+            throw new ForbiddenException("해당 강의에 대한 권한이 없습니다.");
         }
 
         // 허용된 상태값만 사용 가능 (OPENED: 임시저장 공개, FINAL: 최종 제출 확정)
@@ -132,7 +134,7 @@ public class ProfessorGradeService {
     private void calculateAndUpsertGrade(Long lectureId, GradeSaveItemReq dto) {
         Lecture lecture = professorGradeMapper.findLectureById(lectureId);
         if (lecture == null) {
-            throw new IllegalArgumentException("해당 강의를 찾을 수 없습니다.");
+            throw new RecordNotFoundException("해당 강의를 찾을 수 없습니다.");
         }
 
         int midtermRatio = lecture.getMidtermRatio() != null ? lecture.getMidtermRatio() : 30;

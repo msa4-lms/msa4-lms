@@ -3,13 +3,21 @@ package com.msa4lms.global.errors;
 import com.msa4lms.global.errors.custom.*;
 import com.msa4lms.global.responses.GlobalRes;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -18,6 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @Value("${spring.servlet.multipart.max-file-size:10MB}")
+    private String maxFileSize;
 
     @ExceptionHandler(NotRegisteredException.class)
     public ResponseEntity<GlobalRes<String>> notRegisteredHandle(NotRegisteredException e) {
@@ -179,8 +190,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(
             GlobalRes.<String>builder()
                 .code("E22")
-                .message("잘못된 요청 파라미터입니다.")
-                .data(e.getMessage())
+                .message(e.getMessage() != null ? e.getMessage() : "잘못된 요청 파라미터입니다.")
                 .build()
         );
     }
@@ -204,6 +214,110 @@ public class GlobalExceptionHandler {
                 .code("E40")
                 .message("파일 처리 실패")
                 .data(e.getMessage())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(RecordNotFoundException.class)
+    public ResponseEntity<GlobalRes<String>> recordNotFoundHandle(RecordNotFoundException e) {
+        return ResponseEntity.status(404).body(
+            GlobalRes.<String>builder()
+                .code("E15")
+                .message(e.getMessage())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<GlobalRes<String>> forbiddenHandle(ForbiddenException e) {
+        return ResponseEntity.status(403).body(
+            GlobalRes.<String>builder()
+                .code("E16")
+                .message(e.getMessage())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<GlobalRes<String>> httpMessageNotReadableHandle(HttpMessageNotReadableException e) {
+        log.warn("요청 본문 해석 실패: {}", e.getMessage());
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E24")
+                .message("요청 본문을 해석할 수 없습니다. 형식을 확인해주세요.")
+                .build()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<GlobalRes<String>> typeMismatchHandle(MethodArgumentTypeMismatchException e) {
+        log.warn("파라미터 타입 불일치: {}", e.getMessage());
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E25")
+                .message("요청 파라미터 '" + e.getName() + "'의 형식이 올바르지 않습니다.")
+                .build()
+        );
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<GlobalRes<String>> missingPartHandle(MissingServletRequestPartException e) {
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E26")
+                .message("필수 요청 항목이 누락되었습니다: " + e.getRequestPartName())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<GlobalRes<String>> methodNotSupportedHandle(HttpRequestMethodNotSupportedException e) {
+        return ResponseEntity.status(405).body(
+            GlobalRes.<String>builder()
+                .code("E27")
+                .message("지원하지 않는 요청 방식입니다.")
+                .build()
+        );
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<GlobalRes<String>> mediaTypeNotSupportedHandle(HttpMediaTypeNotSupportedException e) {
+        return ResponseEntity.status(415).body(
+            GlobalRes.<String>builder()
+                .code("E28")
+                .message("지원하지 않는 미디어 타입입니다.")
+                .build()
+        );
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<GlobalRes<String>> maxUploadSizeHandle(MaxUploadSizeExceededException e) {
+        log.warn("첨부파일 용량 초과: {}", e.getMessage());
+        return ResponseEntity.status(413).body(
+            GlobalRes.<String>builder()
+                .code("E41")
+                .message("첨부파일 용량이 너무 큽니다. (최대 " + maxFileSize + ")")
+                .build()
+        );
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<GlobalRes<String>> invalidFileTypeHandle(InvalidFileTypeException e) {
+        return ResponseEntity.status(400).body(
+            GlobalRes.<String>builder()
+                .code("E42")
+                .message(e.getMessage())
+                .build()
+        );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<GlobalRes<String>> dataIntegrityHandle(DataIntegrityViolationException e) {
+        log.error("데이터 무결성 위반", e);
+        return ResponseEntity.status(409).body(
+            GlobalRes.<String>builder()
+                .code("E81")
+                .message("이미 존재하거나 제약 조건에 위배되는 데이터입니다.")
                 .build()
         );
     }

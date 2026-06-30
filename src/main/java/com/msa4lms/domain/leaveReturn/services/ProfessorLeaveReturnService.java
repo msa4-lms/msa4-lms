@@ -5,6 +5,7 @@ import com.msa4lms.domain.leaveReturn.requests.LeaveReturnProcessReq;
 import com.msa4lms.domain.leaveReturn.responses.LeaveAttachmentFile;
 import com.msa4lms.domain.leaveReturn.responses.LeaveReturnRes;
 import com.msa4lms.global.errors.custom.FileManagedException;
+import com.msa4lms.global.errors.custom.RecordNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
@@ -59,7 +60,7 @@ public class ProfessorLeaveReturnService {
     public void processRequest(Long requestId, LeaveReturnProcessReq req) {
         Long userId = mapper.findUserIdByRequestId(requestId);
         if (userId == null) {
-            throw new IllegalArgumentException("해당 신청 내역을 찾을 수 없습니다.");
+            throw new RecordNotFoundException("해당 신청 내역을 찾을 수 없습니다.");
         }
 
         if (!"APPROVED".equals(req.status()) && !"REJECTED".equals(req.status())) {
