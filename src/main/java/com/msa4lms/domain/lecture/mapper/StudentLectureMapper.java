@@ -1,0 +1,23 @@
+package com.msa4lms.domain.lecture.mapper;
+
+import com.msa4lms.domain.lecture.requests.LectureSearchReq;
+import com.msa4lms.domain.lecture.responses.LectureRes;
+import com.msa4lms.domain.lecture.responses.CollegeDeptRes;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import java.util.List;
+
+@Mapper
+public interface StudentLectureMapper {
+    List<LectureRes> findAllLectures();
+    
+    List<LectureRes> findLecturesBySearch(
+        @Param("searchReq") LectureSearchReq searchReq, 
+        @Param("offset") int offset, 
+        @Param("size") int size
+    );
+    
+    long countLecturesBySearch(@Param("searchReq") LectureSearchReq searchReq);
+
+    List<CollegeDeptRes> findFlatCollegesAndDepartments();
+}

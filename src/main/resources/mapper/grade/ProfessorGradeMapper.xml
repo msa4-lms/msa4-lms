@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.grade.mapper.ProfessorGradeMapper">
+
+    <select id="checkLectureOwnership" resultType="int">
+        SELECT COUNT(*)
+        FROM lectures
+        WHERE id = #{lectureId} AND professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+    </select>
+
+<!-- 강의(lectures) 테이블이 공통 users.id를 직접 참조하게 되면,
+논리적 오류로 인해 'student' 계정이 강의의 담당 교수로 배정되는 데이터 꼬임 현상이 발생할 위험이 있기에
+토큰에서 꺼낸 인증용 userId를 기반으로,
+제 비즈니스 도메인인 professors 테이블을 거쳐 검증된 교수 ID만 강의 테이블에 들어가도록 함(데이터 무결성과 도메인 분리)-->
+
+<!--자바 코드에서 파라미터 변수명을  professorId 로 넘겼지만, 토큰에서 꺼낸 값이기 때문에 실제 DB에선 user_id임 -->
+<!--  추후 팀원들과 직접 참조할지 한 테이블을 거칠지 토론 필요-->
+
+    <select id="findGradesByLectureId" resultType="com.msa4lms.domain.grade.responses.GradeDetailRes">
+        SELECT
+            e.id AS id,
+            e.id AS enrollmentId,
+            u.name AS studentName,
+            u.login_id AS studentLoginId,
+            e.midterm_score AS midtermScore,
+            e.final_score AS finalScore,
+            e.assignment_score AS assignmentScore,
+            e.attendance_score AS attendanceScore,
+            e.grade_status AS status,
+            e.letter_grade AS grade
+        FROM enrollments e
+        JOIN students s ON e.student_id = s.id
+        JOIN users u ON s.user_id = u.id
+        WHERE e.lecture_id = #{lectureId} AND e.status = 'ACTIVE'
+        ORDER BY u.name ASC
+    </select>
+
+    <update id="upsertGrade">
+        UPDATE enrollments
+        SET midterm_score = #{dto.midtermScore},
+            final_score = #{dto.finalScore},
+            assignment_score = #{dto.assignmentScore},
+            attendance_score = #{dto.attendanceScore},
+            total_score = #{totalScore},
+            letter_grade = #{letterGrade},
+            grade_status = 'OPENED'
+        WHERE id = #{dto.enrollmentId}
+    </update>
+
+    <update id="updateGradesStatusByLectureId">
+        UPDATE enrollments
+        SET grade_status = #{status}
+        WHERE lecture_id = #{lectureId}
+    </update>
+
+    <select id="findLectureById" resultType="com.msa4lms.domain.lecture.entities.Lecture">
+        SELECT id, semester_id, course_id, professor_id, section_no, capacity, classroom, status,
+               midterm_ratio, final_ratio, assignment_ratio, attendance_ratio, syllabus
+        FROM lectures
+        WHERE id = #{lectureId}
+    </select>
+
+    <select id="findLectureIdByGradeId" resultType="Long">
+        SELECT lecture_id
+        FROM enrollments
+        WHERE id = #{gradeId}
+    </select>
+
+    <select id="findGradeStatusByLectureId" resultType="String">
+        SELECT grade_status
+        FROM enrollments
+        WHERE lecture_id = #{lectureId} AND status = 'ACTIVE'
+        LIMIT 1
+    </select>
+
+    <update id="correctGrade">
+        UPDATE enrollments
+        SET midterm_score = #{dto.midtermScore},
+            final_score = #{dto.finalScore},
+            assignment_score = #{dto.assignmentScore},
+            attendance_score = #{dto.attendanceScore},
+            total_score = #{totalScore},
+            letter_grade = #{letterGrade}
+        WHERE id = #{dto.enrollmentId}
+    </update>
+
+
+
+
+
+    <select id="findLecturesByProfessor"
+            resultType="com.msa4lms.domain.grade.responses.ProfessorLectureRes">
+        SELECT
+            lectures.id AS lectureId,
+            courses.code AS courseCode,
+            departments.name AS departmentName,
+            courses.name AS courseName,
+            courses.credits AS credit,
+            courses.target_grade AS targetGrade,
+            users.name AS professorName,
+            lectures.classroom AS classroom,
+            (
+                SELECT GROUP_CONCAT(
+                               CONCAT(
+                                       CASE day_of_week
+                                           WHEN 'MON' THEN '월요일'
+                                           WHEN 'TUE' THEN '화요일'
+                                           WHEN 'WED' THEN '수요일'
+                                           WHEN 'THU' THEN '목요일'
+                                           WHEN 'FRI' THEN '금요일'
+                                           ELSE day_of_week
+                                           END,
+                                       ' ',
+                                       LPAD(start_period + 8, 2, '0'), ':00 ~ ',
+                                       LPAD(end_period + 8, 2, '0'), ':50'
+                               )
+                               SEPARATOR ', '
+                       )
+                FROM lecture_schedules
+                WHERE lecture_id = lectures.id
+            ) AS schedule,
+            semesters.academic_year AS academicYear,
+            semesters.term AS term,
+            lectures.capacity AS capacity
+        FROM lectures
+                 JOIN courses ON lectures.course_id = courses.id
+                 JOIN departments ON courses.department_id = departments.id
+                 JOIN professors ON lectures.professor_id = professors.id
+                 JOIN users ON professors.user_id = users.id
+                 JOIN semesters ON lectures.semester_id = semesters.id
+        WHERE professors.user_id = #{professorId}
+          AND semesters.is_current = 1
+        ORDER BY courses.name ASC
+    </select>
+
+
+
+</mapper>
