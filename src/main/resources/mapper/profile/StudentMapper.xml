@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.msa4lms.domain.profile.mapper.StudentMapper">
+    <select id="findProfileByUserId"
+            resultType="com.msa4lms.domain.profile.responses.StudentProfileRes">
+        SELECT
+            u.name AS name,
+            s.academic_status AS status,
+            d.name AS departmentName,
+            s.grade_level AS grade,
+            u.login_id AS studentNo,
+            u.email AS email,
+            u.phone_number AS phoneNum,
+            u.address AS address,
+            c.name AS collegeName,
+            au.name AS advisorName,
+            s.admission_year AS admissionYear,
+            COALESCE((
+                         SELECT SUM(sgs.total_credits)
+                         FROM student_grade_summaries sgs
+                         WHERE sgs.student_id = s.id
+                     ), 0) AS credits
+        FROM students s
+                 JOIN users u ON s.user_id = u.id
+                 JOIN departments d ON s.department_id = d.id
+                 JOIN colleges c ON d.college_id = c.id
+                 JOIN professors adv ON s.advisor_id = adv.id
+                 JOIN users au ON adv.user_id = au.id
+        WHERE s.user_id = #{userId}
+    </select>
+</mapper>

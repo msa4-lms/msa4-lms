@@ -1,0 +1,48 @@
+package com.msa4lms.domain.lecture.requests;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+
+public record LectureCreateReq(
+    Long courseId,
+
+    Boolean isNewCourse,
+    String newCourseName,
+    Integer newCourseCredits,
+    Integer newCourseTargetGrade,
+    String newCourseCompletionType,
+
+    @NotNull(message = "수강 정원은 필수입니다.")
+    @Min(value = 1, message = "수강 정원은 최소 1명 이상이어야 합니다.")
+    Integer capacity,
+
+    @NotBlank(message = "강의실은 필수입니다.")
+    String classroom,
+
+    @NotNull(message = "중간고사 성적 비율은 필수입니다.")
+    @Min(value = 0) @Max(value = 100)
+    Integer midtermRatio,
+
+    @NotNull(message = "기말고사 성적 비율은 필수입니다.")
+    @Min(value = 0) @Max(value = 100)
+    Integer finalRatio,
+
+    @NotNull(message = "과제 성적 비율은 필수입니다.")
+    @Min(value = 0) @Max(value = 100)
+    Integer assignmentRatio,
+
+    @NotNull(message = "출결 성적 비율은 필수입니다.")
+    @Min(value = 0) @Max(value = 100)
+    Integer attendanceRatio,
+
+    @NotBlank(message = "강의계획서는 필수입니다.")
+    String syllabus,
+
+    @NotEmpty(message = "강의 시간표를 최소 1개 이상 등록해 주세요.")
+    List<@Valid ScheduleInput> schedules
+) {}

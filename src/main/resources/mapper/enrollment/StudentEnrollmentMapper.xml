@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.enrollment.mapper.StudentEnrollmentMapper">
+
+    <!-- Record 사용 시에는 resultType과 map-underscore-to-camel-case 조합이 더 안정적입니다. -->
+
+    <!-- 특정 학생의 수강 내역을 조회하는 쿼리 -->
+    <select id="findMyEnrollments" resultType="com.msa4lms.domain.enrollment.responses.EnrollmentRes$EnrollmentDetail">
+        SELECT
+            enrollments.id,
+            enrollments.lecture_id,
+            courses.code AS course_code,
+            courses.name AS course_name,
+            users.name AS professor_name,
+            lectures.classroom,
+            (SELECT GROUP_CONCAT(
+                CONCAT(
+                    CASE day_of_week 
+                        WHEN 'MON' THEN '월요일' WHEN 'TUE' THEN '화요일' WHEN 'WED' THEN '수요일' 
+                        WHEN 'THU' THEN '목요일' WHEN 'FRI' THEN '금요일' ELSE day_of_week 
+                    END, 
+                    ' ',
+                    LPAD(start_period + 8, 2, '0'), ':00 ~ ',
+                    LPAD(end_period + 8, 2, '0'), ':50'
+                ) SEPARATOR ', '
+             ) FROM lecture_schedules WHERE lecture_id = lectures.id) AS schedule,
+            courses.credits,
+            enrollments.status,
+            enrollments.total_score,
+            enrollments.letter_grade
+        FROM enrollments
+        JOIN lectures ON enrollments.lecture_id = lectures.id
+        JOIN courses ON lectures.course_id = courses.id
+        JOIN professors ON lectures.professor_id = professors.id
+        JOIN users ON professors.user_id = users.id
+        JOIN semesters ON lectures.semester_id = semesters.id
+        WHERE enrollments.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+          AND semesters.academic_year = #{year}
+          AND semesters.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
+          AND enrollments.status = 'ACTIVE'
+        </select>
+
+        <!-- 이번 학기 신청한 총 학점을 계산하는 쿼리 -->
+        <select id="calculateTotalCredits" resultType="int">
+        SELECT IFNULL(SUM(courses.credits), 0)
+        FROM enrollments
+        JOIN lectures ON enrollments.lecture_id = lectures.id
+        JOIN courses ON lectures.course_id = courses.id
+        JOIN semesters ON lectures.semester_id = semesters.id
+        WHERE enrollments.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+          AND semesters.academic_year = #{year}
+          AND semesters.term = IF(#{semester} = 1, 'FIRST', 'SECOND')
+          AND enrollments.status = 'ACTIVE'
+        </select>
+
+        <!-- 수강 신청 정보 등록 -->
+        <insert id="insertEnrollment">
+        INSERT INTO enrollments (student_id, lecture_id, status, enrolled_at)
+        VALUES ((SELECT id FROM students WHERE user_id = #{studentId}), #{lectureId}, 'ACTIVE', CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE status = 'ACTIVE', enrolled_at = CURRENT_TIMESTAMP
+        </insert>
+
+    <!-- 수강 신청 정보 삭제 (소프트 딜리트) -->
+    <update id="deleteEnrollment">
+        UPDATE enrollments
+        SET status = 'DROPPED'
+        WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId}) AND lecture_id = #{lectureId}
+    </update>
+
+        <!-- 중복 신청 확인 (드롭된 수강은 제외) -->
+        <select id="existsEnrollment" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM enrollments
+            WHERE student_id = (SELECT id FROM students WHERE user_id = #{studentId}) 
+              AND lecture_id = #{lectureId}
+              AND status = 'ACTIVE'
+        )
+        </select>
+
+    <!-- 현재 수강 신청 인원 조회 -->
+    <select id="getCurrentEnrollmentCount" resultType="int">
+        SELECT COUNT(*) FROM enrollments
+        WHERE lecture_id = #{lectureId} AND status = 'ACTIVE'
+    </select>
+
+    <!-- 강의 수강 정원 조회 -->
+    <select id="getLectureCapacity" resultType="int">
+        SELECT capacity FROM lectures
+        WHERE id = #{lectureId}
+    </select>
+
+    <!-- 강의 수강 정원 조회 (비관적 락 적용) -->
+    <select id="getLectureCapacityWithLock" resultType="int">
+        SELECT capacity FROM lectures
+        WHERE id = #{lectureId}
+        FOR UPDATE
+    </select>
+
+    <!-- 특정 강의의 학점 조회 -->
+    <select id="getLectureCredits" resultType="int">
+        SELECT c.credits FROM lectures l
+        JOIN courses c ON l.course_id = c.id
+        WHERE l.id = #{lectureId}
+    </select>
+
+    <!-- 특정 학생의 (해당 강의가 속한 학기의) 현재 총 신청 학점 계산 -->
+    <select id="calculateTotalCreditsByLectureSemester" resultType="int">
+        SELECT IFNULL(SUM(c.credits), 0)
+        FROM enrollments e
+        JOIN lectures l ON e.lecture_id = l.id
+        JOIN courses c ON l.course_id = c.id
+        WHERE e.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+          AND l.semester_id = (SELECT semester_id FROM lectures WHERE id = #{lectureId})
+          AND e.status = 'ACTIVE'
+    </select>
+
+    <!-- 시간표 중복 여부 확인 -->
+    <select id="hasScheduleOverlap" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM lecture_schedules new_ls
+            JOIN lectures new_l ON new_ls.lecture_id = new_l.id
+            JOIN lecture_schedules existing_ls ON new_ls.day_of_week = existing_ls.day_of_week
+            JOIN lectures existing_l ON existing_ls.lecture_id = existing_l.id
+            JOIN enrollments e ON existing_l.id = e.lecture_id
+            WHERE new_l.id = #{lectureId}
+              AND e.student_id = (SELECT id FROM students WHERE user_id = #{studentId})
+              AND e.status = 'ACTIVE'
+              AND new_l.semester_id = existing_l.semester_id
+              AND new_ls.start_period &lt;= existing_ls.end_period
+              AND new_ls.end_period &gt;= existing_ls.start_period
+        )
+    </select>
+
+    <!-- 수강 신청 이력 저장 -->
+    <insert id="insertEnrollmentHistory">
+        INSERT INTO enrollment_histories (student_id, lecture_id, action, created_at)
+        VALUES ((SELECT id FROM students WHERE user_id = #{studentId}), #{lectureId}, #{action}, CURRENT_TIMESTAMP)
+    </insert>
+
+</mapper>

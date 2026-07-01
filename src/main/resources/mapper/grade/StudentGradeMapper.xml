@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msa4lms.domain.grade.mapper.StudentGradeMapper">
+
+    <select id="findGradesByStudentId" resultType="com.msa4lms.domain.grade.responses.SemesterGradeRes">
+        SELECT
+            base.id,
+            base.year,
+            base.semester,
+            base.course_name,
+            base.course_code,
+            base.credits,
+            CASE
+                WHEN base.attendance_rate &lt; 75 THEN 'F'
+                ELSE IFNULL(base.grade, '미입력')
+            END AS grade,
+            CASE
+                WHEN base.attendance_rate &lt; 75 THEN 0.0
+                ELSE IFNULL(base.grade_point, 0.0)
+            END AS grade_point,
+            base.status,
+            base.attendance_rate
+        FROM (
+            SELECT
+                e.id AS id,
+                s.academic_year AS year,
+                IF(s.term = 'FIRST', 1, 2) AS semester,
+                c.name AS course_name,
+                c.code AS course_code,
+                c.credits,
+                e.status AS status,
+                e.grade_status AS grade_status,
+                e.letter_grade AS grade,
+                CASE
+                    WHEN e.letter_grade = 'A+' THEN 4.5
+                    WHEN e.letter_grade = 'A' THEN 4.0
+                    WHEN e.letter_grade = 'B+' THEN 3.5
+                    WHEN e.letter_grade = 'B' THEN 3.0
+                    WHEN e.letter_grade = 'C+' THEN 2.5
+                    WHEN e.letter_grade = 'C' THEN 2.0
+                    WHEN e.letter_grade = 'D+' THEN 1.5
+                    WHEN e.letter_grade = 'D' THEN 1.0
+                    WHEN e.letter_grade = 'F' THEN 0.0
+                    ELSE 0.0
+                END AS grade_point,
+                CASE
+                    WHEN COUNT(a.id) = 0 THEN 100.0
+                    ELSE ROUND(SUM(CASE WHEN a.status IN ('PRESENT', 'EXCUSED') THEN 1 ELSE 0 END) / COUNT(a.id) * 100, 2)
+                END AS attendance_rate
+            FROM enrollments e
+            JOIN lectures l ON e.lecture_id = l.id
+            JOIN courses c ON l.course_id = c.id
+            JOIN semesters s ON l.semester_id = s.id
+            LEFT JOIN attendances a ON a.enrollment_id = e.id
+            JOIN students st ON e.student_id = st.id
+            WHERE st.user_id = #{studentId}
+            <if test="year != null">AND s.academic_year = #{year}</if>
+            <if test="semester != null">AND s.term = IF(#{semester} = 1, 'FIRST', 'SECOND')</if>
+            GROUP BY e.id, s.academic_year, s.term, c.name, c.code, c.credits, e.status, e.grade_status, e.letter_grade, e.total_score
+        ) base
+        ORDER BY base.year DESC, base.semester DESC
+    </select>
+
+</mapper>

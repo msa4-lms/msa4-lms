@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.msa4lms.domain.user.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="com.msa4lms.domain.user.entities.User">
+        <id column="id" property="id"/>
+        <result column="login_id" property="loginId"/>
+        <result column="name" property="name"/>
+        <result column="email" property="email"/>
+        <result column="phone_number" property="phoneNumber"/>
+        <result column="address" property="address"/>
+        <result column="password" property="password"/>
+        <result column="role" property="role"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="department_name" property="departmentName"/>
+        <result column="grade_level" property="gradeLevel"/>
+        <result column="advisor_id" property="advisorId"/>
+        <result column="advisor_name" property="advisorName"/>
+        <result column="refresh_token" property="refreshToken"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="end_year" property="endYear"/>
+        <result column="start_year" property="startYear"/>
+    </resultMap>
+
+
+    <update
+            id="updatePassword"
+        >
+        UPDATE users
+        SET password = #{password},
+            refresh_token = NULL,
+            updated_at = NOW()
+        WHERE id = #{id}
+            AND deleted_at IS NULL
+    </update>
+
+    <select id="findByLoginId" resultMap="UserResultMap">
+        SELECT
+            u.*,
+            COALESCE(s.department_id, p.department_id) AS department_id,
+            d.name AS department_name,
+            s.grade_level,
+            s.advisor_id,
+            pu.name AS advisor_name,
+            COALESCE(s.admission_year, p.hire_year) AS start_year,
+            CASE 
+                WHEN u.role = 'STUDENT' AND s.academic_status = 'GRADUATED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM enrollments e
+                    JOIN lectures l ON e.lecture_id = l.id
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE e.student_id = s.id
+                )
+                WHEN u.role = 'PROFESSOR' AND u.status = 'RETIRED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM lectures l
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE l.professor_id = p.id
+                )
+                ELSE NULL
+            END AS end_year
+        FROM users u
+        LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
+        LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
+        LEFT JOIN departments d ON COALESCE(s.department_id, p.department_id) = d.id
+        LEFT JOIN professors adv ON s.advisor_id = adv.id
+        LEFT JOIN users pu ON adv.user_id = pu.id
+        WHERE u.login_id = #{loginId}
+          AND u.deleted_at IS NULL
+    </select>
+
+    <select id="findByPk" resultMap="UserResultMap">
+        SELECT
+            u.*,
+            COALESCE(s.department_id, p.department_id) AS department_id,
+            d.name AS department_name,
+            s.grade_level,
+            s.advisor_id,
+            pu.name AS advisor_name,
+            COALESCE(s.admission_year, p.hire_year) AS start_year,
+            CASE 
+                WHEN u.role = 'STUDENT' AND s.academic_status = 'GRADUATED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM enrollments e
+                    JOIN lectures l ON e.lecture_id = l.id
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE e.student_id = s.id
+                )
+                WHEN u.role = 'PROFESSOR' AND u.status = 'RETIRED' THEN (
+                    SELECT MAX(sem.academic_year)
+                    FROM lectures l
+                    JOIN semesters sem ON l.semester_id = sem.id
+                    WHERE l.professor_id = p.id
+                )
+                ELSE NULL
+            END AS end_year
+        FROM users u
+        LEFT JOIN students s ON u.id = s.user_id AND u.role = 'STUDENT'
+        LEFT JOIN professors p ON u.id = p.user_id AND u.role = 'PROFESSOR'
+        LEFT JOIN departments d ON COALESCE(s.department_id, p.department_id) = d.id
+        LEFT JOIN professors adv ON s.advisor_id = adv.id
+        LEFT JOIN users pu ON adv.user_id = pu.id
+        WHERE u.id = #{id}
+          AND u.deleted_at IS NULL
+    </select>
+
+    <select id="findProfessorIdByUserId" resultType="long">
+        SELECT id FROM professors WHERE user_id = #{userId}
+    </select>
+
+    <select id="findStudentIdByUserId" resultType="long">
+        SELECT id FROM students WHERE user_id = #{userId}
+    </select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.msa4lms.domain.dashboard.mapper.DashboardMapper">
+
+    <select id="findScheduleByRole"
+            resultType="com.msa4lms.domain.dashboard.responses.AcademicScheduleRes">
+        SELECT
+            id,
+            title,
+            content,
+            start_date AS startDate,
+            end_date AS endDate,
+            target_role AS targetRole
+        FROM academic_schedules
+        WHERE target_role IN ('ALL', #{role})
+        ORDER BY start_date ASC
+    </select>
+
+    <select id="findNoticeByRole"
+            resultType="com.msa4lms.domain.dashboard.responses.NoticeRes">
+        SELECT
+            id,
+            title,
+            content,
+            target_role AS targetRole,
+            created_at AS createdAt
+        FROM notices
+        WHERE target_role IN ('ALL', #{role})
+        ORDER BY created_at DESC
+        LIMIT 5
+    </select>
+</mapper>
