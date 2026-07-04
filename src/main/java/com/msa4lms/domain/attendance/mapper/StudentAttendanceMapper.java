@@ -1,6 +1,5 @@
 package com.msa4lms.domain.attendance.mapper;
 
-import com.msa4lms.domain.attendance.entities.Attendance;
 import com.msa4lms.domain.attendance.responses.AcademicAttendanceRes;
 import com.msa4lms.domain.attendance.responses.AttendanceRateRes;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;

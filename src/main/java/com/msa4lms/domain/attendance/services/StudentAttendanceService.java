@@ -1,13 +1,11 @@
 package com.msa4lms.domain.attendance.services;
 
-import com.msa4lms.domain.attendance.entities.Attendance;
 import com.msa4lms.domain.attendance.mapper.StudentAttendanceMapper;
 import com.msa4lms.domain.attendance.responses.AttendanceRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.Set;
