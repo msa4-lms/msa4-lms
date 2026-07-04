@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface StudentAttendanceMapper {
@@ -18,6 +19,11 @@ public interface StudentAttendanceMapper {
                                                            @Param("year") Integer year,
                                                            @Param("semester") Integer semester);
     int countOwnedEnrollment(@Param("studentId") long studentId, @Param("enrollmentId") long enrollmentId);
+    int countExcuseByDateAndPeriod(@Param("enrollmentId") long enrollmentId,
+                                   @Param("lectureDate") String lectureDate,
+                                   @Param("period") Integer period);
+    Map<String, Object> findStudentExcuseAttachment(@Param("requestId") long requestId,
+                                                    @Param("studentId") long studentId);
     void insertExcuseRequest(@Param("studentId") long studentId, @Param("enrollmentId") long enrollmentId,
                              @Param("lectureDate") String lectureDate, @Param("period") Integer period,
                              @Param("reason") String reason, @Param("attachmentOriginalName") String attachmentOriginalName,

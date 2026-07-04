@@ -81,6 +81,27 @@
           AND st.user_id = #{studentId}
     </select>
 
+    <select id="countExcuseByDateAndPeriod" resultType="int">
+        SELECT COUNT(*)
+        FROM excuse_requests
+        WHERE enrollment_id = #{enrollmentId}
+          AND lecture_date = #{lectureDate}
+          AND period = #{period}
+    </select>
+
+    <select id="findStudentExcuseAttachment" resultType="map">
+        SELECT
+            e.attachment_original_name AS attachmentOriginalName,
+            e.attachment_stored_name AS attachmentStoredName,
+            e.attachment_content_type AS attachmentContentType
+        FROM excuse_requests e
+        JOIN enrollments en ON e.enrollment_id = en.id
+        JOIN students s ON en.student_id = s.id
+        WHERE e.id = #{requestId}
+          AND s.user_id = #{studentId}
+          AND e.attachment_stored_name IS NOT NULL
+    </select>
+
     <insert id="insertExcuseRequest">
         INSERT INTO excuse_requests (
             enrollment_id, lecture_date, period, reason, status,

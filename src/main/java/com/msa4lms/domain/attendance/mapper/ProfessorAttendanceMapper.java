@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ProfessorAttendanceMapper {
@@ -20,4 +21,6 @@ public interface ProfessorAttendanceMapper {
     int updateExcuseRequestStatus(@Param("professorId") long professorId, @Param("requestId") long requestId,
                                   @Param("status") String status, @Param("rejectReason") String rejectReason);
     void applyApprovedExcuse(@Param("requestId") long requestId);
+    Map<String, Object> findProfessorExcuseAttachment(@Param("requestId") long requestId,
+                                                      @Param("professorId") long professorId);
 }
