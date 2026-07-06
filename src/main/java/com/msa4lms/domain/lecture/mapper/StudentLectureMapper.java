@@ -10,13 +10,13 @@ import java.util.List;
 @Mapper
 public interface StudentLectureMapper {
     List<LectureRes> findAllLectures();
-    
+
     List<LectureRes> findLecturesBySearch(
-        @Param("searchReq") LectureSearchReq searchReq, 
-        @Param("offset") int offset, 
+        @Param("searchReq") LectureSearchReq searchReq,
+        @Param("offset") int offset,
         @Param("size") int size
     );
-    
+
     long countLecturesBySearch(@Param("searchReq") LectureSearchReq searchReq);
 
     List<CollegeDeptRes> findFlatCollegesAndDepartments();

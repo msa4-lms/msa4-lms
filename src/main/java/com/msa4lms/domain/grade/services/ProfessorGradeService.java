@@ -91,20 +91,9 @@ public class ProfessorGradeService {
                             (assignment * assignmentRatio / 100.0) +
                             (attendance * attendanceRatio / 100.0);
 
-        String letterGrade;
-        if (dto.grade() != null && !dto.grade().isBlank()) {
-            letterGrade = dto.grade();
-        } else {
-            letterGrade = "F";
-            if (totalScore >= 95) letterGrade = "A+";
-            else if (totalScore >= 90) letterGrade = "A";
-            else if (totalScore >= 85) letterGrade = "B+";
-            else if (totalScore >= 80) letterGrade = "B";
-            else if (totalScore >= 75) letterGrade = "C+";
-            else if (totalScore >= 70) letterGrade = "C";
-            else if (totalScore >= 65) letterGrade = "D+";
-            else if (totalScore >= 60) letterGrade = "D";
-        }
+        String letterGrade = (dto.grade() != null && !dto.grade().isBlank())
+                ? dto.grade()
+                : resolveLetterGrade(totalScore);
 
         professorGradeMapper.correctGrade(dto, totalScore, letterGrade);
     }
@@ -153,21 +142,23 @@ public class ProfessorGradeService {
                             (attendance * attendanceRatio / 100.0);
 
         // 프론트엔드에서 명시적으로 등급을 전달한 경우 해당 값을 우선 사용 (성적 정정 시 + 부여 등)
-        String letterGrade;
-        if (dto.grade() != null && !dto.grade().isBlank()) {
-            letterGrade = dto.grade();
-        } else {
-            letterGrade = "F";
-            if (totalScore >= 95) letterGrade = "A+";
-            else if (totalScore >= 90) letterGrade = "A";
-            else if (totalScore >= 85) letterGrade = "B+";
-            else if (totalScore >= 80) letterGrade = "B";
-            else if (totalScore >= 75) letterGrade = "C+";
-            else if (totalScore >= 70) letterGrade = "C";
-            else if (totalScore >= 65) letterGrade = "D+";
-            else if (totalScore >= 60) letterGrade = "D";
-        }
+        String letterGrade = (dto.grade() != null && !dto.grade().isBlank())
+                ? dto.grade()
+                : resolveLetterGrade(totalScore);
 
         professorGradeMapper.upsertGrade(dto, totalScore, letterGrade);
+    }
+
+    // 총점(0~100, double)을 문자 등급으로 변환. 임계값도 double로 명시해 비교 타입을 일치시킨다.
+    private String resolveLetterGrade(double totalScore) {
+        if (totalScore >= 95.0) return "A+";
+        if (totalScore >= 90.0) return "A";
+        if (totalScore >= 85.0) return "B+";
+        if (totalScore >= 80.0) return "B";
+        if (totalScore >= 75.0) return "C+";
+        if (totalScore >= 70.0) return "C";
+        if (totalScore >= 65.0) return "D+";
+        if (totalScore >= 60.0) return "D";
+        return "F";
     }
 }

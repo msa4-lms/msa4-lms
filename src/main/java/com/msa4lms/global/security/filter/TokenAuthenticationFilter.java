@@ -27,7 +27,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-        
+
         // 토큰 재발급 요청은 필터를 건너뜀 (만료된 액세스 토큰을 들고 오기 때문)
         if ("/api/auth/reissue-token".equals(path) || "/api/auth/login".equals(path)) {
             filterChain.doFilter(request, response);

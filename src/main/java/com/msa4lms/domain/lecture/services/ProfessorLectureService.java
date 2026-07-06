@@ -23,11 +23,11 @@ public class ProfessorLectureService {
         }
 
         Long courseId = req.courseId();
-        
+
         if (Boolean.TRUE.equals(req.isNewCourse())) {
             Long departmentId = lectureMapper.findDepartmentIdByProfessorId(professorId);
             String newCode = String.format("%05d", new java.util.Random().nextInt(90000) + 10000); // 10000~99999 랜덤 5자리
-            
+
             com.msa4lms.domain.lecture.entities.Course newCourse = com.msa4lms.domain.lecture.entities.Course.builder()
                 .code(newCode)
                 .name(req.newCourseName())
@@ -36,7 +36,7 @@ public class ProfessorLectureService {
                 .targetGrade(req.newCourseTargetGrade())
                 .completionType(req.newCourseCompletionType() != null ? req.newCourseCompletionType() : "GENERAL_ELECTIVE")
                 .build();
-                
+
             lectureMapper.insertCourse(newCourse);
             courseId = newCourse.getId();
         }
