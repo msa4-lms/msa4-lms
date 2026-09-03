@@ -120,4 +120,17 @@
             updated_at = NOW()
     </insert>
 
+    <select id="findProfessorExcuseAttachment" resultType="map">
+        SELECT
+            er.attachment_original_name AS attachmentOriginalName,
+            er.attachment_stored_name AS attachmentStoredName,
+            er.attachment_content_type AS attachmentContentType
+        FROM excuse_requests er
+        JOIN enrollments e ON er.enrollment_id = e.id
+        JOIN lectures l ON e.lecture_id = l.id
+        WHERE er.id = #{requestId}
+          AND l.professor_id = (SELECT id FROM professors WHERE user_id = #{professorId})
+          AND er.attachment_stored_name IS NOT NULL
+    </select>
+
 </mapper>

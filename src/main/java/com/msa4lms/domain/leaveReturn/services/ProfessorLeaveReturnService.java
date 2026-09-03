@@ -73,7 +73,7 @@ public class ProfessorLeaveReturnService {
             // 신청이 휴학인지 복학인지 알기 위해 신청 내역을 조회
             List<LeaveReturnRes> reqs = mapper.findRequestsByUserId(userId);
             LeaveReturnRes request = reqs.stream().filter(r -> r.id().equals(requestId)).findFirst().orElse(null);
-            
+
             if (request != null) {
                 String academicStatus = request.requestType().contains("LEAVE") ? "ON_LEAVE" : "ENROLLED";
                 mapper.updateStudentAcademicStatus(userId, academicStatus);

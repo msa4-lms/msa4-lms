@@ -22,11 +22,11 @@ public class StudentEnrollmentService {
      * 학생의 수강 내역 목록과 총 신청 학점 조회
      */
     public EnrollmentRes getMyEnrollments(Long userId, int year, int semester) {
-        List<EnrollmentRes.EnrollmentDetail> enrollments = 
+        List<EnrollmentRes.EnrollmentDetail> enrollments =
             enrollmentMapper.findMyEnrollments(userId, year, semester);
-        
+
         int totalCredits = enrollmentMapper.calculateTotalCredits(userId, year, semester);
-        
+
         return new EnrollmentRes(enrollments, totalCredits);
     }
 
@@ -47,7 +47,7 @@ public class StudentEnrollmentService {
         // 3. 최대 신청 가능 학점(18학점) 검증
         int lectureCredits = enrollmentMapper.getLectureCredits(lectureId);
         int currentTotalCredits = enrollmentMapper.calculateTotalCreditsByLectureSemester(userId, lectureId);
-        
+
         if (currentTotalCredits + lectureCredits > 18) {
             throw new CapacityExceededException("한 학기에 최대 18학점까지만 수강할 수 있습니다.");
         }
@@ -75,7 +75,7 @@ public class StudentEnrollmentService {
     @Transactional
     public void cancelEnrollment(Long userId, Long lectureId) {
         enrollmentMapper.deleteEnrollment(userId, lectureId);
-        
+
         // 취소 이력 기록
         enrollmentMapper.insertEnrollmentHistory(userId, lectureId, "CANCEL");
     }
